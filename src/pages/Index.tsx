@@ -123,7 +123,20 @@ const Index = () => {
           className="bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-lg"
           onClick={() => window.open('https://wa.me/5551999999999', '_blank')}
         >
-          <MessageCircle className="h-6 w-6" />
+          <svg
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+            stroke="currentColor"
+            strokeWidth="2"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-6 w-6"
+          >
+            <path d="M3 21l1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/>
+            <path d="m9 10a3 3 0 0 0 5 2l-2-2a3 3 0 0 0-3 0"/>
+          </svg>
         </Button>
       </div>
 
