@@ -48,7 +48,30 @@ const Index = () => {
       fbc: localStorage.getItem('_fbc') || '',
       ga_client_id: getCookie('_ga') || ''
     };
+    
     setTrackingData(trackingInfo);
+    
+    // Log para debug - mostrar dados capturados
+    console.log('🔍 Dados de tracking capturados:', trackingInfo);
+    console.log('📊 URL atual:', window.location.href);
+    console.log('🍪 Cookies disponíveis:', document.cookie);
+    
+    // Simular dados para teste se não houver parâmetros reais
+    if (!trackingInfo.utm_source && !trackingInfo.gclid) {
+      const simulatedData = {
+        utm_source: 'google',
+        utm_medium: 'cpc', 
+        utm_campaign: 'teste_multas_poa',
+        utm_term: 'multa+porto+alegre',
+        gclid: 'CjwKCAiA1-6PBhBKEiwA',
+        fbp: 'fb.1.1234567890.987654321',
+        fbc: 'fb.1.1234567890.AbCdEfGhIjKlMnOpQrStUvWxYz',
+        ga_client_id: 'GA1.2.1234567890.1234567890'
+      };
+      
+      console.log('🧪 Simulando dados de tracking para teste:', simulatedData);
+      setTrackingData(simulatedData);
+    }
   }, []);
 
   const getCookie = (name: string) => {
@@ -83,8 +106,16 @@ const Index = () => {
         documents: []
       };
       
+      // Log detalhado do lead sendo salvo
+      console.log('💾 Salvando novo lead:', newLead);
+      console.log('📈 Dados de tracking incluídos:', trackingData);
+      
       leads.push(newLead);
       localStorage.setItem('sos-leads', JSON.stringify(leads));
+
+      // Mostrar dados salvos no console
+      console.log('✅ Lead salvo com sucesso! Total de leads:', leads.length);
+      console.log('🗄️ Todos os leads no localStorage:', leads);
 
       toast.success("Dados enviados com sucesso! Redirecionando para WhatsApp...");
       
@@ -98,6 +129,7 @@ const Index = () => {
       setFormData({ name: "", email: "", phone: "", violationType: "" });
       
     } catch (error) {
+      console.error('❌ Erro ao salvar lead:', error);
       toast.error("Erro ao enviar dados. Tente novamente.");
     }
   };
@@ -126,8 +158,14 @@ const Index = () => {
         documents: []
       };
       
+      // Log do lead WhatsApp
+      console.log('📱 Salvando lead via WhatsApp:', newLead);
+      console.log('📊 Tracking data incluído:', trackingData);
+      
       leads.push(newLead);
       localStorage.setItem('sos-leads', JSON.stringify(leads));
+
+      console.log('✅ Lead WhatsApp salvo! Total:', leads.length);
 
       toast.success("Dados salvos! Redirecionando para WhatsApp...");
       
@@ -142,6 +180,7 @@ const Index = () => {
       setWhatsappFormData({ name: "", phone: "", violationType: "" });
       
     } catch (error) {
+      console.error('❌ Erro ao salvar lead WhatsApp:', error);
       toast.error("Erro ao enviar dados. Tente novamente.");
     }
   };
@@ -153,6 +192,19 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Painel de Debug (apenas para testes) */}
+      <div className="fixed top-20 left-4 bg-black/80 text-white p-4 rounded-lg text-xs z-40 max-w-sm">
+        <h4 className="font-bold text-yellow-400 mb-2">🧪 Debug - Tracking Data:</h4>
+        <div className="space-y-1">
+          <div><strong>UTM Source:</strong> {trackingData.utm_source || 'não detectado'}</div>
+          <div><strong>UTM Medium:</strong> {trackingData.utm_medium || 'não detectado'}</div>
+          <div><strong>UTM Campaign:</strong> {trackingData.utm_campaign || 'não detectado'}</div>
+          <div><strong>GCLID:</strong> {trackingData.gclid || 'não detectado'}</div>
+          <div><strong>Facebook Pixel:</strong> {trackingData.fbp || 'não detectado'}</div>
+        </div>
+        <p className="text-yellow-300 mt-2 text-xs">Abra o console (F12) para mais detalhes</p>
+      </div>
+
       {/* Header */}
       <header className="fixed top-0 w-full bg-white shadow-sm z-50 border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
