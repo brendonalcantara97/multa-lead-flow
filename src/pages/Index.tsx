@@ -208,9 +208,11 @@ const Index = () => {
       {/* Header */}
       <header className="fixed top-0 w-full bg-white shadow-sm z-50 border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="text-2xl font-bold text-black">
-            SOS <span className="text-orange-500">Multas</span>
-          </div>
+          <img 
+            src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" 
+            alt="SOS Multas - Assessoria de Trânsito" 
+            className="h-12"
+          />
           <nav className="hidden md:flex space-x-6">
             <a href="#sobre" className="text-gray-700 hover:text-orange-500 transition-colors">Sobre</a>
             <a href="#servicos" className="text-gray-700 hover:text-orange-500 transition-colors">Serviços</a>
