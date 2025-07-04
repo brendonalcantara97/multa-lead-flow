@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
-import { User, Phone, Mail, FileText, Calendar, DollarSign, LogOut, Plus, Eye } from "lucide-react";
+import { User, Phone, Mail, FileText, Calendar, DollarSign, LogOut, Plus, Eye, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 interface Lead {
   id: number;
@@ -21,6 +22,8 @@ interface Lead {
   createdAt: string;
   observations: string;
   amount: number;
+  conversionDate?: string;
+  paymentMethod?: string;
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
@@ -39,7 +42,8 @@ const CRM = () => {
     { id: 'Novo Lead', title: 'Novo Lead', color: 'bg-blue-100 border-blue-300' },
     { id: 'Em Análise', title: 'Em Análise', color: 'bg-yellow-100 border-yellow-300' },
     { id: 'Recurso Elaborado', title: 'Recurso Elaborado', color: 'bg-purple-100 border-purple-300' },
-    { id: 'Finalizado', title: 'Finalizado', color: 'bg-green-100 border-green-300' }
+    { id: 'Finalizado', title: 'Finalizado', color: 'bg-green-100 border-green-300' },
+    { id: 'Cliente', title: 'Cliente', color: 'bg-emerald-100 border-emerald-300' }
   ];
 
   useEffect(() => {
@@ -57,6 +61,33 @@ const CRM = () => {
   const handleLogout = () => {
     localStorage.removeItem('sos-auth');
     navigate('/login');
+  };
+
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const { source, destination, draggableId } = result;
+    
+    if (source.droppableId === destination.droppableId) return;
+
+    const leadId = parseInt(draggableId);
+    const newStatus = destination.droppableId;
+    
+    // Se movendo para Cliente, definir data de conversão
+    const updatedLeads = leads.map(lead => {
+      if (lead.id === leadId) {
+        const updatedLead = { ...lead, status: newStatus };
+        if (newStatus === 'Cliente' && !lead.conversionDate) {
+          updatedLead.conversionDate = new Date().toISOString();
+        }
+        return updatedLead;
+      }
+      return lead;
+    });
+    
+    setLeads(updatedLeads);
+    localStorage.setItem('sos-leads', JSON.stringify(updatedLeads));
+    toast.success(`Lead movido para ${newStatus}!`);
   };
 
   const updateLeadStatus = (leadId: number, newStatus: string) => {
@@ -191,6 +222,10 @@ const CRM = () => {
             <span className="text-sm text-gray-600">
               Total de Leads: {leads.length}
             </span>
+            <Button variant="outline" size="sm" onClick={() => navigate('/dashboard')}>
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Dashboard
+            </Button>
             <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />
               Sair
@@ -201,7 +236,7 @@ const CRM = () => {
 
       {/* Dashboard Stats */}
       <div className="p-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           {columns.map(column => (
             <Card key={column.id}>
               <CardContent className="p-4 text-center">
@@ -215,31 +250,52 @@ const CRM = () => {
         </div>
 
         {/* Kanban Board */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {columns.map(column => (
-            <div key={column.id} className={`${column.color} rounded-lg border-2 border-dashed`}>
-              <div className="p-4 bg-white rounded-t-lg">
-                <h2 className="font-semibold text-lg mb-2">{column.title}</h2>
-                <div className="text-sm text-gray-600">
-                  {getLeadsByStatus(column.id).length} leads
-                </div>
-              </div>
-              
-              <div className="p-4 max-h-96 overflow-y-auto">
-                {getLeadsByStatus(column.id).map(lead => (
-                  <LeadCard key={lead.id} lead={lead} />
-                ))}
-                
-                {getLeadsByStatus(column.id).length === 0 && (
-                  <div className="text-center text-gray-400 py-8">
-                    <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p>Nenhum lead nesta etapa</p>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            {columns.map(column => (
+              <div key={column.id} className={`${column.color} rounded-lg border-2 border-dashed`}>
+                <div className="p-4 bg-white rounded-t-lg">
+                  <h2 className="font-semibold text-lg mb-2">{column.title}</h2>
+                  <div className="text-sm text-gray-600">
+                    {getLeadsByStatus(column.id).length} leads
                   </div>
-                )}
+                </div>
+                
+                <Droppable droppableId={column.id}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className="p-4 max-h-96 overflow-y-auto min-h-[100px]"
+                    >
+                      {getLeadsByStatus(column.id).map((lead, index) => (
+                        <Draggable key={lead.id} draggableId={lead.id.toString()} index={index}>
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              <LeadCard lead={lead} />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                      
+                      {getLeadsByStatus(column.id).length === 0 && (
+                        <div className="text-center text-gray-400 py-8">
+                          <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          <p>Nenhum lead nesta etapa</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Droppable>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </DragDropContext>
       </div>
 
       {/* Edit Lead Modal */}
@@ -293,6 +349,41 @@ const CRM = () => {
                   />
                 </div>
               </div>
+
+              {/* Campos específicos para Cliente */}
+              {selectedLead.status === 'Cliente' && (
+                <div className="border-t pt-4">
+                  <h3 className="font-medium mb-4 text-emerald-600">Informações de Cliente</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium">Data de Conversão</label>
+                      <Input
+                        type="date"
+                        value={selectedLead.conversionDate ? new Date(selectedLead.conversionDate).toISOString().split('T')[0] : ''}
+                        onChange={(e) => setSelectedLead({...selectedLead, conversionDate: e.target.value ? new Date(e.target.value).toISOString() : undefined})}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Método de Pagamento</label>
+                      <Select 
+                        value={selectedLead.paymentMethod || ''} 
+                        onValueChange={(value) => setSelectedLead({...selectedLead, paymentMethod: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pix">PIX</SelectItem>
+                          <SelectItem value="cartao">Cartão</SelectItem>
+                          <SelectItem value="boleto">Boleto</SelectItem>
+                          <SelectItem value="dinheiro">Dinheiro</SelectItem>
+                          <SelectItem value="transferencia">Transferência</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              )}
               
               <div>
                 <label className="text-sm font-medium">Status</label>
