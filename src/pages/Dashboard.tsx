@@ -11,12 +11,9 @@ import {
   DollarSign, 
   Target, 
   Calendar,
-  FileText,
-  Eye
+  FileText
 } from "lucide-react";
 import { 
-  LineChart, 
-  Line, 
   BarChart, 
   Bar, 
   XAxis, 
@@ -25,6 +22,7 @@ import {
   Tooltip, 
   ResponsiveContainer 
 } from "recharts";
+import { ConversionsChart } from "@/components/ConversionsChart";
 
 interface Lead {
   id: number;
@@ -151,29 +149,6 @@ const Dashboard = () => {
     return monthsData;
   };
 
-  // Dados para gráfico de conversões por dia (últimos 30 dias)
-  const getConversionsByDay = () => {
-    const daysData = [];
-    const { start } = getDateRange(30);
-    
-    for (let i = 0; i < 30; i++) {
-      const date = new Date(start);
-      date.setDate(start.getDate() + i);
-      
-      const dayConversions = leads.filter(lead => {
-        if (!lead.conversionDate || lead.status !== 'Cliente') return false;
-        const convDate = new Date(lead.conversionDate);
-        return convDate.toDateString() === date.toDateString();
-      });
-      
-      daysData.push({
-        day: date.getDate(),
-        conversions: dayConversions.length
-      });
-    }
-    
-    return daysData;
-  };
 
   const currentMetrics = getCurrentMonthMetrics();
   const previousMetrics = getPreviousMonthMetrics();
@@ -318,27 +293,7 @@ const Dashboard = () => {
           </Card>
 
           {/* Conversões por Dia */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Conversões por Dia (Últimos 30 dias)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={getConversionsByDay()}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="day" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="conversions" 
-                    stroke="#10b981" 
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <ConversionsChart leads={leads} />
         </div>
 
         {/* Indicadores Auxiliares */}
