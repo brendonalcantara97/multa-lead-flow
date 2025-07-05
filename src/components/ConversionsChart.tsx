@@ -46,6 +46,7 @@ interface ChartData {
   day: string;
   date: string;
   conversions: number;
+  leads: number;
   fullDate: Date;
 }
 
@@ -96,11 +97,17 @@ export const ConversionsChart = ({ leads }: ConversionsChartProps) => {
         const convDate = new Date(lead.conversionDate);
         return convDate.toDateString() === date.toDateString();
       });
+
+      const dayLeads = leads.filter(lead => {
+        const leadDate = new Date(lead.createdAt);
+        return leadDate.toDateString() === date.toDateString();
+      });
       
       data.push({
         day: date.getDate().toString(),
         date: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
         conversions: dayConversions.length,
+        leads: dayLeads.length,
         fullDate: date
       });
     }
@@ -109,7 +116,9 @@ export const ConversionsChart = ({ leads }: ConversionsChartProps) => {
   }, [leads, period, customStartDate, customEndDate]);
 
   const totalConversions = chartData.reduce((sum, item) => sum + item.conversions, 0);
+  const totalLeads = chartData.reduce((sum, item) => sum + item.leads, 0);
   const averageConversions = totalConversions / chartData.length;
+  const averageLeads = totalLeads / chartData.length;
   const maxConversions = Math.max(...chartData.map(item => item.conversions));
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -122,6 +131,9 @@ export const ConversionsChart = ({ leads }: ConversionsChartProps) => {
             day: '2-digit', 
             month: 'long' 
           })}</p>
+          <p className="text-blue-600 font-semibold">
+            {data.leads} lead{data.leads !== 1 ? 's' : ''}
+          </p>
           <p className="text-green-600 font-semibold">
             {data.conversions} conversão{data.conversions !== 1 ? 'ões' : ''}
           </p>
@@ -154,7 +166,7 @@ export const ConversionsChart = ({ leads }: ConversionsChartProps) => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-green-600" />
-            Conversões por Dia
+            Leads x Conversões por Dia
           </CardTitle>
           
           <div className="flex flex-col sm:flex-row gap-2">
@@ -192,10 +204,10 @@ export const ConversionsChart = ({ leads }: ConversionsChartProps) => {
         <div className="flex flex-wrap gap-4 text-sm text-gray-600">
           <div className="flex items-center gap-1">
             <Calendar className="h-4 w-4" />
-            <span>Total: {totalConversions} conversões</span>
+            <span>Leads: {totalLeads} | Conversões: {totalConversions}</span>
           </div>
-          <div>Média: {averageConversions.toFixed(1)} por dia</div>
-          {maxConversions > 0 && <div>Pico: {maxConversions} conversões</div>}
+          <div>Média leads: {averageLeads.toFixed(1)} | Conversões: {averageConversions.toFixed(1)} por dia</div>
+          {maxConversions > 0 && <div>Pico conversões: {maxConversions}</div>}
         </div>
       </CardHeader>
       
@@ -226,6 +238,15 @@ export const ConversionsChart = ({ leads }: ConversionsChartProps) => {
               />
               <Tooltip content={<CustomTooltip />} />
               
+              <Line 
+                type="monotone" 
+                dataKey="leads" 
+                stroke="#3b82f6" 
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4, stroke: '#1d4ed8', strokeWidth: 2, fill: '#3b82f6' }}
+                connectNulls={false}
+              />
               <Line 
                 type="monotone" 
                 dataKey="conversions" 
