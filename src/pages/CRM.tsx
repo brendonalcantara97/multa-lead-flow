@@ -1,50 +1,22 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
-import { User, Phone, Mail, FileText, Calendar, DollarSign, LogOut, Plus, Eye, BarChart3 } from "lucide-react";
+import { BarChart3, LogOut, FileText, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-
-interface Lead {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  violationType: string;
-  status: string;
-  createdAt: string;
-  observations: string;
-  amount: number;
-  conversionDate?: string;
-  paymentMethod?: string;
-  utm_source?: string;
-  utm_medium?: string;
-  utm_campaign?: string;
-  gclid?: string;
-  fbp?: string;
-  documents: string[];
-}
+import { Lead, CRM_COLUMNS } from "@/types/lead";
+import { LeadCard } from "@/components/LeadCard";
+import { LeadModal } from "@/components/LeadModal";
 
 const CRM = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [filterType, setFilterType] = useState<string>('all');
   const navigate = useNavigate();
 
-  const columns = [
-    { id: 'Novo Lead', title: 'Novo Lead', color: 'bg-blue-100 border-blue-300' },
-    { id: 'Em Análise', title: 'Em Análise', color: 'bg-yellow-100 border-yellow-300' },
-    { id: 'Recurso Elaborado', title: 'Recurso Elaborado', color: 'bg-purple-100 border-purple-300' },
-    { id: 'Finalizado', title: 'Finalizado', color: 'bg-green-100 border-green-300' },
-    { id: 'Cliente', title: 'Cliente', color: 'bg-emerald-100 border-emerald-300' }
-  ];
 
   useEffect(() => {
     // Verificar autenticação
@@ -73,13 +45,15 @@ const CRM = () => {
     const leadId = parseInt(draggableId);
     const newStatus = destination.droppableId;
     
-    // Se movendo para Cliente, definir data de conversão
     const updatedLeads = leads.map(lead => {
       if (lead.id === leadId) {
         const updatedLead = { ...lead, status: newStatus };
+        
+        // Se movendo para Cliente, definir data de conversão
         if (newStatus === 'Cliente' && !lead.conversionDate) {
           updatedLead.conversionDate = new Date().toISOString();
         }
+        
         return updatedLead;
       }
       return lead;
@@ -91,9 +65,20 @@ const CRM = () => {
   };
 
   const updateLeadStatus = (leadId: number, newStatus: string) => {
-    const updatedLeads = leads.map(lead => 
-      lead.id === leadId ? { ...lead, status: newStatus } : lead
-    );
+    const updatedLeads = leads.map(lead => {
+      if (lead.id === leadId) {
+        const updatedLead = { ...lead, status: newStatus };
+        
+        // Se movendo para Cliente, definir data de conversão
+        if (newStatus === 'Cliente' && !lead.conversionDate) {
+          updatedLead.conversionDate = new Date().toISOString();
+        }
+        
+        return updatedLead;
+      }
+      return lead;
+    });
+    
     setLeads(updatedLeads);
     localStorage.setItem('sos-leads', JSON.stringify(updatedLeads));
     toast.success("Status atualizado com sucesso!");
@@ -110,123 +95,40 @@ const CRM = () => {
   };
 
   const getLeadsByStatus = (status: string) => {
-    return leads.filter(lead => lead.status === status);
+    let filteredLeads = leads.filter(lead => lead.status === status);
+    
+    if (filterType !== 'all') {
+      filteredLeads = filteredLeads.filter(lead => lead.violationType === filterType);
+    }
+    
+    return filteredLeads;
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
+  const handleViewDetails = (lead: Lead) => {
+    setSelectedLead(lead);
+    setIsEditModalOpen(true);
   };
-
-  const getViolationTypeLabel = (type: string) => {
-    const types: { [key: string]: string } = {
-      'excesso-velocidade': 'Excesso de Velocidade',
-      'avanco-sinal': 'Avanço de Sinal',
-      'bafometro': 'Bafômetro',
-      'suspensao': 'Suspensão',
-      'cassacao': 'Cassação',
-      'multas': 'Multas Gerais',
-      'outras': 'Outras'
-    };
-    return types[type] || type;
-  };
-
-  const LeadCard = ({ lead }: { lead: Lead }) => (
-    <Card className="mb-4 cursor-pointer hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-sm truncate">{lead.name}</h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setSelectedLead(lead);
-              setIsEditModalOpen(true);
-            }}
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-        </div>
-        
-        <div className="space-y-1 text-xs text-gray-600">
-          <div className="flex items-center gap-1">
-            <Phone className="h-3 w-3" />
-            <span className="truncate">{lead.phone}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Mail className="h-3 w-3" />
-            <span className="truncate">{lead.email}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <FileText className="h-3 w-3" />
-            <span className="truncate">{getViolationTypeLabel(lead.violationType)}</span>
-          </div>
-          {lead.amount > 0 && (
-            <div className="flex items-center gap-1">
-              <DollarSign className="h-3 w-3" />
-              <span className="font-semibold text-green-600">{formatCurrency(lead.amount)}</span>
-            </div>
-          )}
-        </div>
-        
-        <div className="mt-2 flex flex-wrap gap-1">
-          {lead.utm_source && (
-            <Badge variant="outline" className="text-xs">
-              {lead.utm_source}
-            </Badge>
-          )}
-          {lead.gclid && (
-            <Badge variant="outline" className="text-xs bg-blue-50">
-              Google Ads
-            </Badge>
-          )}
-          {lead.fbp && (
-            <Badge variant="outline" className="text-xs bg-blue-50">
-              Meta Ads
-            </Badge>
-          )}
-        </div>
-        
-        <div className="mt-3 flex justify-between items-center">
-          <span className="text-xs text-gray-500">
-            {new Date(lead.createdAt).toLocaleDateString('pt-BR')}
-          </span>
-          <Select onValueChange={(value) => updateLeadStatus(lead.id, value)}>
-            <SelectTrigger className="w-auto h-6 text-xs">
-              <SelectValue placeholder="Mover" />
-            </SelectTrigger>
-            <SelectContent>
-              {columns.map(col => (
-                <SelectItem key={col.id} value={col.id} disabled={col.id === lead.status}>
-                  {col.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Header Modernizado */}
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200 p-4 sticky top-0 z-10">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">
-            SOS <span className="text-orange-500">Multas</span> - CRM
-          </h1>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">
-              Total de Leads: {leads.length}
-            </span>
-            <Button variant="outline" size="sm" onClick={() => navigate('/dashboard')}>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
+              SOS Multas - CRM
+            </h1>
+            <div className="hidden md:flex items-center gap-2 text-sm text-gray-600 bg-white/60 rounded-full px-3 py-1">
+              <span className="font-medium">Total:</span>
+              <span className="font-bold text-orange-600">{leads.length} leads</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={() => navigate('/dashboard')} className="hover:bg-blue-50">
               <BarChart3 className="h-4 w-4 mr-2" />
               Dashboard
             </Button>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
+            <Button variant="outline" size="sm" onClick={handleLogout} className="hover:bg-red-50">
               <LogOut className="h-4 w-4 mr-2" />
               Sair
             </Button>
@@ -234,49 +136,70 @@ const CRM = () => {
         </div>
       </header>
 
-      {/* Dashboard Stats */}
+      {/* Estatísticas do Funil */}
       <div className="p-6">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-          {columns.map(column => (
-            <Card key={column.id}>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-orange-500">
-                  {getLeadsByStatus(column.id).length}
-                </div>
-                <div className="text-sm text-gray-600">{column.title}</div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          {CRM_COLUMNS.map(column => {
+            const count = getLeadsByStatus(column.id).length;
+            const percentage = leads.length > 0 ? (count / leads.length * 100).toFixed(1) : '0';
+            
+            return (
+              <Card key={column.id} className="group hover:shadow-lg transition-all duration-200 border-0 bg-white/60 backdrop-blur-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className={`w-3 h-3 rounded-full ${column.color.includes('blue') ? 'bg-blue-500' : 
+                                     column.color.includes('orange') ? 'bg-orange-500' : 
+                                     column.color.includes('green') ? 'bg-green-500' : 'bg-gray-500'}`} />
+                    <span className="text-xs text-gray-500">{percentage}%</span>
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900 mb-1">{count}</div>
+                  <div className="text-sm text-gray-600">{column.title}</div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
-        {/* Kanban Board */}
+        {/* Kanban Board Modernizado */}
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            {columns.map(column => (
-              <div key={column.id} className={`${column.color} rounded-lg border-2 border-dashed`}>
-                <div className="p-4 bg-white rounded-t-lg">
-                  <h2 className="font-semibold text-lg mb-2">{column.title}</h2>
-                  <div className="text-sm text-gray-600">
-                    {getLeadsByStatus(column.id).length} leads
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {CRM_COLUMNS.map(column => (
+              <div key={column.id} className="bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className={`${column.color} p-4 border-b border-gray-200`}>
+                  <div className="flex items-center justify-between">
+                    <h2 className={`font-semibold text-lg ${column.textColor}`}>
+                      {column.title}
+                    </h2>
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium bg-white/80 ${column.textColor}`}>
+                      {getLeadsByStatus(column.id).length}
+                    </div>
                   </div>
                 </div>
                 
                 <Droppable droppableId={column.id}>
-                  {(provided) => (
+                  {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className="p-4 max-h-96 overflow-y-auto min-h-[100px]"
+                      className={`p-4 max-h-[600px] overflow-y-auto min-h-[200px] ${
+                        snapshot.isDraggingOver ? 'bg-blue-50/50' : ''
+                      } transition-colors duration-200`}
                     >
                       {getLeadsByStatus(column.id).map((lead, index) => (
                         <Draggable key={lead.id} draggableId={lead.id.toString()} index={index}>
-                          {(provided) => (
+                          {(provided, snapshot) => (
                             <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
+                              className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform duration-200`}
                             >
-                              <LeadCard lead={lead} />
+                              <LeadCard 
+                                lead={lead} 
+                                onViewDetails={handleViewDetails}
+                                onStatusChange={updateLeadStatus}
+                                columns={CRM_COLUMNS}
+                              />
                             </div>
                           )}
                         </Draggable>
@@ -284,9 +207,12 @@ const CRM = () => {
                       {provided.placeholder}
                       
                       {getLeadsByStatus(column.id).length === 0 && (
-                        <div className="text-center text-gray-400 py-8">
-                          <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                          <p>Nenhum lead nesta etapa</p>
+                        <div className="text-center text-gray-400 py-12">
+                          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                            <FileText className="h-8 w-8 opacity-50" />
+                          </div>
+                          <p className="text-sm">Nenhum lead nesta etapa</p>
+                          <p className="text-xs text-gray-300 mt-1">Arraste leads aqui</p>
                         </div>
                       )}
                     </div>
@@ -298,160 +224,14 @@ const CRM = () => {
         </DragDropContext>
       </div>
 
-      {/* Edit Lead Modal */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Detalhes do Lead</DialogTitle>
-          </DialogHeader>
-          
-          {selectedLead && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">Nome</label>
-                  <Input
-                    value={selectedLead.name}
-                    onChange={(e) => setSelectedLead({...selectedLead, name: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Telefone</label>
-                  <Input
-                    value={selectedLead.phone}
-                    onChange={(e) => setSelectedLead({...selectedLead, phone: e.target.value})}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium">E-mail</label>
-                <Input
-                  value={selectedLead.email}
-                  onChange={(e) => setSelectedLead({...selectedLead, email: e.target.value})}
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">Tipo de Multa</label>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {getViolationTypeLabel(selectedLead.violationType)}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Valor Cobrado</label>
-                  <Input
-                    type="number"
-                    value={selectedLead.amount || 0}
-                    onChange={(e) => setSelectedLead({...selectedLead, amount: Number(e.target.value)})}
-                    placeholder="0,00"
-                  />
-                </div>
-              </div>
-
-              {/* Campos específicos para Cliente */}
-              {selectedLead.status === 'Cliente' && (
-                <div className="border-t pt-4">
-                  <h3 className="font-medium mb-4 text-emerald-600">Informações de Cliente</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium">Data de Conversão</label>
-                      <Input
-                        type="date"
-                        value={selectedLead.conversionDate ? new Date(selectedLead.conversionDate).toISOString().split('T')[0] : ''}
-                        onChange={(e) => setSelectedLead({...selectedLead, conversionDate: e.target.value ? new Date(e.target.value).toISOString() : undefined})}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Método de Pagamento</label>
-                      <Select 
-                        value={selectedLead.paymentMethod || ''} 
-                        onValueChange={(value) => setSelectedLead({...selectedLead, paymentMethod: value})}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pix">PIX</SelectItem>
-                          <SelectItem value="cartao">Cartão</SelectItem>
-                          <SelectItem value="boleto">Boleto</SelectItem>
-                          <SelectItem value="dinheiro">Dinheiro</SelectItem>
-                          <SelectItem value="transferencia">Transferência</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              <div>
-                <label className="text-sm font-medium">Status</label>
-                <Select 
-                  value={selectedLead.status} 
-                  onValueChange={(value) => setSelectedLead({...selectedLead, status: value})}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {columns.map(col => (
-                      <SelectItem key={col.id} value={col.id}>
-                        {col.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium">Observações Internas</label>
-                <Textarea
-                  value={selectedLead.observations}
-                  onChange={(e) => setSelectedLead({...selectedLead, observations: e.target.value})}
-                  placeholder="Adicione observações sobre este lead..."
-                  rows={3}
-                />
-              </div>
-              
-              {/* Dados de Tracking */}
-              <div className="border-t pt-4">
-                <h3 className="font-medium mb-2">Dados de Origem</h3>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  {selectedLead.utm_source && (
-                    <div><strong>Fonte:</strong> {selectedLead.utm_source}</div>
-                  )}
-                  {selectedLead.utm_medium && (
-                    <div><strong>Mídia:</strong> {selectedLead.utm_medium}</div>
-                  )}
-                  {selectedLead.utm_campaign && (
-                    <div><strong>Campanha:</strong> {selectedLead.utm_campaign}</div>
-                  )}
-                  {selectedLead.gclid && (
-                    <div><strong>Google Ads:</strong> Sim</div>
-                  )}
-                  {selectedLead.fbp && (
-                    <div><strong>Meta Ads:</strong> Sim</div>
-                  )}
-                  <div><strong>Data:</strong> {new Date(selectedLead.createdAt).toLocaleString('pt-BR')}</div>
-                </div>
-              </div>
-              
-              <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button 
-                  className="bg-orange-500 hover:bg-orange-600"
-                  onClick={() => updateLead(selectedLead)}
-                >
-                  Salvar Alterações
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Modal de Detalhes Modernizado */}
+      <LeadModal 
+        lead={selectedLead}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={updateLead}
+        columns={CRM_COLUMNS}
+      />
     </div>
   );
 };
