@@ -18,6 +18,7 @@ const Index = () => {
 
   const [whatsappFormData, setWhatsappFormData] = useState({
     name: "",
+    email: "",
     phone: "",
     violationType: ""
   });
@@ -137,8 +138,8 @@ const Index = () => {
   const handleWhatsappSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!whatsappFormData.name || !whatsappFormData.phone) {
-      toast.error("Por favor, preencha nome e telefone");
+    if (!whatsappFormData.name || !whatsappFormData.email || !whatsappFormData.phone) {
+      toast.error("Por favor, preencha todos os campos obrigatórios");
       return;
     }
 
@@ -148,7 +149,7 @@ const Index = () => {
       const newLead = {
         id: Date.now(),
         name: whatsappFormData.name,
-        email: '',
+        email: whatsappFormData.email,
         phone: whatsappFormData.phone,
         violationType: whatsappFormData.violationType || 'Não informado',
         ...trackingData,
@@ -172,12 +173,12 @@ const Index = () => {
       // Fechar dialog e redirecionar
       setIsWhatsappDialogOpen(false);
       setTimeout(() => {
-        const message = encodeURIComponent(`Olá! Sou ${whatsappFormData.name} e gostaria de receber ajuda com minha multa${whatsappFormData.violationType ? ` de ${whatsappFormData.violationType}` : ''}.`);
+        const message = encodeURIComponent(`Olá! Meu nome é ${whatsappFormData.name}, meu telefone é ${whatsappFormData.phone}. Tenho uma dúvida sobre uma multa${whatsappFormData.violationType ? ` por ${whatsappFormData.violationType}` : ''}. Poderiam me ajudar?`);
         window.open(`https://wa.me/5551999999999?text=${message}`, '_blank');
       }, 1000);
 
       // Limpar formulário
-      setWhatsappFormData({ name: "", phone: "", violationType: "" });
+      setWhatsappFormData({ name: "", email: "", phone: "", violationType: "" });
       
     } catch (error) {
       console.error('❌ Erro ao salvar lead WhatsApp:', error);
@@ -239,58 +240,107 @@ const Index = () => {
               </svg>
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-center text-green-600">
-                Fale conosco no WhatsApp
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleWhatsappSubmit} className="space-y-4">
-              <div>
-                <Input
-                  type="text"
-                  placeholder="Seu nome *"
-                  value={whatsappFormData.name}
-                  onChange={(e) => setWhatsappFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full"
-                  required
+          <DialogContent className="sm:max-w-md p-0 bg-white rounded-lg overflow-hidden">
+            {/* Header com logo e status */}
+            <div className="bg-green-500 p-4 text-white">
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" 
+                  alt="SOS Multas" 
+                  className="h-12 w-12 rounded-full bg-white p-1"
                 />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg">SOS Multas – Porto Alegre</h3>
+                  <div className="flex items-center gap-2 text-green-100">
+                    <div className="w-2 h-2 bg-green-300 rounded-full"></div>
+                    <span className="text-sm">Online</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Conteúdo do modal */}
+            <div className="p-6">
+              {/* Mensagem de boas-vindas */}
+              <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  Olá, seja bem-vindo à SOS Multas! 👋<br />
+                  Está precisando de ajuda com multas, suspensão ou cassação da CNH?<br />
+                  Preencha os dados abaixo para iniciarmos a sua análise gratuita.
+                </p>
               </div>
               
-              <div>
-                <Input
-                  type="tel"
-                  placeholder="Seu WhatsApp *"
-                  value={whatsappFormData.phone}
-                  onChange={(e) => setWhatsappFormData(prev => ({ ...prev, phone: e.target.value }))}
-                  className="w-full"
-                  required
-                />
-              </div>
-              
-              <div>
-                <Select value={whatsappFormData.violationType} onValueChange={(value) => setWhatsappFormData(prev => ({ ...prev, violationType: value }))}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Tipo de multa (opcional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="excesso-velocidade">Excesso de Velocidade</SelectItem>
-                    <SelectItem value="avanco-sinal">Avanço de Sinal</SelectItem>
-                    <SelectItem value="bafometro">Bafômetro</SelectItem>
-                    <SelectItem value="suspensao">Suspensão</SelectItem>
-                    <SelectItem value="cassacao">Cassação</SelectItem>
-                    <SelectItem value="outras">Outras</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <Button 
-                type="submit"
-                className="w-full bg-green-500 hover:bg-green-600 text-white"
-              >
-                Enviar para WhatsApp
-              </Button>
-            </form>
+              {/* Formulário */}
+              <form onSubmit={handleWhatsappSubmit} className="space-y-4">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-gray-400">👤</span>
+                  </div>
+                  <Input
+                    type="text"
+                    placeholder="Seu nome *"
+                    value={whatsappFormData.name}
+                    onChange={(e) => setWhatsappFormData(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full pl-10 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500"
+                    required
+                  />
+                </div>
+                
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-gray-400">📧</span>
+                  </div>
+                  <Input
+                    type="email"
+                    placeholder="Seu e-mail *"
+                    value={whatsappFormData.email}
+                    onChange={(e) => setWhatsappFormData(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full pl-10 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500"
+                    required
+                  />
+                </div>
+                
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-gray-400">☎️</span>
+                  </div>
+                  <Input
+                    type="tel"
+                    placeholder="Seu WhatsApp *"
+                    value={whatsappFormData.phone}
+                    onChange={(e) => setWhatsappFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    className="w-full pl-10 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500"
+                    required
+                  />
+                </div>
+                
+                <div className="relative">
+                  <div className="absolute top-3 left-3 pointer-events-none z-10">
+                    <span className="text-gray-400">🚗</span>
+                  </div>
+                  <Select value={whatsappFormData.violationType} onValueChange={(value) => setWhatsappFormData(prev => ({ ...prev, violationType: value }))}>
+                    <SelectTrigger className="w-full pl-10 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500">
+                      <SelectValue placeholder="Tipo de multa *" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Excesso de Velocidade">Excesso de Velocidade</SelectItem>
+                      <SelectItem value="Sinal Vermelho">Sinal Vermelho</SelectItem>
+                      <SelectItem value="Bafômetro">Bafômetro</SelectItem>
+                      <SelectItem value="Suspensão da CNH">Suspensão da CNH</SelectItem>
+                      <SelectItem value="Cassação da CNH">Cassação da CNH</SelectItem>
+                      <SelectItem value="Outra">Outra</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <Button 
+                  type="submit"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold mt-6 transition-colors"
+                >
+                  Iniciar Conversa
+                </Button>
+              </form>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
