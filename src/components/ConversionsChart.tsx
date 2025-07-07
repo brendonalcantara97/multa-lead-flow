@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,9 @@ interface Lead {
 
 interface ConversionsChartProps {
   leads: Lead[];
+  globalPeriod?: string;
+  customStartDate?: string;
+  customEndDate?: string;
 }
 
 type PeriodType = '7' | '30' | '90' | 'custom';
@@ -50,10 +53,28 @@ interface ChartData {
   fullDate: Date;
 }
 
-export const ConversionsChart = ({ leads }: ConversionsChartProps) => {
-  const [period, setPeriod] = useState<PeriodType>('30');
-  const [customStartDate, setCustomStartDate] = useState('');
-  const [customEndDate, setCustomEndDate] = useState('');
+export const ConversionsChart = ({ 
+  leads, 
+  globalPeriod, 
+  customStartDate: globalCustomStartDate, 
+  customEndDate: globalCustomEndDate 
+}: ConversionsChartProps) => {
+  const [period, setPeriod] = useState<PeriodType>(globalPeriod as PeriodType || '30');
+  const [customStartDate, setCustomStartDate] = useState(globalCustomStartDate || '');
+  const [customEndDate, setCustomEndDate] = useState(globalCustomEndDate || '');
+
+  // Sincronizar com o filtro global do dashboard
+  useEffect(() => {
+    if (globalPeriod) {
+      setPeriod(globalPeriod as PeriodType);
+    }
+    if (globalCustomStartDate) {
+      setCustomStartDate(globalCustomStartDate);
+    }
+    if (globalCustomEndDate) {
+      setCustomEndDate(globalCustomEndDate);
+    }
+  }, [globalPeriod, globalCustomStartDate, globalCustomEndDate]);
 
   const getDateRange = (periodType: PeriodType) => {
     const end = new Date();
