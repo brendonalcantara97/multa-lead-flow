@@ -487,7 +487,7 @@ Solicite agora mesmo sua análise gratuita!</p>
             </AccordionItem>
             
             <AccordionItem value="item-4" className="bg-white rounded-lg px-6">
-              <AccordionTrigger className="text-left">Quanto custa o serviço?</AccordionTrigger>
+              <AccordionTrigger className="text-left">Quanto tempo demora o recurso contra CNH suspensa ou cassada?</AccordionTrigger>
               <AccordionContent>
                 A análise é gratuita. Os honorários são definidos após avaliação do caso e só cobramos em caso de sucesso 
                 na maioria dos processos. Transparência total desde o primeiro contato.
