@@ -505,7 +505,7 @@ Solicite agora mesmo sua análise gratuita!</p>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[{
             city: "Porto Alegre",
-            address: "Rua dos Andradas, 1234 - Centro",
+            address: "Av. Assis Brasil, 3688 - Jardim Lindóia",
             phone: "(51) 3333-4444"
           }, {
             city: "Capão da Canoa",
@@ -568,9 +568,9 @@ Solicite agora mesmo sua análise gratuita!</p>
             <div>
               <h3 className="font-semibold mb-4">Sede Principal</h3>
               <p className="text-gray-400">
-                Rua dos Andradas, 1234<br />
-                Centro - Porto Alegre/RS<br />
-                CEP: 90020-000
+                Av. Assis Brasil, 3688<br />
+                Jardim Lindóia - Porto Alegre/RS<br />
+                CEP: 91010-003
               </p>
             </div>
           </div>
