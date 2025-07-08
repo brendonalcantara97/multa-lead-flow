@@ -183,18 +183,6 @@ const Index = () => {
     scrollToForm();
   };
   return <div className="min-h-screen bg-white">
-      {/* Painel de Debug (apenas para testes) */}
-      <div className="fixed top-20 left-4 bg-black/80 text-white p-4 rounded-lg text-xs z-40 max-w-sm">
-        <h4 className="font-bold text-yellow-400 mb-2">🧪 Debug - Tracking Data:</h4>
-        <div className="space-y-1">
-          <div><strong>UTM Source:</strong> {trackingData.utm_source || 'não detectado'}</div>
-          <div><strong>UTM Medium:</strong> {trackingData.utm_medium || 'não detectado'}</div>
-          <div><strong>UTM Campaign:</strong> {trackingData.utm_campaign || 'não detectado'}</div>
-          <div><strong>GCLID:</strong> {trackingData.gclid || 'não detectado'}</div>
-          <div><strong>Facebook Pixel:</strong> {trackingData.fbp || 'não detectado'}</div>
-        </div>
-        <p className="text-yellow-300 mt-2 text-xs">Abra o console (F12) para mais detalhes</p>
-      </div>
 
       {/* Header */}
       <header className="fixed top-0 w-full bg-white shadow-sm z-50 border-b">
