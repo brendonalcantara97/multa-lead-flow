@@ -224,7 +224,7 @@ const Index = () => {
             {/* Header com logo e status */}
             <div className="bg-green-500 p-4 text-white">
               <div className="flex items-center gap-3">
-                <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas" className="h-12 w-12 rounded-full bg-white p-1" />
+                <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas" className="h-12 w-12 rounded-full bg-white p-1 object-contain" />
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg">SOS Multas – Porto Alegre</h3>
                   <div className="flex items-center gap-2 text-green-100">
