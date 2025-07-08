@@ -318,7 +318,7 @@ const Index = () => {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold text-black mb-6">Sobre a SOS Multas</h2>
-              <p className="text-gray-600 mb-4">Há mais de 15 anos a SOS Multas atua com ética e transparência na defesa dos direitos dos motoristas em Porto Alegre e região. Nossa equipe especializada em Matéria de Trânsito analisa cuidadosamente cada situação para identificar as melhores estratégias jurídicas para defesa de multas, suspensão e cassação da CNH.</p>
+              <p className="text-gray-600 mb-4">Há mais de 15 anos a SOS Multas atua com ética e transparência na defesa dos direitos dos motoristas em Porto Alegre e região. Nossa equipe especializada em Matéria de Trânsito analisa cuidadosamente cada situação para identificar as melhores estratégias para defesa de multas, suspensão e cassação da CNH.</p>
               <p className="text-gray-600 mb-6">Aqui, você conta com profissionais experientes que esclarecem suas dúvidas e realizam uma avaliação gratuita inicial para verificar as possibilidades legais de defesa do seu caso.
 
 Solicite agora mesmo sua análise gratuita!</p>
