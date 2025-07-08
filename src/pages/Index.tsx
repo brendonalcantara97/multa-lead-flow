@@ -509,7 +509,7 @@ Solicite agora mesmo sua análise gratuita!</p>
             phone: "(51) 3307-7772"
           }, {
             city: "Capão da Canoa",
-            address: "R. Tupinambá, 749 - SALA 03 - CENTRO, Capão da Canoa - RS, 95555-000",
+            address: "R. Tupinambá, 749 - CENTRO, Capão da Canoa - RS, 95555-000",
             phone: "(51) 3665-5226"
           }, {
             city: "Florianópolis",
