@@ -506,15 +506,15 @@ Solicite agora mesmo sua análise gratuita!</p>
             {[{
             city: "Porto Alegre",
             address: "Av. Assis Brasil, 3688 - Jardim Lindóia",
-            phone: "(51) 3333-4444"
+            phone: "(51) 3307-7772"
           }, {
             city: "Capão da Canoa",
-            address: "Av. Paraguassu, 567 - Centro",
-            phone: "(51) 3333-5555"
+            address: "R. Tupinambá, 749 - SALA 03 - CENTRO, Capão da Canoa - RS, 95555-000",
+            phone: "(51) 3665-5226"
           }, {
             city: "Florianópolis",
-            address: "Rua Felipe Schmidt, 890 - Centro",
-            phone: "(48) 3333-6666"
+            address: "Atendimento online",
+            phone: "(51) 3307-7772"
           }, {
             city: "Curitiba",
             address: "Atendimento online",
