@@ -547,11 +547,12 @@ Solicite agora mesmo sua análise gratuita!</p>
               </p>
               <div className="flex items-center gap-2 mb-2">
                 <Mail className="h-4 w-4 text-orange-500" />
-                <span>contato@sosmultaspoa.com.br</span>
+                <span>sosmultaspoa@gmail.com</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-orange-500" />
-                <span>(51) 99999-9999</span>
+                <span>(51) 3307-7772
+              </span>
               </div>
             </div>
             
