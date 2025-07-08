@@ -489,8 +489,9 @@ Solicite agora mesmo sua análise gratuita!</p>
             <AccordionItem value="item-4" className="bg-white rounded-lg px-6">
               <AccordionTrigger className="text-left">Quanto tempo demora o recurso contra CNH suspensa ou cassada?</AccordionTrigger>
               <AccordionContent>
-                A análise é gratuita. Os honorários são definidos após avaliação do caso e só cobramos em caso de sucesso 
-                na maioria dos processos. Transparência total desde o primeiro contato.
+                Em média, um processo de defesa contra suspensão ou cassação da CNH pode durar entre 60 e 180 dias, 
+                dependendo do órgão responsável e da complexidade do caso. Durante esse tempo, a SOS Multas atua com 
+                agilidade e mantém você informado sobre cada avanço do processo.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
