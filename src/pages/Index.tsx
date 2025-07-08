@@ -279,7 +279,7 @@ const Index = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Excesso de Velocidade">Excesso de Velocidade</SelectItem>
-                      <SelectItem value="Sinal Vermelho">Sinal Vermelho</SelectItem>
+                      <SelectItem value="Excesso de Pontos">Excesso de Pontos</SelectItem>
                       <SelectItem value="Bafômetro">Bafômetro</SelectItem>
                       <SelectItem value="Suspensão da CNH">Suspensão da CNH</SelectItem>
                       <SelectItem value="Cassação da CNH">Cassação da CNH</SelectItem>
@@ -387,7 +387,7 @@ Solicite agora mesmo sua análise gratuita!</p>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="excesso-velocidade">Excesso de Velocidade</SelectItem>
-                    <SelectItem value="avanco-sinal">Avanço de Sinal</SelectItem>
+                    <SelectItem value="excesso-pontos">Excesso de Pontos</SelectItem>
                     <SelectItem value="bafometro">Bafômetro</SelectItem>
                     <SelectItem value="suspensao">Suspensão</SelectItem>
                     <SelectItem value="cassacao">Cassação</SelectItem>
