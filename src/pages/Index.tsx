@@ -330,15 +330,10 @@ const Index = () => {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold text-black mb-6">Sobre a SOS Multas</h2>
-              <p className="text-gray-600 mb-4">
-                Há mais de 15 anos defendendo os direitos dos motoristas em Porto Alegre e região. 
-                Nossa equipe especializada em direito de trânsito já ajudou milhares de pessoas a 
-                reverter multas indevidas e manter suas CNHs.
-              </p>
-              <p className="text-gray-600 mb-6">
-                Oferecemos análise gratuita e trabalhamos com total transparência, sempre 
-                buscando a melhor solução para cada caso.
-              </p>
+              <p className="text-gray-600 mb-4">Há mais de 15 anos a SOS Multas atua com ética e transparência na defesa dos direitos dos motoristas em Porto Alegre e região. Nossa equipe especializada em Matéria de Trânsito analisa cuidadosamente cada situação para identificar as melhores estratégias jurídicas para defesa de multas, suspensão e cassação da CNH.</p>
+              <p className="text-gray-600 mb-6">Aqui, você conta com profissionais experientes que esclarecem suas dúvidas e realizam uma avaliação gratuita inicial para verificar as possibilidades legais de defesa do seu caso.
+
+Solicite agora mesmo sua análise gratuita!</p>
               <div className="flex flex-wrap gap-6">
                 <div className="flex items-center gap-2">
                   <Award className="h-5 w-5 text-orange-500" />
@@ -430,7 +425,7 @@ const Index = () => {
               <CardContent className="pt-6">
                 <Scale className="h-12 w-12 text-orange-500 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Defesa de Multas</h3>
-                <p className="text-gray-600 mb-4">Contestação de multas de trânsito com alta taxa de sucesso</p>
+                <p className="text-gray-600 mb-4">Recebeu uma multa e quer recorrer? Nossa equipe analisa detalhadamente cada autuação e identifica possíveis falhas ou irregularidades que possam embasar a defesa.</p>
                 <Button variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-50">
                   Tenho esse problema
                 </Button>
@@ -440,8 +435,8 @@ const Index = () => {
             <Card className="text-center p-6 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => selectViolationType('suspensao')}>
               <CardContent className="pt-6">
                 <Shield className="h-12 w-12 text-orange-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Suspensão da CNH</h3>
-                <p className="text-gray-600 mb-4">Defesa contra suspensão do direito de dirigir</p>
+                <h3 className="text-xl font-semibold mb-2">Defesa Contra Suspensão da CNH</h3>
+                <p className="text-gray-600 mb-4">Sua CNH foi suspensa? Atuamos com estratégias assertivas para defender seu direito de continuar dirigindo dentro das possibilidades legais.</p>
                 <Button variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-50">
                   Tenho esse problema
                 </Button>
@@ -451,8 +446,8 @@ const Index = () => {
             <Card className="text-center p-6 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => selectViolationType('cassacao')}>
               <CardContent className="pt-6">
                 <Car className="h-12 w-12 text-orange-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Cassação da CNH</h3>
-                <p className="text-gray-600 mb-4">Recursos contra cassação da carteira de habilitação</p>
+                <h3 className="text-xl font-semibold mb-2">Recurso Contra Cassação da CNH </h3>
+                <p className="text-gray-600 mb-4">Caso sua CNH esteja em risco de cassação, nossa equipe especializada atua rapidamente para proteger seu direito de dirigir, oferecendo recursos bem fundamentados.</p>
                 <Button variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-50">
                   Tenho esse problema
                 </Button>
