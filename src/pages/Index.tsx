@@ -517,8 +517,8 @@ Solicite agora mesmo sua análise gratuita!</p>
             phone: "(48) 3333-6666"
           }, {
             city: "Curitiba",
-            address: "Rua XV de Novembro, 321 - Centro",
-            phone: "(41) 3333-7777"
+            address: "Atendimento online",
+            phone: "(41) 99265-6042"
           }].map((unit, index) => <Card key={index} className="p-6 text-center hover:shadow-lg transition-shadow">
                 <CardContent className="pt-0">
                   <MapPin className="h-8 w-8 text-orange-500 mx-auto mb-4" />
