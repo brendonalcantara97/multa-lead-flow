@@ -227,24 +227,34 @@ const Index = () => {
             }}
           >
             {/* Header do WhatsApp */}
-            <div className="bg-[#006644] text-white p-3 flex items-center space-x-3 rounded-t-2xl">
-              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center p-1">
-                <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas" className="w-full h-full object-contain" />
+            <div className="bg-[#006644] text-white p-3 flex items-center justify-between rounded-t-2xl">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center p-1">
+                  <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas" className="w-full h-full object-contain" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-sm">SOS Multas</h3>
+                  <p className="text-xs opacity-90 flex items-center gap-1">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    Online
+                  </p>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-sm">SOS Multas</h3>
-                <p className="text-xs opacity-90 flex items-center gap-1">
-                  <div className="w-2 h-2 bg-green-300 rounded-full"></div>
-                  Online
-                </p>
-              </div>
+              <button 
+                onClick={() => setIsWhatsappDialogOpen(false)}
+                className="text-white hover:text-gray-200 text-lg font-bold"
+              >
+                ×
+              </button>
             </div>
 
             {/* Formulário compacto */}
             <div className="p-4 pb-6">
               <div className="bg-white rounded-lg p-4 shadow-sm">
-                <p className="text-sm text-gray-800 mb-4">
-                  Olá, precisando de um suporte especializado ou de um orçamento sem custo? Me informe seus dados para iniciarmos uma conversa.
+                <p className="text-sm text-gray-800 mb-4 text-left leading-relaxed">
+                  Olá! Está com dúvidas sobre multas ou problemas na CNH?<br />
+                  Nossa equipe está pronta para te ajudar com uma avaliação gratuita e orientações especializadas.<br />
+                  Preencha seus dados para começarmos a conversa pelo WhatsApp.
                 </p>
                 
                 <form onSubmit={handleWhatsappSubmit} className="space-y-3">
@@ -253,7 +263,7 @@ const Index = () => {
                     placeholder="Nome *" 
                     value={whatsappFormData.name} 
                     onChange={e => setWhatsappFormData(prev => ({...prev, name: e.target.value}))} 
-                    className="h-10 text-sm bg-[#F0FFE8] border border-[#D0E8D0] rounded-lg placeholder:text-[#888888] focus:border-green-500" 
+                    className="h-10 text-sm bg-[#EBFFE4] border border-[#D0E8D0] rounded-md placeholder:text-[#888888] focus:border-green-500" 
                     required 
                   />
                   
@@ -262,7 +272,7 @@ const Index = () => {
                     placeholder="Email *" 
                     value={whatsappFormData.email} 
                     onChange={e => setWhatsappFormData(prev => ({...prev, email: e.target.value}))} 
-                    className="h-10 text-sm bg-[#F0FFE8] border border-[#D0E8D0] rounded-lg placeholder:text-[#888888] focus:border-green-500" 
+                    className="h-10 text-sm bg-[#EBFFE4] border border-[#D0E8D0] rounded-md placeholder:text-[#888888] focus:border-green-500" 
                     required 
                   />
                   
@@ -271,7 +281,7 @@ const Index = () => {
                     placeholder="🇧🇷 +55 Telefone *" 
                     value={whatsappFormData.phone} 
                     onChange={e => setWhatsappFormData(prev => ({...prev, phone: e.target.value}))} 
-                    className="h-10 text-sm bg-[#F0FFE8] border border-[#D0E8D0] rounded-lg placeholder:text-[#888888] focus:border-green-500" 
+                    className="h-10 text-sm bg-[#EBFFE4] border border-[#D0E8D0] rounded-md placeholder:text-[#888888] focus:border-green-500" 
                     required 
                   />
                   
@@ -279,8 +289,8 @@ const Index = () => {
                     value={whatsappFormData.violationType} 
                     onValueChange={value => setWhatsappFormData(prev => ({...prev, violationType: value}))}
                   >
-                    <SelectTrigger className="h-10 text-sm bg-[#F0FFE8] border border-[#D0E8D0] rounded-lg placeholder:text-[#888888] focus:border-green-500">
-                      <SelectValue placeholder="Tipo da Multa" />
+                    <SelectTrigger className="h-10 text-sm bg-[#EBFFE4] border border-[#D0E8D0] rounded-md placeholder:text-[#888888] focus:border-green-500">
+                      <SelectValue placeholder="Tipo da multa" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Excesso de Velocidade">Excesso de Velocidade</SelectItem>
@@ -294,7 +304,7 @@ const Index = () => {
               
                   <Button 
                     type="submit" 
-                    className="w-full h-12 mt-4 bg-[#00A859] hover:bg-[#008f4f] text-white font-bold text-base rounded-lg flex items-center justify-center transition-all duration-300 hover:shadow-[0px_4px_6px_rgba(0,168,89,0.4)] border-0 z-10"
+                    className="w-full h-10 mt-4 bg-[#009456] hover:bg-[#007A47] text-white font-bold text-sm rounded-md flex items-center justify-center transition-all duration-300 hover:shadow-lg border-0"
                   >
                     Iniciar conversa
                   </Button>
