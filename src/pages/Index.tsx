@@ -348,7 +348,9 @@ const Index = () => {
                 </div>
               </div>
             </div>
-
+          </DialogContent>
+        </Dialog>
+      </div>
 
       {/* Hero Section */}
       <section className="pt-24 pb-16 bg-gradient-to-br from-gray-50 to-white">
