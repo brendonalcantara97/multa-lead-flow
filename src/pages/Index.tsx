@@ -269,7 +269,7 @@ const Index = () => {
               {/* Formulário como resposta do usuário */}
               <div className="flex justify-end">
                 <div className="max-w-[340px] w-full" style={{ alignSelf: 'flex-end' }}>
-                  <form onSubmit={handleWhatsappSubmit} className="space-y-2.5">
+                  <form onSubmit={handleWhatsappSubmit} className="space-y-2.5 pb-4">
                     <Input 
                       type="text" 
                       placeholder="Nome *" 
@@ -353,10 +353,13 @@ const Index = () => {
                 
                     <Button 
                       type="submit" 
-                      className="w-full max-w-full text-white text-base font-normal rounded-md border-none cursor-pointer mt-2.5 px-2.5 py-2.5 transition-colors duration-300 hover:opacity-90"
+                      className="w-full max-w-full text-white text-base font-normal rounded-md border-none cursor-pointer transition-colors duration-300 hover:opacity-90"
                       style={{
                         backgroundColor: '#075E54',
-                        fontFamily: 'Open Sans, sans-serif'
+                        fontFamily: 'Open Sans, sans-serif',
+                        padding: '12px',
+                        marginTop: '10px',
+                        boxSizing: 'border-box'
                       }}
                     >
                       Iniciar conversa
