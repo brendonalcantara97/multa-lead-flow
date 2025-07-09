@@ -269,7 +269,7 @@ const Index = () => {
               {/* Formulário como resposta do usuário */}
               <div className="flex justify-end">
                 <div className="max-w-[340px] w-full" style={{ alignSelf: 'flex-end' }}>
-                  <form onSubmit={handleWhatsappSubmit} className="space-y-2.5 pb-4">
+                  <form onSubmit={handleWhatsappSubmit} className="space-y-2.5 pb-6 px-1">
                     <Input 
                       type="text" 
                       placeholder="Nome *" 
