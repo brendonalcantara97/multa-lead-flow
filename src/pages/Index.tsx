@@ -216,9 +216,10 @@ const Index = () => {
             />
           </DialogTrigger>
           <DialogContent 
-            className="fixed bottom-20 right-6 w-80 max-w-none p-0 border-0 overflow-hidden max-h-[95vh] overflow-y-auto"
+            className="fixed bottom-20 right-2 sm:right-6 w-[calc(100vw-16px)] sm:w-80 max-w-none p-0 border-0 overflow-hidden max-h-[95vh] overflow-y-auto"
             style={{
-              width: '320px',
+              width: 'calc(100vw - 16px)',
+              maxWidth: '320px',
               borderRadius: '12px',
               boxShadow: '0 10px 20px rgba(0, 0, 0, 0.3)',
               background: '#ECE5DD',
@@ -251,10 +252,10 @@ const Index = () => {
             </div>
 
             {/* Conversa simulada */}
-            <div className="p-4 min-h-[320px] max-h-[400px] overflow-y-auto space-y-3">
+            <div className="p-3 sm:p-4 min-h-[280px] sm:min-h-[320px] max-h-[70vh] sm:max-h-[400px] overflow-y-auto space-y-3">
               {/* Mensagem da empresa */}
               <div className="flex justify-start">
-                <div className="bg-white rounded-md border border-[#cacaca] border-l border-b p-3 max-w-[340px] shadow-sm relative" style={{
+                <div className="bg-white rounded-md border border-[#cacaca] border-l border-b p-2 sm:p-3 max-w-[85%] sm:max-w-[340px] shadow-sm relative" style={{
                   borderTopStyle: 'none',
                   borderRightStyle: 'none',
                   borderRadius: '6px',
@@ -268,7 +269,7 @@ const Index = () => {
 
               {/* Formulário como resposta do usuário */}
               <div className="flex justify-end">
-                <div className="max-w-[340px] w-full" style={{ alignSelf: 'flex-end' }}>
+                <div className="max-w-[85%] sm:max-w-[340px] w-full" style={{ alignSelf: 'flex-end' }}>
                   <form onSubmit={handleWhatsappSubmit} className="space-y-2.5">
                     <Input 
                       type="text" 
