@@ -326,7 +326,7 @@ const Index = () => {
                         </svg>
                         <span className="ml-2 text-sm text-[#4a4a4a]">+55</span>
                       </div>
-                      <Input type="tel" placeholder="DD9XXXXYYYY *" value={whatsappFormData.phone} onChange={e => setWhatsappFormData(prev => ({
+                      <Input type="tel" placeholder="Whatsappp" value={whatsappFormData.phone} onChange={e => setWhatsappFormData(prev => ({
                       ...prev,
                       phone: handlePhoneChange(e.target.value)
                     }))} className="flex-1 h-10 text-sm text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#25D366] outline-none" style={{
@@ -444,7 +444,7 @@ Solicite agora mesmo sua análise gratuita!</p>
               </div>
               
               <div>
-                <Input type="tel" placeholder="DD9XXXXYYYY *" value={formData.phone} onChange={e => setFormData(prev => ({
+                <Input type="tel" placeholder="Whatsapp" value={formData.phone} onChange={e => setFormData(prev => ({
                 ...prev,
                 phone: handlePhoneChange(e.target.value)
               }))} className="w-full p-4 text-lg border-2 focus:border-orange-500" required />
