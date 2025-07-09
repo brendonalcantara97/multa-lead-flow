@@ -249,7 +249,7 @@ const Index = () => {
             {/* Formulário compacto */}
             <div className="p-3 pb-4 space-y-2 overflow-y-auto max-h-[500px]">
               {/* Bloco do texto */}
-              <div className="bg-white rounded-lg p-4 shadow-sm">
+              <div className="bg-white rounded-lg p-2 shadow-sm">
                 <p className="text-sm text-gray-800 text-left leading-relaxed">
                   Olá! Está com dúvidas sobre multas ou problemas na CNH?<br />
                   Nossa equipe está pronta para te ajudar com uma avaliação gratuita e orientações especializadas.<br />
