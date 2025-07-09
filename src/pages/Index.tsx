@@ -216,7 +216,7 @@ const Index = () => {
             />
           </DialogTrigger>
           <DialogContent 
-            className="fixed bottom-20 right-6 w-80 max-w-none p-0 border-0 overflow-y-auto max-h-[95vh] overflow-y-auto"
+            className="fixed bottom-20 right-6 w-80 max-w-none p-0 border-0"
             style={{
               width: '320px',
               borderRadius: '12px',
@@ -251,7 +251,7 @@ const Index = () => {
             </div>
 
             {/* Conversa simulada */}
-            <div className="p-4 min-h-[320px] max-h-[400px] overflow-y-auto space-y-3">
+            <div className="p-4 space-y-3">
               {/* Mensagem da empresa */}
               <div className="flex justify-start">
                 <div className="bg-white rounded-md border border-[#cacaca] border-l border-b p-3 max-w-[340px] shadow-sm relative" style={{
