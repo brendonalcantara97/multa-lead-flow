@@ -244,51 +244,67 @@ const Index = () => {
             <div className="p-4 min-h-[320px] max-h-[400px] overflow-y-auto space-y-3">
               {/* Mensagem da empresa */}
               <div className="flex justify-start">
-                <div className="bg-white rounded-lg rounded-bl-sm p-3 max-w-[250px] shadow-sm relative">
-                  <div className="absolute -left-2 bottom-0 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-white border-b-[8px] border-b-white"></div>
-                  <p className="text-sm text-gray-800">
-                    Olá! 👋 Bem-vindo à SOS Multas!
+                <div className="bg-white rounded-md border border-[#cacaca] border-l border-b p-3 max-w-[340px] shadow-sm relative" style={{
+                  borderTopStyle: 'none',
+                  borderRightStyle: 'none',
+                  borderRadius: '6px',
+                  alignSelf: 'flex-start'
+                }}>
+                  <p className="text-sm text-[#4a4a4a] font-['Open_Sans',sans-serif] mb-3">
+                    Olá, precisando de um suporte especializado ou de um orçamento sem custo? Me informe seu email e telefone para iniciarmos uma conversa.
                   </p>
-                  <p className="text-sm text-gray-800 mt-1">
-                    Como podemos te ajudar hoje?
-                  </p>
-                  <span className="text-xs text-gray-500 mt-1 block">agora</span>
                 </div>
               </div>
 
-              {/* Formulário como mensagem */}
-              <div className="flex justify-start">
-                <div className="bg-white rounded-lg rounded-bl-sm p-3 max-w-[250px] shadow-sm relative">
-                  <div className="absolute -left-2 bottom-0 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-white border-b-[8px] border-b-white"></div>
-                  <p className="text-sm text-gray-800 mb-3">
-                     Para iniciar nossa conversa, preencha seus dados:
-                  </p>
-                  
-                  <form onSubmit={handleWhatsappSubmit} className="space-y-2">
+              {/* Formulário como resposta do usuário */}
+              <div className="flex justify-end">
+                <div className="max-w-[340px] w-full" style={{ alignSelf: 'flex-end' }}>
+                  <form onSubmit={handleWhatsappSubmit} className="space-y-2.5">
                     <Input 
                       type="text" 
-                      placeholder="Seu nome *" 
+                      placeholder="Nome *" 
                       value={whatsappFormData.name} 
                       onChange={e => setWhatsappFormData(prev => ({...prev, name: e.target.value}))} 
-                      className="h-8 text-sm border border-gray-300 rounded focus:border-green-500" 
+                      className="w-full h-10 text-sm font-['Open_Sans',sans-serif] text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#cacaca] outline-none"
+                      style={{
+                        backgroundColor: '#e7ffe7',
+                        borderLeftStyle: 'none',
+                        borderTopStyle: 'none',
+                        borderRightStyle: 'solid',
+                        borderBottomStyle: 'solid'
+                      }}
                       required 
                     />
                     
                     <Input 
                       type="email" 
-                      placeholder="Seu e-mail *" 
+                      placeholder="Email *" 
                       value={whatsappFormData.email} 
                       onChange={e => setWhatsappFormData(prev => ({...prev, email: e.target.value}))} 
-                      className="h-8 text-sm border border-gray-300 rounded focus:border-green-500" 
+                      className="w-full h-10 text-sm font-['Open_Sans',sans-serif] text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#cacaca] outline-none"
+                      style={{
+                        backgroundColor: '#e7ffe7',
+                        borderLeftStyle: 'none',
+                        borderTopStyle: 'none',
+                        borderRightStyle: 'solid',
+                        borderBottomStyle: 'solid'
+                      }}
                       required 
                     />
                     
                     <Input 
                       type="tel" 
-                      placeholder="Seu telefone *" 
+                      placeholder="Telefone *" 
                       value={whatsappFormData.phone} 
                       onChange={e => setWhatsappFormData(prev => ({...prev, phone: e.target.value}))} 
-                      className="h-8 text-sm border border-gray-300 rounded focus:border-green-500" 
+                      className="w-full h-10 text-sm font-['Open_Sans',sans-serif] text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#cacaca] outline-none"
+                      style={{
+                        backgroundColor: '#e7ffe7',
+                        borderLeftStyle: 'none',
+                        borderTopStyle: 'none',
+                        borderRightStyle: 'solid',
+                        borderBottomStyle: 'solid'
+                      }}
                       required 
                     />
                     
@@ -296,7 +312,16 @@ const Index = () => {
                       value={whatsappFormData.violationType} 
                       onValueChange={value => setWhatsappFormData(prev => ({...prev, violationType: value}))}
                     >
-                      <SelectTrigger className="h-8 text-sm border border-gray-300 rounded focus:border-green-500">
+                      <SelectTrigger 
+                        className="w-full h-10 text-sm font-['Open_Sans',sans-serif] text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#cacaca] outline-none"
+                        style={{
+                          backgroundColor: '#e7ffe7',
+                          borderLeftStyle: 'none',
+                          borderTopStyle: 'none',
+                          borderRightStyle: 'solid',
+                          borderBottomStyle: 'solid'
+                        }}
+                      >
                         <SelectValue placeholder="Tipo de multa (opcional)" />
                       </SelectTrigger>
                       <SelectContent>
@@ -311,14 +336,15 @@ const Index = () => {
                 
                     <Button 
                       type="submit" 
-                      size="sm"
-                      className="w-full bg-[#25D366] hover:bg-[#20BD5A] text-white h-8"
+                      className="w-full max-w-[150px] h-10 text-white font-['Open_Sans',sans-serif] text-base font-normal rounded-md border-none cursor-pointer flex items-center justify-center self-end"
+                      style={{
+                        backgroundColor: 'rgba(11,97,86,1)',
+                        alignSelf: 'flex-end'
+                      }}
                     >
-                      Enviar 📱
+                      Iniciar conversa
                     </Button>
                   </form>
-                  
-                  <span className="text-xs text-gray-500 mt-2 block">agora</span>
                 </div>
               </div>
             </div>
