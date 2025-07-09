@@ -216,7 +216,7 @@ const Index = () => {
             />
           </DialogTrigger>
           <DialogContent 
-            className="fixed bottom-20 right-6 w-80 max-w-none p-0 border-0 shadow-2xl rounded-2xl"
+            className="fixed bottom-20 right-6 w-96 max-w-none p-0 border-0 shadow-2xl rounded-2xl"
             style={{
               backgroundImage: `url(/lovable-uploads/14493423-df44-4f9d-8905-dbc1d8633a36.png)`,
               backgroundSize: 'cover',
