@@ -31,6 +31,24 @@ const Index = () => {
     fbc: "",
     ga_client_id: ""
   });
+
+  const handlePhoneChange = (value: string) => {
+    // Remove todos os não dígitos
+    const numbersOnly = value.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos (DD9XXXXYYYY)
+    const limitedNumbers = numbersOnly.slice(0, 11);
+    
+    // Aplica máscara DD9XXXX-YYYY
+    let formattedValue = '';
+    if (limitedNumbers.length > 7) {
+      formattedValue = `${limitedNumbers.slice(0, 7)}-${limitedNumbers.slice(7)}`;
+    } else {
+      formattedValue = limitedNumbers;
+    }
+
+    return formattedValue;
+  };
   useEffect(() => {
     // Capturar parâmetros de tracking
     const urlParams = new URLSearchParams(window.location.search);
@@ -110,8 +128,11 @@ const Index = () => {
 
       // Redirecionar para WhatsApp após 2 segundos
       setTimeout(() => {
+        // Converter telefone para formato WhatsApp (+55DD9XXXXYYYY)
+        const phoneDigits = formData.phone.replace(/\D/g, '');
+        const whatsappPhone = `55${phoneDigits}`;
         const message = encodeURIComponent("Olá! Preenchi o formulário no site da SOS Multas e gostaria de receber ajuda com a minha multa.");
-        window.open(`https://wa.me/555133077772?text=${message}`, '_blank');
+        window.open(`https://wa.me/${whatsappPhone}?text=${message}`, '_blank');
       }, 2000);
 
       // Limpar formulário
@@ -159,8 +180,11 @@ const Index = () => {
       // Fechar dialog e redirecionar
       setIsWhatsappDialogOpen(false);
       setTimeout(() => {
+        // Converter telefone para formato WhatsApp (+55DD9XXXXYYYY)  
+        const phoneDigits = whatsappFormData.phone.replace(/\D/g, '');
+        const whatsappPhone = `55${phoneDigits}`;
         const message = encodeURIComponent(`Olá! Meu nome é ${whatsappFormData.name}. Tenho uma dúvida sobre uma multa${whatsappFormData.violationType ? ` por ${whatsappFormData.violationType}` : ''}. Poderiam me ajudar?`);
-        window.open(`https://wa.me/555133077772?text=${message}`, '_blank');
+        window.open(`https://wa.me/${whatsappPhone}?text=${message}`, '_blank');
       }, 1000);
 
       // Limpar formulário
@@ -302,9 +326,9 @@ const Index = () => {
                         </svg>
                         <span className="ml-2 text-sm text-[#4a4a4a]">+55</span>
                       </div>
-                      <Input type="tel" placeholder="Telefone *" value={whatsappFormData.phone} onChange={e => setWhatsappFormData(prev => ({
+                      <Input type="tel" placeholder="DD9XXXXYYYY *" value={whatsappFormData.phone} onChange={e => setWhatsappFormData(prev => ({
                       ...prev,
-                      phone: e.target.value
+                      phone: handlePhoneChange(e.target.value)
                     }))} className="flex-1 h-10 text-sm text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#25D366] outline-none" style={{
                       backgroundColor: '#DCF8C6',
                       fontFamily: 'Open Sans, sans-serif'
@@ -420,9 +444,9 @@ Solicite agora mesmo sua análise gratuita!</p>
               </div>
               
               <div>
-                <Input type="tel" placeholder="Telefone com DDD *" value={formData.phone} onChange={e => setFormData(prev => ({
+                <Input type="tel" placeholder="DD9XXXXYYYY *" value={formData.phone} onChange={e => setFormData(prev => ({
                 ...prev,
-                phone: e.target.value
+                phone: handlePhoneChange(e.target.value)
               }))} className="w-full p-4 text-lg border-2 focus:border-orange-500" required />
               </div>
               
