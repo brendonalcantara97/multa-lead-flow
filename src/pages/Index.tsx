@@ -300,11 +300,19 @@ const Index = () => {
                       <div className="flex items-center px-3 rounded-md border border-[#cacaca]" style={{ backgroundColor: '#DCF8C6' }}>
                         <svg width="24" height="16" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <rect width="24" height="16" fill="#009739"/>
-                          <rect y="5.33" width="24" height="5.33" fill="#FFDF00"/>
-                          <rect y="10.67" width="24" height="5.33" fill="#002776"/>
-                          <circle cx="12" cy="8" r="3.5" fill="#FFDF00"/>
-                          <circle cx="12" cy="8" r="2.5" fill="#002776"/>
-                          <text x="12" y="9" textAnchor="middle" fontSize="1.5" fill="#FFDF00">★</text>
+                          <path d="M12 2L20 8L12 14L4 8L12 2Z" fill="#FFDF00"/>
+                          <circle cx="12" cy="8" r="3.2" fill="#002776"/>
+                          <path d="M9.5 7.2C9.5 7.2 10.5 6.8 12 6.8C13.5 6.8 14.5 7.2 14.5 7.2" stroke="#FFDF00" strokeWidth="0.3" fill="none"/>
+                          <text x="12" y="7.8" textAnchor="middle" fontSize="2" fill="#FFDF00" fontFamily="Arial">ORDEM E PROGRESSO</text>
+                          <circle cx="10.5" cy="5.5" r="0.15" fill="#FFDF00"/>
+                          <circle cx="13.5" cy="5.5" r="0.15" fill="#FFDF00"/>
+                          <circle cx="11" cy="6.2" r="0.1" fill="#FFDF00"/>
+                          <circle cx="13" cy="6.2" r="0.1" fill="#FFDF00"/>
+                          <circle cx="12" cy="5.8" r="0.12" fill="#FFDF00"/>
+                          <circle cx="10.2" cy="9.5" r="0.1" fill="#FFDF00"/>
+                          <circle cx="13.8" cy="9.5" r="0.1" fill="#FFDF00"/>
+                          <circle cx="11.5" cy="10" r="0.08" fill="#FFDF00"/>
+                          <circle cx="12.5" cy="10" r="0.08" fill="#FFDF00"/>
                         </svg>
                         <span className="ml-2 text-sm text-[#4a4a4a]">+55</span>
                       </div>
