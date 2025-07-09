@@ -353,12 +353,10 @@ const Index = () => {
                 
                     <Button 
                       type="submit" 
-                      className="w-full max-w-full text-white text-base font-normal rounded-md border-none cursor-pointer transition-colors duration-300 hover:opacity-90"
+                      className="w-full max-w-full py-2 px-4 mt-4 text-white text-base font-normal rounded-md border-none cursor-pointer transition-colors duration-300 hover:opacity-90"
                       style={{
                         backgroundColor: '#075E54',
                         fontFamily: 'Open Sans, sans-serif',
-                        padding: '12px',
-                        marginTop: '10px',
                         boxSizing: 'border-box'
                       }}
                     >

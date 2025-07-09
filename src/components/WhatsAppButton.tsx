@@ -101,7 +101,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
             </div>
 
             {/* Conteúdo do modal */}
-            <div className="p-6" style={{
+            <div className="p-6 pb-4" style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f3f4f6' fill-opacity='0.1'%3E%3Cpath d='m0 40l40-40v40zm40 0v-40l-40 40z'/%3E%3C/g%3E%3C/svg%3E")`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
@@ -176,7 +176,8 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
 
                 <button
                   type="submit"
-                  className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                  className="w-full max-w-full py-2 px-4 mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-colors duration-200"
+                  style={{ boxSizing: 'border-box' }}
                 >
                   Iniciar conversa
                 </button>
