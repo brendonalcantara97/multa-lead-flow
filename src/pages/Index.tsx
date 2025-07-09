@@ -216,14 +216,12 @@ const Index = () => {
             />
           </DialogTrigger>
           <DialogContent 
-            className="fixed bottom-20 right-6 w-96 max-w-none p-0 border-0 shadow-2xl rounded-2xl"
+            className="fixed bottom-20 right-6 w-96 max-w-none p-0 border-0 shadow-2xl rounded-2xl max-h-[600px] overflow-hidden"
             style={{
               backgroundImage: `url(/lovable-uploads/14493423-df44-4f9d-8905-dbc1d8633a36.png)`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              maxHeight: '500px',
-              overflow: 'visible'
+              backgroundRepeat: 'no-repeat'
             }}
           >
             {/* Header do WhatsApp */}
@@ -249,7 +247,7 @@ const Index = () => {
             </div>
 
             {/* Formulário compacto */}
-            <div className="p-4 pb-6 space-y-3">
+            <div className="p-3 pb-4 space-y-2 overflow-y-auto max-h-[500px]">
               {/* Bloco do texto */}
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <p className="text-sm text-gray-800 text-left leading-relaxed">
