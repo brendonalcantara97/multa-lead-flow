@@ -218,12 +218,10 @@ const Index = () => {
           <DialogContent 
             className="fixed bottom-20 right-6 w-80 max-w-none p-0 border-0 shadow-2xl rounded-2xl overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, #ece5dd 0%, #ddd5cc 100%)',
-              backgroundImage: `
-                radial-gradient(circle at 20% 20%, rgba(0,0,0,0.05) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(0,0,0,0.05) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(0,0,0,0.02) 0%, transparent 50%)
-              `
+              backgroundImage: `url(/lovable-uploads/14493423-df44-4f9d-8905-dbc1d8633a36.png)`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
             }}
           >
             {/* Header do WhatsApp */}
@@ -311,10 +309,9 @@ const Index = () => {
                 
                     <Button 
                       type="submit" 
-                      size="sm"
-                      className="w-full bg-[#25D366] hover:bg-[#20BD5A] text-white h-8"
+                      className="w-full h-10 bg-[#00A859] hover:bg-[#008A4B] text-white font-bold text-base rounded-[5px] flex items-center justify-center transition-all duration-300 hover:shadow-[0px_4px_6px_rgba(0,168,89,0.4)] border-0"
                     >
-                      Enviar 📱
+                      Enviar
                     </Button>
                   </form>
                   
