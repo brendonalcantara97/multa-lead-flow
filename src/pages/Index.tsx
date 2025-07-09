@@ -219,6 +219,7 @@ const Index = () => {
             className="fixed bottom-20 right-6 w-auto max-w-none p-0 border-0 h-auto"
             style={{
               width: '320px',
+              height: '480px',
               borderRadius: '12px',
               boxShadow: '0 10px 20px rgba(0, 0, 0, 0.3)',
               background: '#ECE5DD',
