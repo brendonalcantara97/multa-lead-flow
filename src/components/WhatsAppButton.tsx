@@ -20,10 +20,32 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+
+    if (name === 'telefone') {
+      // Remove todos os não dígitos
+      const numbersOnly = value.replace(/\D/g, '');
+      
+      // Limita a 9 dígitos (padrão celular brasileiro 9XXXX-YYYY)
+      const limitedNumbers = numbersOnly.slice(0, 9);
+      
+      // Aplica máscara XXXX-YYYY
+      let formattedValue = '';
+      if (limitedNumbers.length > 4) {
+        formattedValue = `${limitedNumbers.slice(0, 4)}-${limitedNumbers.slice(4)}`;
+      } else {
+        formattedValue = limitedNumbers;
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        [name]: formattedValue
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -35,11 +57,15 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
       return;
     }
 
+    // Converter telefone para formato WhatsApp (+55119XXXXYYYY)
+    const phoneDigits = formData.telefone.replace(/\D/g, '');
+    const whatsappPhone = `5511${phoneDigits}`;
+
     // Criar mensagem para WhatsApp
     const message = `Olá! Preciso de ajuda com multa de trânsito.\n\n*Dados do contato:*\nNome: ${formData.nome}\nEmail: ${formData.email || 'Não informado'}\nTelefone: ${formData.telefone}\nTipo de multa: ${formData.tipoMulta || 'Não especificado'}\n\nAguardo retorno para análise do meu caso.`;
 
     // Abrir WhatsApp
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
 
     // Fechar modal
@@ -151,7 +177,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
                   <input
                     type="tel"
                     name="telefone"
-                    placeholder="Telefone *"
+                    placeholder="9XXXX-YYYY *"
                     value={formData.telefone}
                     onChange={handleInputChange}
                     className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-green-50"
