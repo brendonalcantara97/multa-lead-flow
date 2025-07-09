@@ -216,27 +216,19 @@ const Index = () => {
             />
           </DialogTrigger>
           <DialogContent 
-            className="fixed bottom-20 right-6 w-96 max-w-none p-0 border-0 shadow-2xl rounded-2xl h-auto max-h-[90vh] overflow-visible"
-            style={{
-              backgroundImage: `url(/lovable-uploads/14493423-df44-4f9d-8905-dbc1d8633a36.png)`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }}
+            className="fixed bottom-20 right-6 w-80 max-w-none p-0 border-0 shadow-2xl rounded-lg overflow-hidden"
           >
             {/* Header do WhatsApp */}
-            <div className="bg-[#006644] text-white p-3 flex items-center justify-between rounded-t-2xl">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center p-1">
-                  <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas" className="w-full h-full object-contain" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium text-sm">SOS Multas</h3>
-                  <p className="text-xs opacity-90 flex items-center gap-1">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    Online
-                  </p>
-                </div>
+            <div className="bg-[#075e54] text-white p-3 flex items-center gap-3">
+              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1">
+                <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas" className="w-full h-full object-contain" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-sm">SOS Multas</h3>
+                <p className="text-xs text-[#b6f2bd] flex items-center gap-1">
+                  <div className="w-2 h-2 bg-[#b6f2bd] rounded-full"></div>
+                  Online
+                </p>
               </div>
               <button 
                 onClick={() => setIsWhatsappDialogOpen(false)}
@@ -246,72 +238,79 @@ const Index = () => {
               </button>
             </div>
 
-            {/* Formulário compacto */}
-            <div className="p-3 pb-4 space-y-2 overflow-y-auto max-h-[500px]">
-              {/* Bloco do texto */}
-              <div className="bg-white rounded-lg p-2 shadow-sm">
-                <p className="text-sm text-gray-800 text-left leading-relaxed">
+            {/* Corpo com fundo */}
+            <div 
+              className="p-4"
+              style={{
+                backgroundImage: `url(/lovable-uploads/14493423-df44-4f9d-8905-dbc1d8633a36.png)`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'repeat'
+              }}
+            >
+              {/* Mensagem */}
+              <div className="bg-white rounded-lg p-3 mb-4 shadow-sm">
+                <p className="text-sm text-gray-800 leading-relaxed">
                   Olá! Está com dúvidas sobre multas ou problemas na CNH?<br />
                   Nossa equipe está pronta para te ajudar com uma avaliação gratuita e orientações especializadas.<br />
-                  Preencha seus dados para começarmos a conversa pelo WhatsApp.
+                  Preencha seus dados para começarmos a conversa.
                 </p>
               </div>
 
-              {/* Bloco do formulário */}
-              <div className="rounded-lg p-4 shadow-sm">
-                <form onSubmit={handleWhatsappSubmit} className="space-y-3">
-                  <Input 
-                    type="text" 
-                    placeholder="Nome *" 
-                    value={whatsappFormData.name} 
-                    onChange={e => setWhatsappFormData(prev => ({...prev, name: e.target.value}))} 
-                    className="h-10 text-sm bg-[#EBFFE4] border border-[#D0E8D0] rounded-md placeholder:text-[#888888] focus:border-green-500" 
-                    required 
-                  />
-                  
-                  <Input 
-                    type="email" 
-                    placeholder="Email *" 
-                    value={whatsappFormData.email} 
-                    onChange={e => setWhatsappFormData(prev => ({...prev, email: e.target.value}))} 
-                    className="h-10 text-sm bg-[#EBFFE4] border border-[#D0E8D0] rounded-md placeholder:text-[#888888] focus:border-green-500" 
-                    required 
-                  />
-                  
+              {/* Formulário */}
+              <form onSubmit={handleWhatsappSubmit} className="space-y-3">
+                <Input 
+                  type="text" 
+                  placeholder="Nome *" 
+                  value={whatsappFormData.name} 
+                  onChange={e => setWhatsappFormData(prev => ({...prev, name: e.target.value}))} 
+                  className="w-full p-3 text-sm bg-[#e6fce6] border border-[#d0d0d0] rounded-md placeholder:text-[#444444]" 
+                  required 
+                />
+                
+                <Input 
+                  type="email" 
+                  placeholder="Email *" 
+                  value={whatsappFormData.email} 
+                  onChange={e => setWhatsappFormData(prev => ({...prev, email: e.target.value}))} 
+                  className="w-full p-3 text-sm bg-[#e6fce6] border border-[#d0d0d0] rounded-md placeholder:text-[#444444]" 
+                  required 
+                />
+                
+                <div className="flex items-center bg-[#e6fce6] border border-[#d0d0d0] rounded-md overflow-hidden">
+                  <span className="px-3 text-sm text-[#444444]">🇧🇷 +55</span>
                   <Input 
                     type="tel" 
-                    placeholder="🇧🇷 +55 Telefone *" 
+                    placeholder="Telefone *" 
                     value={whatsappFormData.phone} 
                     onChange={e => setWhatsappFormData(prev => ({...prev, phone: e.target.value}))} 
-                    className="h-10 text-sm bg-[#EBFFE4] border border-[#D0E8D0] rounded-md placeholder:text-[#888888] focus:border-green-500" 
+                    className="flex-1 p-3 text-sm bg-transparent border-0 placeholder:text-[#444444] focus:ring-0" 
                     required 
                   />
-                  
-                  <Select 
-                    value={whatsappFormData.violationType} 
-                    onValueChange={value => setWhatsappFormData(prev => ({...prev, violationType: value}))}
-                  >
-                    <SelectTrigger className="h-10 text-sm bg-[#EBFFE4] border border-[#D0E8D0] rounded-md placeholder:text-[#888888] focus:border-green-500">
-                      <SelectValue placeholder="Tipo da multa" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Excesso de Velocidade">Excesso de Velocidade</SelectItem>
-                      <SelectItem value="Excesso de Pontos">Excesso de Pontos</SelectItem>
-                      <SelectItem value="Bafômetro">Bafômetro</SelectItem>
-                      <SelectItem value="Suspensão da CNH">Suspensão da CNH</SelectItem>
-                      <SelectItem value="Cassação da CNH">Cassação da CNH</SelectItem>
-                      <SelectItem value="Outra">Outra</SelectItem>
-                    </SelectContent>
-                  </Select>
-              
-                  <Button 
-                    type="submit" 
-                    className="w-full h-10 mt-4 bg-[#009456] hover:bg-[#007A47] text-white font-bold text-sm rounded-md flex items-center justify-center transition-all duration-300 hover:shadow-lg border-0"
-                  >
-                    Iniciar conversa
-                  </Button>
-                </form>
-              </div>
+                </div>
+                
+                <Select 
+                  value={whatsappFormData.violationType} 
+                  onValueChange={value => setWhatsappFormData(prev => ({...prev, violationType: value}))}
+                >
+                  <SelectTrigger className="w-full p-3 text-sm bg-[#e6fce6] border border-[#d0d0d0] rounded-md text-[#444444]">
+                    <SelectValue placeholder="Tipo da Multa *" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Excesso de Velocidade">Excesso de velocidade</SelectItem>
+                    <SelectItem value="Lei Seca">Lei Seca</SelectItem>
+                    <SelectItem value="Documento vencido">Documento vencido</SelectItem>
+                    <SelectItem value="Outra">Outra</SelectItem>
+                  </SelectContent>
+                </Select>
+            
+                <Button 
+                  type="submit" 
+                  className="w-full p-3 bg-[#25d366] hover:bg-[#1ebe5d] text-white font-bold text-sm rounded-md transition-all duration-300"
+                >
+                  Iniciar conversa
+                </Button>
+              </form>
             </div>
 
           </DialogContent>
