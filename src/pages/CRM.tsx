@@ -1,227 +1,239 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Phone, Mail, Calendar, Filter, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { BarChart3, LogOut, FileText, Filter } from "lucide-react";
 import { toast } from "sonner";
-import { Lead } from "@/types/lead";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { Lead, CRM_COLUMNS } from "@/types/lead";
 import { LeadCard } from "@/components/LeadCard";
 import { LeadModal } from "@/components/LeadModal";
-import { ConversionsChart } from "@/components/ConversionsChart";
 
 const CRM = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [filterType, setFilterType] = useState<string>('all');
+  const navigate = useNavigate();
+
 
   useEffect(() => {
-    loadLeads();
-  }, []);
-
-  useEffect(() => {
-    filterLeads();
-  }, [leads, searchTerm, statusFilter]);
-
-  const loadLeads = () => {
-    try {
-      const storedLeads = localStorage.getItem('sos-leads');
-      if (storedLeads) {
-        const parsedLeads = JSON.parse(storedLeads);
-        setLeads(parsedLeads);
-        console.log('📊 Leads carregados do localStorage:', parsedLeads);
-      }
-    } catch (error) {
-      console.error('❌ Erro ao carregar leads:', error);
-      toast.error("Erro ao carregar dados dos leads");
+    // Verificar autenticação
+    if (!localStorage.getItem('sos-auth')) {
+      navigate('/login');
+      return;
     }
+
+    // Carregar leads do localStorage
+    const storedLeads = JSON.parse(localStorage.getItem('sos-leads') || '[]');
+    setLeads(storedLeads);
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('sos-auth');
+    navigate('/login');
   };
 
-  const filterLeads = () => {
-    let filtered = [...leads];
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
 
-    if (searchTerm) {
-      filtered = filtered.filter(lead =>
-        lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.phone.includes(searchTerm)
-      );
-    }
+    const { source, destination, draggableId } = result;
+    
+    if (source.droppableId === destination.droppableId) return;
 
-    if (statusFilter !== "all") {
-      filtered = filtered.filter(lead => lead.status === statusFilter);
-    }
-
-    setFilteredLeads(filtered);
+    const leadId = parseInt(draggableId);
+    const newStatus = destination.droppableId;
+    
+    const updatedLeads = leads.map(lead => {
+      if (lead.id === leadId) {
+        const updatedLead = { ...lead, status: newStatus };
+        
+        // Se movendo para Cliente, definir data de conversão
+        if (newStatus === 'Cliente' && !lead.conversionDate) {
+          updatedLead.conversionDate = new Date().toISOString();
+        }
+        
+        return updatedLead;
+      }
+      return lead;
+    });
+    
+    setLeads(updatedLeads);
+    localStorage.setItem('sos-leads', JSON.stringify(updatedLeads));
+    toast.success(`Lead movido para ${newStatus}!`);
   };
 
   const updateLeadStatus = (leadId: number, newStatus: string) => {
-    const updatedLeads = leads.map(lead =>
-      lead.id === leadId ? { ...lead, status: newStatus } : lead
-    );
+    const updatedLeads = leads.map(lead => {
+      if (lead.id === leadId) {
+        const updatedLead = { ...lead, status: newStatus };
+        
+        // Se movendo para Cliente, definir data de conversão
+        if (newStatus === 'Cliente' && !lead.conversionDate) {
+          updatedLead.conversionDate = new Date().toISOString();
+        }
+        
+        return updatedLead;
+      }
+      return lead;
+    });
+    
     setLeads(updatedLeads);
     localStorage.setItem('sos-leads', JSON.stringify(updatedLeads));
-    toast.success("Status do lead atualizado!");
+    toast.success("Status atualizado com sucesso!");
   };
 
-  const saveLead = (updatedLead: Lead) => {
-    const updatedLeads = leads.map(lead =>
+  const updateLead = (updatedLead: Lead) => {
+    const updatedLeads = leads.map(lead => 
       lead.id === updatedLead.id ? updatedLead : lead
     );
     setLeads(updatedLeads);
     localStorage.setItem('sos-leads', JSON.stringify(updatedLeads));
+    setIsEditModalOpen(false);
     toast.success("Lead atualizado com sucesso!");
-    setIsModalOpen(false);
   };
 
-  const columns = [
-    { id: 'Novo Lead', title: 'Novo Lead', color: '#3B82F6', textColor: '#1E40AF' },
-    { id: 'Em Contato', title: 'Em Contato', color: '#F59E0B', textColor: '#D97706' },
-    { id: 'Qualificado', title: 'Qualificado', color: '#8B5CF6', textColor: '#7C3AED' },
-    { id: 'Cliente', title: 'Cliente', color: '#10B981', textColor: '#059669' },
-    { id: 'Não Cliente', title: 'Não Cliente', color: '#EF4444', textColor: '#DC2626' }
-  ];
+  const getLeadsByStatus = (status: string) => {
+    let filteredLeads = leads.filter(lead => lead.status === status);
+    
+    if (filterType !== 'all') {
+      filteredLeads = filteredLeads.filter(lead => lead.violationType === filterType);
+    }
+    
+    return filteredLeads;
+  };
 
-  const openLeadModal = (lead: Lead) => {
+  const handleViewDetails = (lead: Lead) => {
     setSelectedLead(lead);
-    setIsModalOpen(true);
-  };
-
-  const stats = {
-    total: leads.length,
-    newLeads: leads.filter(lead => lead.status === 'Novo Lead').length,
-    contacted: leads.filter(lead => lead.status === 'Em Contato').length,
-    converted: leads.filter(lead => lead.status === 'Convertido').length
+    setIsEditModalOpen(true);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">CRM - SOS Multas</h1>
-            <p className="text-gray-600">Gerencie seus leads e conversões</p>
-          </div>
-          <Button onClick={loadLeads} variant="outline">
-            Atualizar Dados
-          </Button>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Leads</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Novos Leads</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{stats.newLeads}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Em Contato</CardTitle>
-              <Phone className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{stats.contacted}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Convertidos</CardTitle>
-              <Mail className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.converted}</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Chart */}
-        <ConversionsChart leads={leads} />
-
-        {/* Filters */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Buscar por nome, email ou telefone..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-gray-400" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-2 text-sm"
-                >
-                  <option value="all">Todos os Status</option>
-                  <option value="Novo Lead">Novo Lead</option>
-                  <option value="Em Contato">Em Contato</option>
-                  <option value="Qualificado">Qualificado</option>
-                  <option value="Convertido">Convertido</option>
-                  <option value="Perdido">Perdido</option>
-                </select>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Header Modernizado */}
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200 p-4 sticky top-0 z-10">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
+              SOS Multas - CRM
+            </h1>
+            <div className="hidden md:flex items-center gap-2 text-sm text-gray-600 bg-white/60 rounded-full px-3 py-1">
+              <span className="font-medium">Total:</span>
+              <span className="font-bold text-orange-600">{leads.length} leads</span>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={() => navigate('/dashboard')} className="hover:bg-blue-50">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Dashboard
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleLogout} className="hover:bg-red-50">
+              <LogOut className="h-4 w-4 mr-2" />
+              Sair
+            </Button>
+          </div>
+        </div>
+      </header>
 
-        {/* Leads Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredLeads.map(lead => (
-            <LeadCard
-              key={lead.id}
-              lead={lead}
-              onStatusChange={updateLeadStatus}
-              onViewDetails={openLeadModal}
-              columns={columns}
-            />
-          ))}
+      {/* Estatísticas do Funil */}
+      <div className="p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          {CRM_COLUMNS.map(column => {
+            const count = getLeadsByStatus(column.id).length;
+            const percentage = leads.length > 0 ? (count / leads.length * 100).toFixed(1) : '0';
+            
+            return (
+              <Card key={column.id} className="group hover:shadow-lg transition-all duration-200 border-0 bg-white/60 backdrop-blur-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className={`w-3 h-3 rounded-full ${column.color.includes('blue') ? 'bg-blue-500' : 
+                                     column.color.includes('orange') ? 'bg-orange-500' : 
+                                     column.color.includes('green') ? 'bg-green-500' : 'bg-gray-500'}`} />
+                    <span className="text-xs text-gray-500">{percentage}%</span>
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900 mb-1">{count}</div>
+                  <div className="text-sm text-gray-600">{column.title}</div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
-        {filteredLeads.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">Nenhum lead encontrado</p>
-            <p className="text-gray-400">Tente ajustar os filtros de busca</p>
+        {/* Kanban Board Modernizado */}
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {CRM_COLUMNS.map(column => (
+              <div key={column.id} className="bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className={`${column.color} p-4 border-b border-gray-200`}>
+                  <div className="flex items-center justify-between">
+                    <h2 className={`font-semibold text-lg ${column.textColor}`}>
+                      {column.title}
+                    </h2>
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium bg-white/80 ${column.textColor}`}>
+                      {getLeadsByStatus(column.id).length}
+                    </div>
+                  </div>
+                </div>
+                
+                <Droppable droppableId={column.id}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={`p-4 max-h-[600px] overflow-y-auto min-h-[200px] ${
+                        snapshot.isDraggingOver ? 'bg-blue-50/50' : ''
+                      } transition-colors duration-200`}
+                    >
+                      {getLeadsByStatus(column.id).map((lead, index) => (
+                        <Draggable key={lead.id} draggableId={lead.id.toString()} index={index}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform duration-200`}
+                            >
+                              <LeadCard 
+                                lead={lead} 
+                                onViewDetails={handleViewDetails}
+                                onStatusChange={updateLeadStatus}
+                                columns={CRM_COLUMNS}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                      
+                      {getLeadsByStatus(column.id).length === 0 && (
+                        <div className="text-center text-gray-400 py-12">
+                          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                            <FileText className="h-8 w-8 opacity-50" />
+                          </div>
+                          <p className="text-sm">Nenhum lead nesta etapa</p>
+                          <p className="text-xs text-gray-300 mt-1">Arraste leads aqui</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
+            ))}
           </div>
-        )}
-
-        {/* Lead Modal */}
-        <LeadModal
-          lead={selectedLead}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSave={saveLead}
-          columns={columns}
-        />
+        </DragDropContext>
       </div>
+
+      {/* Modal de Detalhes Modernizado */}
+      <LeadModal 
+        lead={selectedLead}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={updateLead}
+        columns={CRM_COLUMNS}
+      />
     </div>
   );
 };
 
 export default CRM;
-
