@@ -261,7 +261,7 @@ const Index = () => {
                   alignSelf: 'flex-start'
                 }}>
                   <p className="text-sm text-[#4a4a4a] font-['Open_Sans',sans-serif] mb-3">
-                    Olá, precisa de ajuda especializada com multa de trânsito? Me informe seus dados para iniciarmos uma conversa e analisarmos seu caso.
+                    Olá, precisando de um suporte especializado ou de um orçamento sem custo? Me informe seu email e telefone para iniciarmos uma conversa.
                   </p>
                 </div>
               </div>
