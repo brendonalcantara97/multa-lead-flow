@@ -216,7 +216,7 @@ const Index = () => {
             />
           </DialogTrigger>
           <DialogContent 
-            className="fixed bottom-20 right-6 w-80 max-w-none p-0 border-0 shadow-2xl rounded-2xl overflow-hidden"
+            className="fixed bottom-20 right-6 w-72 max-w-none p-0 border-0 shadow-2xl rounded-2xl overflow-hidden"
             style={{
               backgroundImage: `url(/lovable-uploads/14493423-df44-4f9d-8905-dbc1d8633a36.png)`,
               backgroundSize: 'cover',
@@ -225,9 +225,9 @@ const Index = () => {
             }}
           >
             {/* Header do WhatsApp */}
-            <div className="bg-[#128C7E] text-white p-3 flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
-                <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas" className="w-full h-full object-cover" />
+            <div className="bg-[#006644] text-white p-3 flex items-center space-x-3">
+              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center p-1">
+                <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas" className="w-full h-full object-contain" />
               </div>
               <div className="flex-1">
                 <h3 className="font-medium text-sm">SOS Multas</h3>
@@ -238,85 +238,65 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Conversa simulada */}
-            <div className="p-4 min-h-[320px] max-h-[400px] overflow-y-auto space-y-3">
-              {/* Mensagem da empresa */}
-              <div className="flex justify-start">
-                <div className="bg-white rounded-lg rounded-bl-sm p-3 max-w-[250px] shadow-sm relative">
-                  <div className="absolute -left-2 bottom-0 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-white border-b-[8px] border-b-white"></div>
-                  <p className="text-sm text-gray-800">
-                    Olá! 👋 Bem-vindo à SOS Multas!
-                  </p>
-                  <p className="text-sm text-gray-800 mt-1">
-                    Como podemos te ajudar hoje?
-                  </p>
-                  <span className="text-xs text-gray-500 mt-1 block">agora</span>
-                </div>
-              </div>
-
-              {/* Formulário como mensagem */}
-              <div className="flex justify-start">
-                <div className="bg-white rounded-lg rounded-bl-sm p-3 max-w-[250px] shadow-sm relative">
-                  <div className="absolute -left-2 bottom-0 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-white border-b-[8px] border-b-white"></div>
-                  <p className="text-sm text-gray-800 mb-3">
-                     Para iniciar nossa conversa, preencha seus dados:
-                  </p>
-                  
-                  <form onSubmit={handleWhatsappSubmit} className="space-y-2">
-                    <Input 
-                      type="text" 
-                      placeholder="Seu nome *" 
-                      value={whatsappFormData.name} 
-                      onChange={e => setWhatsappFormData(prev => ({...prev, name: e.target.value}))} 
-                      className="h-8 text-sm border border-gray-300 rounded focus:border-green-500" 
-                      required 
-                    />
-                    
-                    <Input 
-                      type="email" 
-                      placeholder="Seu e-mail *" 
-                      value={whatsappFormData.email} 
-                      onChange={e => setWhatsappFormData(prev => ({...prev, email: e.target.value}))} 
-                      className="h-8 text-sm border border-gray-300 rounded focus:border-green-500" 
-                      required 
-                    />
-                    
-                    <Input 
-                      type="tel" 
-                      placeholder="Seu telefone *" 
-                      value={whatsappFormData.phone} 
-                      onChange={e => setWhatsappFormData(prev => ({...prev, phone: e.target.value}))} 
-                      className="h-8 text-sm border border-gray-300 rounded focus:border-green-500" 
-                      required 
-                    />
-                    
-                    <Select 
-                      value={whatsappFormData.violationType} 
-                      onValueChange={value => setWhatsappFormData(prev => ({...prev, violationType: value}))}
-                    >
-                      <SelectTrigger className="h-8 text-sm border border-gray-300 rounded focus:border-green-500">
-                        <SelectValue placeholder="Tipo de multa (opcional)" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Excesso de Velocidade">Excesso de Velocidade</SelectItem>
-                        <SelectItem value="Excesso de Pontos">Excesso de Pontos</SelectItem>
-                        <SelectItem value="Bafômetro">Bafômetro</SelectItem>
-                        <SelectItem value="Suspensão da CNH">Suspensão da CNH</SelectItem>
-                        <SelectItem value="Cassação da CNH">Cassação da CNH</SelectItem>
-                        <SelectItem value="Outra">Outra</SelectItem>
-                      </SelectContent>
-                    </Select>
+            {/* Formulário compacto */}
+            <div className="p-4">
+              <div className="bg-white rounded-lg p-3 shadow-sm">
+                <p className="text-sm text-gray-800 mb-3">
+                  Olá, precisando de um suporte especializado ou de um orçamento sem custo? Me informe seus dados para iniciarmos uma conversa.
+                </p>
                 
-                    <Button 
-                      type="submit" 
-                      className="w-full h-10 bg-[#00A859] hover:bg-[#008A4B] text-white font-bold text-base rounded-[5px] flex items-center justify-center transition-all duration-300 hover:shadow-[0px_4px_6px_rgba(0,168,89,0.4)] border-0"
-                    >
-                      Enviar
-                    </Button>
-                  </form>
+                <form onSubmit={handleWhatsappSubmit} className="space-y-3">
+                  <Input 
+                    type="text" 
+                    placeholder="Nome *" 
+                    value={whatsappFormData.name} 
+                    onChange={e => setWhatsappFormData(prev => ({...prev, name: e.target.value}))} 
+                    className="h-9 text-sm bg-[#F0FFE8] border border-[#D0E8D0] rounded-lg placeholder:text-[#888888] focus:border-green-500" 
+                    required 
+                  />
                   
-                  <span className="text-xs text-gray-500 mt-2 block">agora</span>
-                </div>
+                  <Input 
+                    type="email" 
+                    placeholder="Email *" 
+                    value={whatsappFormData.email} 
+                    onChange={e => setWhatsappFormData(prev => ({...prev, email: e.target.value}))} 
+                    className="h-9 text-sm bg-[#F0FFE8] border border-[#D0E8D0] rounded-lg placeholder:text-[#888888] focus:border-green-500" 
+                    required 
+                  />
+                  
+                  <Input 
+                    type="tel" 
+                    placeholder="🇧🇷 +55 Telefone *" 
+                    value={whatsappFormData.phone} 
+                    onChange={e => setWhatsappFormData(prev => ({...prev, phone: e.target.value}))} 
+                    className="h-9 text-sm bg-[#F0FFE8] border border-[#D0E8D0] rounded-lg placeholder:text-[#888888] focus:border-green-500" 
+                    required 
+                  />
+                  
+                  <Select 
+                    value={whatsappFormData.violationType} 
+                    onValueChange={value => setWhatsappFormData(prev => ({...prev, violationType: value}))}
+                  >
+                    <SelectTrigger className="h-9 text-sm bg-[#F0FFE8] border border-[#D0E8D0] rounded-lg placeholder:text-[#888888] focus:border-green-500">
+                      <SelectValue placeholder="Tipo da Multa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Excesso de Velocidade">Excesso de Velocidade</SelectItem>
+                      <SelectItem value="Excesso de Pontos">Excesso de Pontos</SelectItem>
+                      <SelectItem value="Bafômetro">Bafômetro</SelectItem>
+                      <SelectItem value="Suspensão da CNH">Suspensão da CNH</SelectItem>
+                      <SelectItem value="Cassação da CNH">Cassação da CNH</SelectItem>
+                      <SelectItem value="Outra">Outra</SelectItem>
+                    </SelectContent>
+                  </Select>
+              
+                  <Button 
+                    type="submit" 
+                    className="w-full h-10 bg-[#006644] hover:bg-[#005533] text-white font-bold text-base rounded-lg flex items-center justify-center transition-all duration-300 hover:shadow-[0px_4px_6px_rgba(0,102,68,0.4)] border-0"
+                  >
+                    Iniciar conversa
+                  </Button>
+                </form>
               </div>
             </div>
 
