@@ -312,15 +312,6 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Barra de digitação */}
-            <div className="bg-[#F0F0F0] p-3 flex items-center space-x-2">
-              <div className="flex-1 bg-white rounded-full px-3 py-2">
-                <span className="text-sm text-gray-500">Digite uma mensagem...</span>
-              </div>
-              <div className="w-8 h-8 bg-[#25D366] rounded-full flex items-center justify-center">
-                <span className="text-white text-sm">🎤</span>
-              </div>
-            </div>
           </DialogContent>
         </Dialog>
       </div>
