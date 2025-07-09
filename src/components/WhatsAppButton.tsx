@@ -25,13 +25,13 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
       // Remove todos os não dígitos
       const numbersOnly = value.replace(/\D/g, '');
       
-      // Limita a 9 dígitos (padrão celular brasileiro 9XXXX-YYYY)
-      const limitedNumbers = numbersOnly.slice(0, 9);
+      // Limita a 11 dígitos (DD9XXXXYYYY)
+      const limitedNumbers = numbersOnly.slice(0, 11);
       
-      // Aplica máscara XXXX-YYYY
+      // Aplica máscara DD9XXXX-YYYY
       let formattedValue = '';
-      if (limitedNumbers.length > 4) {
-        formattedValue = `${limitedNumbers.slice(0, 4)}-${limitedNumbers.slice(4)}`;
+      if (limitedNumbers.length > 7) {
+        formattedValue = `${limitedNumbers.slice(0, 7)}-${limitedNumbers.slice(7)}`;
       } else {
         formattedValue = limitedNumbers;
       }
@@ -57,9 +57,9 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
       return;
     }
 
-    // Converter telefone para formato WhatsApp (+55119XXXXYYYY)
+    // Converter telefone para formato WhatsApp (+55DD9XXXXYYYY)
     const phoneDigits = formData.telefone.replace(/\D/g, '');
-    const whatsappPhone = `5511${phoneDigits}`;
+    const whatsappPhone = `55${phoneDigits}`;
 
     // Criar mensagem para WhatsApp
     const message = `Olá! Preciso de ajuda com multa de trânsito.\n\n*Dados do contato:*\nNome: ${formData.nome}\nEmail: ${formData.email || 'Não informado'}\nTelefone: ${formData.telefone}\nTipo de multa: ${formData.tipoMulta || 'Não especificado'}\n\nAguardo retorno para análise do meu caso.`;
@@ -177,7 +177,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
                   <input
                     type="tel"
                     name="telefone"
-                    placeholder="9XXXX-YYYY *"
+                    placeholder="DD9XXXXYYYY *"
                     value={formData.telefone}
                     onChange={handleInputChange}
                     className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-green-50"
