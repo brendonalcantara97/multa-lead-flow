@@ -260,7 +260,7 @@ const Index = () => {
               </div>
 
               {/* Bloco do formulário */}
-              <div className="bg-white rounded-lg p-4 shadow-sm">
+              <div className="rounded-lg p-4 shadow-sm">
                 <form onSubmit={handleWhatsappSubmit} className="space-y-3">
                   <Input 
                     type="text" 
