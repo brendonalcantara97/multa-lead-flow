@@ -216,7 +216,7 @@ const Index = () => {
             />
           </DialogTrigger>
           <DialogContent 
-            className="fixed bottom-20 right-6 w-80 max-w-none p-0 border-0"
+            className="fixed bottom-20 right-6 w-auto max-w-none p-0 border-0 h-auto"
             style={{
               width: '320px',
               borderRadius: '12px',
