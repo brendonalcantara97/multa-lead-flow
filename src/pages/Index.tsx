@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MessageCircle, Scale, Shield, Car, MapPin, Phone, Mail, Star, Users, Award } from "lucide-react";
 import { toast } from "sonner";
+
 const Index = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -14,13 +15,15 @@ const Index = () => {
     phone: "",
     violationType: ""
   });
+
   const [whatsappFormData, setWhatsappFormData] = useState({
     name: "",
-    email: "",
     phone: "",
     violationType: ""
   });
+
   const [isWhatsappDialogOpen, setIsWhatsappDialogOpen] = useState(false);
+
   const [trackingData, setTrackingData] = useState({
     utm_source: "",
     utm_medium: "",
@@ -31,6 +34,7 @@ const Index = () => {
     fbc: "",
     ga_client_id: ""
   });
+
   useEffect(() => {
     // Capturar parâmetros de tracking
     const urlParams = new URLSearchParams(window.location.search);
@@ -44,18 +48,19 @@ const Index = () => {
       fbc: localStorage.getItem('_fbc') || '',
       ga_client_id: getCookie('_ga') || ''
     };
+    
     setTrackingData(trackingInfo);
-
+    
     // Log para debug - mostrar dados capturados
     console.log('🔍 Dados de tracking capturados:', trackingInfo);
     console.log('📊 URL atual:', window.location.href);
     console.log('🍪 Cookies disponíveis:', document.cookie);
-
+    
     // Simular dados para teste se não houver parâmetros reais
     if (!trackingInfo.utm_source && !trackingInfo.gclid) {
       const simulatedData = {
         utm_source: 'google',
-        utm_medium: 'cpc',
+        utm_medium: 'cpc', 
         utm_campaign: 'teste_multas_poa',
         utm_term: 'multa+porto+alegre',
         gclid: 'CjwKCAiA1-6PBhBKEiwA',
@@ -63,27 +68,31 @@ const Index = () => {
         fbc: 'fb.1.1234567890.AbCdEfGhIjKlMnOpQrStUvWxYz',
         ga_client_id: 'GA1.2.1234567890.1234567890'
       };
+      
       console.log('🧪 Simulando dados de tracking para teste:', simulatedData);
       setTrackingData(simulatedData);
     }
   }, []);
+
   const getCookie = (name: string) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop()?.split(';').shift();
     return '';
   };
+
   const scrollToForm = () => {
-    document.getElementById('form-section')?.scrollIntoView({
-      behavior: 'smooth'
-    });
+    document.getElementById('form-section')?.scrollIntoView({ behavior: 'smooth' });
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!formData.name || !formData.email || !formData.phone) {
       toast.error("Por favor, preencha todos os campos obrigatórios");
       return;
     }
+
     try {
       // Salvar lead no localStorage (simulando banco de dados)
       const leads = JSON.parse(localStorage.getItem('sos-leads') || '[]');
@@ -96,18 +105,20 @@ const Index = () => {
         observations: '',
         documents: []
       };
-
+      
       // Log detalhado do lead sendo salvo
       console.log('💾 Salvando novo lead:', newLead);
       console.log('📈 Dados de tracking incluídos:', trackingData);
+      
       leads.push(newLead);
       localStorage.setItem('sos-leads', JSON.stringify(leads));
 
       // Mostrar dados salvos no console
       console.log('✅ Lead salvo com sucesso! Total de leads:', leads.length);
       console.log('🗄️ Todos os leads no localStorage:', leads);
-      toast.success("Dados enviados com sucesso! Redirecionando para WhatsApp...");
 
+      toast.success("Dados enviados com sucesso! Redirecionando para WhatsApp...");
+      
       // Redirecionar para WhatsApp após 2 segundos
       setTimeout(() => {
         const message = encodeURIComponent("Olá! Preenchi o formulário no site da SOS Multas e gostaria de receber ajuda com a minha multa.");
@@ -115,30 +126,29 @@ const Index = () => {
       }, 2000);
 
       // Limpar formulário
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        violationType: ""
-      });
+      setFormData({ name: "", email: "", phone: "", violationType: "" });
+      
     } catch (error) {
       console.error('❌ Erro ao salvar lead:', error);
       toast.error("Erro ao enviar dados. Tente novamente.");
     }
   };
+
   const handleWhatsappSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!whatsappFormData.name || !whatsappFormData.email || !whatsappFormData.phone) {
-      toast.error("Por favor, preencha todos os campos obrigatórios");
+    
+    if (!whatsappFormData.name || !whatsappFormData.phone) {
+      toast.error("Por favor, preencha nome e telefone");
       return;
     }
+
     try {
       // Salvar lead simplificado
       const leads = JSON.parse(localStorage.getItem('sos-leads') || '[]');
       const newLead = {
         id: Date.now(),
         name: whatsappFormData.name,
-        email: whatsappFormData.email,
+        email: '',
         phone: whatsappFormData.phone,
         violationType: whatsappFormData.violationType || 'Não informado',
         ...trackingData,
@@ -147,47 +157,62 @@ const Index = () => {
         observations: 'Lead via botão WhatsApp',
         documents: []
       };
-
+      
       // Log do lead WhatsApp
       console.log('📱 Salvando lead via WhatsApp:', newLead);
       console.log('📊 Tracking data incluído:', trackingData);
+      
       leads.push(newLead);
       localStorage.setItem('sos-leads', JSON.stringify(leads));
-      console.log('✅ Lead WhatsApp salvo! Total:', leads.length);
-      toast.success("Dados salvos! Redirecionando para WhatsApp...");
 
+      console.log('✅ Lead WhatsApp salvo! Total:', leads.length);
+
+      toast.success("Dados salvos! Redirecionando para WhatsApp...");
+      
       // Fechar dialog e redirecionar
       setIsWhatsappDialogOpen(false);
       setTimeout(() => {
-        const message = encodeURIComponent(`Olá! Meu nome é ${whatsappFormData.name}, meu telefone é ${whatsappFormData.phone}. Tenho uma dúvida sobre uma multa${whatsappFormData.violationType ? ` por ${whatsappFormData.violationType}` : ''}. Poderiam me ajudar?`);
+        const message = encodeURIComponent(`Olá! Sou ${whatsappFormData.name} e gostaria de receber ajuda com minha multa${whatsappFormData.violationType ? ` de ${whatsappFormData.violationType}` : ''}.`);
         window.open(`https://wa.me/5551999999999?text=${message}`, '_blank');
       }, 1000);
 
       // Limpar formulário
-      setWhatsappFormData({
-        name: "",
-        email: "",
-        phone: "",
-        violationType: ""
-      });
+      setWhatsappFormData({ name: "", phone: "", violationType: "" });
+      
     } catch (error) {
       console.error('❌ Erro ao salvar lead WhatsApp:', error);
       toast.error("Erro ao enviar dados. Tente novamente.");
     }
   };
+
   const selectViolationType = (type: string) => {
-    setFormData(prev => ({
-      ...prev,
-      violationType: type
-    }));
+    setFormData(prev => ({ ...prev, violationType: type }));
     scrollToForm();
   };
-  return <div className="min-h-screen bg-white">
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Painel de Debug (apenas para testes) */}
+      <div className="fixed top-20 left-4 bg-black/80 text-white p-4 rounded-lg text-xs z-40 max-w-sm">
+        <h4 className="font-bold text-yellow-400 mb-2">🧪 Debug - Tracking Data:</h4>
+        <div className="space-y-1">
+          <div><strong>UTM Source:</strong> {trackingData.utm_source || 'não detectado'}</div>
+          <div><strong>UTM Medium:</strong> {trackingData.utm_medium || 'não detectado'}</div>
+          <div><strong>UTM Campaign:</strong> {trackingData.utm_campaign || 'não detectado'}</div>
+          <div><strong>GCLID:</strong> {trackingData.gclid || 'não detectado'}</div>
+          <div><strong>Facebook Pixel:</strong> {trackingData.fbp || 'não detectado'}</div>
+        </div>
+        <p className="text-yellow-300 mt-2 text-xs">Abra o console (F12) para mais detalhes</p>
+      </div>
 
       {/* Header */}
       <header className="fixed top-0 w-full bg-white shadow-sm z-50 border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas - Assessoria de Trânsito" className="h-12" />
+          <img 
+            src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" 
+            alt="SOS Multas - Assessoria de Trânsito" 
+            className="h-12"
+          />
           <nav className="hidden md:flex space-x-6">
             <a href="#sobre" className="text-gray-700 hover:text-orange-500 transition-colors">Sobre</a>
             <a href="#servicos" className="text-gray-700 hover:text-orange-500 transition-colors">Serviços</a>
@@ -202,169 +227,70 @@ const Index = () => {
       <div className="fixed bottom-6 right-6 z-50">
         <Dialog open={isWhatsappDialogOpen} onOpenChange={setIsWhatsappDialogOpen}>
           <DialogTrigger asChild>
-            <button 
-              className="shake cursor-pointer border-0 outline-none"
-              style={{
-                borderRadius: '0',
-                background: 'transparent url(/lovable-uploads/c45dac41-8b04-49b4-ac99-7529c88b1d75.png) center center no-repeat',
-                boxShadow: 'none',
-                width: '60px',
-                height: '61px',
-                backgroundSize: '60px 60px',
-                border: '0'
-              }}
-            />
-          </DialogTrigger>
-          <DialogContent 
-            className="fixed bottom-20 right-6 w-80 max-w-none p-0 border-0 overflow-hidden max-h-[95vh] overflow-y-auto"
-            style={{
-              width: '320px',
-              borderRadius: '12px',
-              boxShadow: '0 10px 20px rgba(0, 0, 0, 0.3)',
-              background: '#ECE5DD',
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='50' height='50' viewBox='0 0 50 50' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M0 0h50v50H0z'/%3E%3Cpath d='M10 10h30v30H10zM0 0h10v10H0zM40 0h10v10H40zM0 40h10v10H0zM40 40h10v10H40z' fill-opacity='0.02'/%3E%3C/g%3E%3C/svg%3E")`
-            }}
-          >
-            {/* Header do WhatsApp */}
-            <div style={{ backgroundColor: '#25D366' }} className="text-white p-3 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center overflow-hidden">
-                  <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas" className="w-full h-full object-contain" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm">SOS Multas</h3>
-                  <p className="text-xs flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#25D366' }}></div>
-                    Online
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsWhatsappDialogOpen(false)}
-                className="text-white hover:bg-green-700 p-1 rounded transition-colors"
+            <Button className="bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-lg">
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                fill="currentColor"
+                className="h-6 w-6"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="m18 6-12 12"/>
-                  <path d="m6 6 12 12"/>
-                </svg>
-              </button>
-            </div>
-
-            {/* Conversa simulada */}
-            <div className="p-4 min-h-[320px] max-h-[400px] overflow-y-auto space-y-3">
-              {/* Mensagem da empresa */}
-              <div className="flex justify-start">
-                <div className="bg-white rounded-md border border-[#cacaca] border-l border-b p-3 max-w-[340px] shadow-sm relative" style={{
-                  borderTopStyle: 'none',
-                  borderRightStyle: 'none',
-                  borderRadius: '6px',
-                  alignSelf: 'flex-start'
-                }}>
-                  <p className="text-sm text-[#4a4a4a] font-['Open_Sans',sans-serif] mb-3">
-                    Olá, precisando de um suporte especializado ou de um orçamento sem custo? Me informe seu email e telefone para iniciarmos uma conversa.
-                  </p>
-                </div>
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+              </svg>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-center text-green-600">
+                Fale conosco no WhatsApp
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleWhatsappSubmit} className="space-y-4">
+              <div>
+                <Input
+                  type="text"
+                  placeholder="Seu nome *"
+                  value={whatsappFormData.name}
+                  onChange={(e) => setWhatsappFormData(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full"
+                  required
+                />
               </div>
-
-              {/* Formulário como resposta do usuário */}
-              <div className="flex justify-end">
-                <div className="max-w-[340px] w-full" style={{ alignSelf: 'flex-end' }}>
-                  <form onSubmit={handleWhatsappSubmit} className="space-y-2.5">
-                    <Input 
-                      type="text" 
-                      placeholder="Nome *" 
-                      value={whatsappFormData.name} 
-                      onChange={e => setWhatsappFormData(prev => ({...prev, name: e.target.value}))} 
-                      className="w-full h-10 text-sm text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#25D366] outline-none"
-                      style={{
-                        backgroundColor: '#DCF8C6',
-                        fontFamily: 'Open Sans, sans-serif'
-                      }}
-                      required 
-                    />
-                    
-                    <Input 
-                      type="email" 
-                      placeholder="Email *" 
-                      value={whatsappFormData.email} 
-                      onChange={e => setWhatsappFormData(prev => ({...prev, email: e.target.value}))} 
-                      className="w-full h-10 text-sm text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#25D366] outline-none"
-                      style={{
-                        backgroundColor: '#DCF8C6',
-                        fontFamily: 'Open Sans, sans-serif'
-                      }}
-                      required 
-                    />
-                    
-                    <div className="flex gap-2">
-                      <div className="flex items-center px-3 rounded-md border border-[#cacaca]" style={{ backgroundColor: '#DCF8C6' }}>
-                        <svg width="24" height="16" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <rect width="24" height="16" fill="#009739"/>
-                          <path d="M12 2L20 8L12 14L4 8L12 2Z" fill="#FFDF00"/>
-                          <circle cx="12" cy="8" r="3.2" fill="#002776"/>
-                          <circle cx="10.5" cy="5.5" r="0.15" fill="#FFDF00"/>
-                          <circle cx="13.5" cy="5.5" r="0.15" fill="#FFDF00"/>
-                          <circle cx="11" cy="6.2" r="0.1" fill="#FFDF00"/>
-                          <circle cx="13" cy="6.2" r="0.1" fill="#FFDF00"/>
-                          <circle cx="12" cy="5.8" r="0.12" fill="#FFDF00"/>
-                          <circle cx="10.2" cy="9.5" r="0.1" fill="#FFDF00"/>
-                          <circle cx="13.8" cy="9.5" r="0.1" fill="#FFDF00"/>
-                          <circle cx="11.5" cy="10" r="0.08" fill="#FFDF00"/>
-                          <circle cx="12.5" cy="10" r="0.08" fill="#FFDF00"/>
-                        </svg>
-                        <span className="ml-2 text-sm text-[#4a4a4a]">+55</span>
-                      </div>
-                      <Input 
-                        type="tel" 
-                        placeholder="Telefone *" 
-                        value={whatsappFormData.phone} 
-                        onChange={e => setWhatsappFormData(prev => ({...prev, phone: e.target.value}))} 
-                        className="flex-1 h-10 text-sm text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#25D366] outline-none"
-                        style={{
-                          backgroundColor: '#DCF8C6',
-                          fontFamily: 'Open Sans, sans-serif'
-                        }}
-                        required 
-                      />
-                    </div>
-                    
-                    <Select 
-                      value={whatsappFormData.violationType} 
-                      onValueChange={value => setWhatsappFormData(prev => ({...prev, violationType: value}))}
-                    >
-                      <SelectTrigger 
-                        className="w-full h-10 text-sm text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#25D366] outline-none"
-                        style={{
-                          backgroundColor: '#DCF8C6',
-                          fontFamily: 'Open Sans, sans-serif'
-                        }}
-                      >
-                        <SelectValue placeholder="Tipo de multa (opcional)" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Excesso de Velocidade">Excesso de Velocidade</SelectItem>
-                        <SelectItem value="Excesso de Pontos">Excesso de Pontos</SelectItem>
-                        <SelectItem value="Bafômetro">Bafômetro</SelectItem>
-                        <SelectItem value="Suspensão da CNH">Suspensão da CNH</SelectItem>
-                        <SelectItem value="Cassação da CNH">Cassação da CNH</SelectItem>
-                        <SelectItem value="Outra">Outra</SelectItem>
-                      </SelectContent>
-                    </Select>
-                
-                    <Button 
-                      type="submit" 
-                      className="w-full max-w-[150px] h-10 text-white text-base font-normal rounded-md border-none cursor-pointer flex items-center justify-center self-end ml-auto"
-                      style={{
-                        backgroundColor: '#075E54',
-                        fontFamily: 'Open Sans, sans-serif'
-                      }}
-                    >
-                      Iniciar conversa
-                    </Button>
-                  </form>
-                </div>
+              
+              <div>
+                <Input
+                  type="tel"
+                  placeholder="Seu WhatsApp *"
+                  value={whatsappFormData.phone}
+                  onChange={(e) => setWhatsappFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  className="w-full"
+                  required
+                />
               </div>
-            </div>
+              
+              <div>
+                <Select value={whatsappFormData.violationType} onValueChange={(value) => setWhatsappFormData(prev => ({ ...prev, violationType: value }))}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Tipo de multa (opcional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="excesso-velocidade">Excesso de Velocidade</SelectItem>
+                    <SelectItem value="avanco-sinal">Avanço de Sinal</SelectItem>
+                    <SelectItem value="bafometro">Bafômetro</SelectItem>
+                    <SelectItem value="suspensao">Suspensão</SelectItem>
+                    <SelectItem value="cassacao">Cassação</SelectItem>
+                    <SelectItem value="outras">Outras</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <Button 
+                type="submit"
+                className="w-full bg-green-500 hover:bg-green-600 text-white"
+              >
+                Enviar para WhatsApp
+              </Button>
+            </form>
           </DialogContent>
         </Dialog>
       </div>
@@ -377,8 +303,13 @@ const Index = () => {
             <span className="text-orange-500">Exerça seu direito</span> de defesa<br />
             com especialistas.
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">Consultoria Especializada em Defesa de Multas e CNH em Porto Alegre e Região</p>
-          <Button onClick={scrollToForm} className="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 py-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200">
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Consultoria Gratuita para Motoristas em Porto Alegre e Região.
+          </p>
+          <Button 
+            onClick={scrollToForm}
+            className="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 py-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200"
+          >
             Fazer minha análise gratuita
           </Button>
         </div>
@@ -390,10 +321,15 @@ const Index = () => {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold text-black mb-6">Sobre a SOS Multas</h2>
-              <p className="text-gray-600 mb-4">Há mais de 15 anos a SOS Multas atua com ética e transparência na defesa dos direitos dos motoristas em Porto Alegre e região. Nossa equipe especializada em Matéria de Trânsito analisa cuidadosamente cada situação para identificar as melhores estratégias para defesa de multas, suspensão e cassação da CNH.</p>
-              <p className="text-gray-600 mb-6">Aqui, você conta com profissionais experientes que esclarecem suas dúvidas e realizam uma avaliação gratuita inicial para verificar as possibilidades legais de defesa do seu caso.
-
-Solicite agora mesmo sua análise gratuita!</p>
+              <p className="text-gray-600 mb-4">
+                Há mais de 15 anos defendendo os direitos dos motoristas em Porto Alegre e região. 
+                Nossa equipe especializada em direito de trânsito já ajudou milhares de pessoas a 
+                reverter multas indevidas e manter suas CNHs.
+              </p>
+              <p className="text-gray-600 mb-6">
+                Oferecemos análise gratuita e trabalhamos com total transparência, sempre 
+                buscando a melhor solução para cada caso.
+              </p>
               <div className="flex flex-wrap gap-6">
                 <div className="flex items-center gap-2">
                   <Award className="h-5 w-5 text-orange-500" />
@@ -410,7 +346,11 @@ Solicite agora mesmo sua análise gratuita!</p>
               </div>
             </div>
             <div className="bg-gray-50 p-8 rounded-lg">
-              <img alt="Equipe SOS Multas" src="/lovable-uploads/78d36b32-b682-4d0d-aa1f-ecba95b6ae4a.jpg" className="w-full h-64 rounded-lg object-fill" />
+              <img 
+                src="https://images.unsplash.com/photo-1556157382-97eda2f9e2bf?w=500&h=300&fit=crop" 
+                alt="Equipe SOS Multas" 
+                className="w-full h-64 object-cover rounded-lg"
+              />
             </div>
           </div>
         </div>
@@ -429,37 +369,46 @@ Solicite agora mesmo sua análise gratuita!</p>
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <Input type="text" placeholder="Nome completo *" value={formData.name} onChange={e => setFormData(prev => ({
-                ...prev,
-                name: e.target.value
-              }))} className="w-full p-4 text-lg border-2 focus:border-orange-500" required />
+                <Input
+                  type="text"
+                  placeholder="Nome completo *"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full p-4 text-lg border-2 focus:border-orange-500"
+                  required
+                />
               </div>
               
               <div>
-                <Input type="email" placeholder="E-mail *" value={formData.email} onChange={e => setFormData(prev => ({
-                ...prev,
-                email: e.target.value
-              }))} className="w-full p-4 text-lg border-2 focus:border-orange-500" required />
+                <Input
+                  type="email"
+                  placeholder="E-mail *"
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full p-4 text-lg border-2 focus:border-orange-500"
+                  required
+                />
               </div>
               
               <div>
-                <Input type="tel" placeholder="Telefone com DDD *" value={formData.phone} onChange={e => setFormData(prev => ({
-                ...prev,
-                phone: e.target.value
-              }))} className="w-full p-4 text-lg border-2 focus:border-orange-500" required />
+                <Input
+                  type="tel"
+                  placeholder="Telefone com DDD *"
+                  value={formData.phone}
+                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  className="w-full p-4 text-lg border-2 focus:border-orange-500"
+                  required
+                />
               </div>
               
               <div>
-                <Select value={formData.violationType} onValueChange={value => setFormData(prev => ({
-                ...prev,
-                violationType: value
-              }))}>
+                <Select value={formData.violationType} onValueChange={(value) => setFormData(prev => ({ ...prev, violationType: value }))}>
                   <SelectTrigger className="w-full p-4 text-lg border-2 focus:border-orange-500">
                     <SelectValue placeholder="Tipo de multa" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="excesso-velocidade">Excesso de Velocidade</SelectItem>
-                    <SelectItem value="excesso-pontos">Excesso de Pontos</SelectItem>
+                    <SelectItem value="avanco-sinal">Avanço de Sinal</SelectItem>
                     <SelectItem value="bafometro">Bafômetro</SelectItem>
                     <SelectItem value="suspensao">Suspensão</SelectItem>
                     <SelectItem value="cassacao">Cassação</SelectItem>
@@ -468,7 +417,10 @@ Solicite agora mesmo sua análise gratuita!</p>
                 </Select>
               </div>
               
-              <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white text-lg py-4 rounded-lg font-semibold">
+              <Button 
+                type="submit"
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white text-lg py-4 rounded-lg font-semibold"
+              >
                 Enviar e Receber Análise Gratuita
               </Button>
             </form>
@@ -485,7 +437,7 @@ Solicite agora mesmo sua análise gratuita!</p>
               <CardContent className="pt-6">
                 <Scale className="h-12 w-12 text-orange-500 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Defesa de Multas</h3>
-                <p className="text-gray-600 mb-4">Recebeu uma multa e quer recorrer? Nossa equipe analisa detalhadamente cada autuação e identifica possíveis falhas ou irregularidades que possam embasar a defesa.</p>
+                <p className="text-gray-600 mb-4">Contestação de multas de trânsito com alta taxa de sucesso</p>
                 <Button variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-50">
                   Tenho esse problema
                 </Button>
@@ -495,8 +447,8 @@ Solicite agora mesmo sua análise gratuita!</p>
             <Card className="text-center p-6 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => selectViolationType('suspensao')}>
               <CardContent className="pt-6">
                 <Shield className="h-12 w-12 text-orange-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Defesa Contra Suspensão da CNH</h3>
-                <p className="text-gray-600 mb-4">Sua CNH foi suspensa? Atuamos com estratégias assertivas para defender seu direito de continuar dirigindo dentro das possibilidades legais.</p>
+                <h3 className="text-xl font-semibold mb-2">Suspensão da CNH</h3>
+                <p className="text-gray-600 mb-4">Defesa contra suspensão do direito de dirigir</p>
                 <Button variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-50">
                   Tenho esse problema
                 </Button>
@@ -506,8 +458,8 @@ Solicite agora mesmo sua análise gratuita!</p>
             <Card className="text-center p-6 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => selectViolationType('cassacao')}>
               <CardContent className="pt-6">
                 <Car className="h-12 w-12 text-orange-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Recurso Contra Cassação da CNH </h3>
-                <p className="text-gray-600 mb-4">Caso sua CNH esteja em risco de cassação, nossa equipe especializada atua rapidamente para proteger seu direito de dirigir, oferecendo recursos bem fundamentados.</p>
+                <h3 className="text-xl font-semibold mb-2">Cassação da CNH</h3>
+                <p className="text-gray-600 mb-4">Recursos contra cassação da carteira de habilitação</p>
                 <Button variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-50">
                   Tenho esse problema
                 </Button>
@@ -547,11 +499,10 @@ Solicite agora mesmo sua análise gratuita!</p>
             </AccordionItem>
             
             <AccordionItem value="item-4" className="bg-white rounded-lg px-6">
-              <AccordionTrigger className="text-left">Quanto tempo demora o recurso contra CNH suspensa ou cassada?</AccordionTrigger>
+              <AccordionTrigger className="text-left">Quanto custa o serviço?</AccordionTrigger>
               <AccordionContent>
-                Em média, um processo de defesa contra suspensão ou cassação da CNH pode durar entre 60 e 180 dias, 
-                dependendo do órgão responsável e da complexidade do caso. Durante esse tempo, a SOS Multas atua com 
-                agilidade e mantém você informado sobre cada avanço do processo.
+                A análise é gratuita. Os honorários são definidos após avaliação do caso e só cobramos em caso de sucesso 
+                na maioria dos processos. Transparência total desde o primeiro contato.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -563,23 +514,13 @@ Solicite agora mesmo sua análise gratuita!</p>
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-black mb-12">Nossas Unidades</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[{
-            city: "Porto Alegre",
-            address: "Av. Assis Brasil, 3688 - Jardim Lindóia",
-            phone: "(51) 3307-7772"
-          }, {
-            city: "Capão da Canoa",
-            address: "R. Tupinambá, 749 - CENTRO, Capão da Canoa - RS, 95555-000",
-            phone: "(51) 3665-5226"
-          }, {
-            city: "Florianópolis",
-            address: "Atendimento online",
-            phone: "(51) 3307-7772"
-          }, {
-            city: "Curitiba",
-            address: "Atendimento online",
-            phone: "(41) 99265-6042"
-          }].map((unit, index) => <Card key={index} className="p-6 text-center hover:shadow-lg transition-shadow">
+            {[
+              { city: "Porto Alegre", address: "Rua dos Andradas, 1234 - Centro", phone: "(51) 3333-4444" },
+              { city: "Capão da Canoa", address: "Av. Paraguassu, 567 - Centro", phone: "(51) 3333-5555" },
+              { city: "Florianópolis", address: "Rua Felipe Schmidt, 890 - Centro", phone: "(48) 3333-6666" },
+              { city: "Curitiba", address: "Rua XV de Novembro, 321 - Centro", phone: "(41) 3333-7777" }
+            ].map((unit, index) => (
+              <Card key={index} className="p-6 text-center hover:shadow-lg transition-shadow">
                 <CardContent className="pt-0">
                   <MapPin className="h-8 w-8 text-orange-500 mx-auto mb-4" />
                   <h3 className="font-semibold text-lg mb-2">{unit.city}</h3>
@@ -589,7 +530,8 @@ Solicite agora mesmo sua análise gratuita!</p>
                     <span className="text-sm font-semibold">{unit.phone}</span>
                   </div>
                 </CardContent>
-              </Card>)}
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -607,12 +549,11 @@ Solicite agora mesmo sua análise gratuita!</p>
               </p>
               <div className="flex items-center gap-2 mb-2">
                 <Mail className="h-4 w-4 text-orange-500" />
-                <span>sosmultaspoa@gmail.com</span>
+                <span>contato@sosmultaspoa.com.br</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-orange-500" />
-                <span>(51) 3307-7772
-              </span>
+                <span>(51) 99999-9999</span>
               </div>
             </div>
             
@@ -629,9 +570,9 @@ Solicite agora mesmo sua análise gratuita!</p>
             <div>
               <h3 className="font-semibold mb-4">Sede Principal</h3>
               <p className="text-gray-400">
-                Av. Assis Brasil, 3688<br />
-                Jardim Lindóia - Porto Alegre/RS<br />
-                CEP: 91010-003
+                Rua dos Andradas, 1234<br />
+                Centro - Porto Alegre/RS<br />
+                CEP: 90020-000
               </p>
             </div>
           </div>
@@ -641,6 +582,8 @@ Solicite agora mesmo sua análise gratuita!</p>
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
