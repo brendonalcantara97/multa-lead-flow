@@ -159,8 +159,8 @@ const Index = () => {
       // Fechar dialog e redirecionar
       setIsWhatsappDialogOpen(false);
       setTimeout(() => {
-        const message = encodeURIComponent(`Olá! Meu nome é ${whatsappFormData.name}, meu telefone é ${whatsappFormData.phone}. Tenho uma dúvida sobre uma multa${whatsappFormData.violationType ? ` por ${whatsappFormData.violationType}` : ''}. Poderiam me ajudar?`);
-        window.open(`https://wa.me/5551999999999?text=${message}`, '_blank');
+        const message = encodeURIComponent(`Olá! Meu nome é ${whatsappFormData.name}. Tenho uma dúvida sobre uma multa${whatsappFormData.violationType ? ` por ${whatsappFormData.violationType}` : ''}. Poderiam me ajudar?`);
+        window.open(`https://wa.me/555133077772?text=${message}`, '_blank');
       }, 1000);
 
       // Limpar formulário
