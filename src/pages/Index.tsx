@@ -298,10 +298,13 @@ const Index = () => {
                     
                     <div className="flex gap-2">
                       <div className="flex items-center px-3 rounded-md border border-[#cacaca]" style={{ backgroundColor: '#DCF8C6' }}>
-                        <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
-                          <rect width="20" height="14" fill="#009739"/>
-                          <rect y="4.67" width="20" height="4.67" fill="#FFDF00"/>
-                          <rect y="9.33" width="20" height="4.67" fill="#002776"/>
+                        <svg width="24" height="16" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect width="24" height="16" fill="#009739"/>
+                          <rect y="5.33" width="24" height="5.33" fill="#FFDF00"/>
+                          <rect y="10.67" width="24" height="5.33" fill="#002776"/>
+                          <circle cx="12" cy="8" r="3.5" fill="#FFDF00"/>
+                          <circle cx="12" cy="8" r="2.5" fill="#002776"/>
+                          <text x="12" y="9" textAnchor="middle" fontSize="1.5" fill="#FFDF00">★</text>
                         </svg>
                         <span className="ml-2 text-sm text-[#4a4a4a]">+55</span>
                       </div>
