@@ -202,75 +202,135 @@ const Index = () => {
       <div className="fixed bottom-6 right-6 z-50">
         <Dialog open={isWhatsappDialogOpen} onOpenChange={setIsWhatsappDialogOpen}>
           <DialogTrigger asChild>
-            <div className="w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-105 transition-all duration-200 shake">
-              <MessageCircle className="w-8 h-8 text-white" />
-            </div>
+            <button 
+              className="shake cursor-pointer border-0 outline-none"
+              style={{
+                borderRadius: '0',
+                background: 'transparent url(/lovable-uploads/c45dac41-8b04-49b4-ac99-7529c88b1d75.png) center center no-repeat',
+                boxShadow: 'none',
+                width: '60px',
+                height: '61px',
+                backgroundSize: '60px 60px',
+                border: '0'
+              }}
+            />
           </DialogTrigger>
           <DialogContent 
-            className="fixed bottom-20 right-6 w-80 max-w-none p-0 border-0 shadow-2xl rounded-lg overflow-hidden"
+            className="fixed bottom-20 right-6 w-80 max-w-none p-0 border-0 shadow-2xl rounded-2xl overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, #ece5dd 0%, #ddd5cc 100%)',
+              backgroundImage: `
+                radial-gradient(circle at 20% 20%, rgba(0,0,0,0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0,0,0,0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(0,0,0,0.02) 0%, transparent 50%)
+              `
+            }}
           >
-            {/* Header verde escuro */}
-            <div className="bg-[#006644] text-white p-4 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas" className="w-8 h-8 rounded-full" />
-                <div>
-                  <h3 className="font-medium text-sm">SOS Multas</h3>
-                </div>
+            {/* Header do WhatsApp */}
+            <div className="bg-[#128C7E] text-white p-3 flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
+                <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas" className="w-full h-full object-cover" />
               </div>
-              <span className="text-xs font-light">online</span>
-            </div>
-
-            {/* Corpo branco com formulário */}
-            <div className="bg-white p-4">
-              {/* Mensagem inicial */}
-              <div className="mb-4">
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  Olá, precisando de um suporte especializado ou de um orçamento sem custo? Me informe seu email e telefone para iniciarmos uma conversa.
+              <div className="flex-1">
+                <h3 className="font-medium text-sm">SOS Multas</h3>
+                <p className="text-xs opacity-90 flex items-center gap-1">
+                  <div className="w-2 h-2 bg-green-300 rounded-full"></div>
+                  Online
                 </p>
               </div>
+            </div>
 
-              {/* Formulário */}
-              <form onSubmit={handleWhatsappSubmit} className="space-y-3">
-                <Input 
-                  type="text" 
-                  placeholder="Nome *" 
-                  value={whatsappFormData.name} 
-                  onChange={e => setWhatsappFormData(prev => ({...prev, name: e.target.value}))} 
-                  className="w-full h-10 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-[#006644] focus:border-[#006644]"
-                  required 
-                />
-                
-                <Input 
-                  type="email" 
-                  placeholder="Email *" 
-                  value={whatsappFormData.email} 
-                  onChange={e => setWhatsappFormData(prev => ({...prev, email: e.target.value}))} 
-                  className="w-full h-10 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-[#006644] focus:border-[#006644]"
-                  required 
-                />
-                
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center space-x-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                    <img src="https://flagcdn.com/w20/br.png" alt="Brasil" className="w-4 h-3" />
-                    <span className="text-sm text-gray-600">+55</span>
-                  </div>
-                  <Input 
-                    type="tel" 
-                    placeholder="Telefone *" 
-                    value={whatsappFormData.phone} 
-                    onChange={e => setWhatsappFormData(prev => ({...prev, phone: e.target.value}))} 
-                    className="flex-1 h-10 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-[#006644] focus:border-[#006644]"
-                    required 
-                  />
+            {/* Conversa simulada */}
+            <div className="p-4 min-h-[320px] max-h-[400px] overflow-y-auto space-y-3">
+              {/* Mensagem da empresa */}
+              <div className="flex justify-start">
+                <div className="bg-white rounded-lg rounded-bl-sm p-3 max-w-[250px] shadow-sm relative">
+                  <div className="absolute -left-2 bottom-0 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-white border-b-[8px] border-b-white"></div>
+                  <p className="text-sm text-gray-800">
+                    Olá! 👋 Bem-vindo à SOS Multas!
+                  </p>
+                  <p className="text-sm text-gray-800 mt-1">
+                    Como podemos te ajudar hoje?
+                  </p>
+                  <span className="text-xs text-gray-500 mt-1 block">agora</span>
                 </div>
+              </div>
+
+              {/* Formulário como mensagem */}
+              <div className="flex justify-start">
+                <div className="bg-white rounded-lg rounded-bl-sm p-3 max-w-[250px] shadow-sm relative">
+                  <div className="absolute -left-2 bottom-0 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-white border-b-[8px] border-b-white"></div>
+                  <p className="text-sm text-gray-800 mb-3">
+                     Para iniciar nossa conversa, preencha seus dados:
+                  </p>
+                  
+                  <form onSubmit={handleWhatsappSubmit} className="space-y-2">
+                    <Input 
+                      type="text" 
+                      placeholder="Seu nome *" 
+                      value={whatsappFormData.name} 
+                      onChange={e => setWhatsappFormData(prev => ({...prev, name: e.target.value}))} 
+                      className="h-8 text-sm border border-gray-300 rounded focus:border-green-500" 
+                      required 
+                    />
+                    
+                    <Input 
+                      type="email" 
+                      placeholder="Seu e-mail *" 
+                      value={whatsappFormData.email} 
+                      onChange={e => setWhatsappFormData(prev => ({...prev, email: e.target.value}))} 
+                      className="h-8 text-sm border border-gray-300 rounded focus:border-green-500" 
+                      required 
+                    />
+                    
+                    <Input 
+                      type="tel" 
+                      placeholder="Seu telefone *" 
+                      value={whatsappFormData.phone} 
+                      onChange={e => setWhatsappFormData(prev => ({...prev, phone: e.target.value}))} 
+                      className="h-8 text-sm border border-gray-300 rounded focus:border-green-500" 
+                      required 
+                    />
+                    
+                    <Select 
+                      value={whatsappFormData.violationType} 
+                      onValueChange={value => setWhatsappFormData(prev => ({...prev, violationType: value}))}
+                    >
+                      <SelectTrigger className="h-8 text-sm border border-gray-300 rounded focus:border-green-500">
+                        <SelectValue placeholder="Tipo de multa (opcional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Excesso de Velocidade">Excesso de Velocidade</SelectItem>
+                        <SelectItem value="Excesso de Pontos">Excesso de Pontos</SelectItem>
+                        <SelectItem value="Bafômetro">Bafômetro</SelectItem>
+                        <SelectItem value="Suspensão da CNH">Suspensão da CNH</SelectItem>
+                        <SelectItem value="Cassação da CNH">Cassação da CNH</SelectItem>
+                        <SelectItem value="Outra">Outra</SelectItem>
+                      </SelectContent>
+                    </Select>
                 
-                <Button 
-                  type="submit" 
-                  className="w-full h-10 bg-[#006644] hover:bg-[#005533] text-white text-sm font-medium rounded-md transition-colors"
-                >
-                  Iniciar conversa
-                </Button>
-              </form>
+                    <Button 
+                      type="submit" 
+                      size="sm"
+                      className="w-full bg-[#25D366] hover:bg-[#20BD5A] text-white h-8"
+                    >
+                      Enviar 📱
+                    </Button>
+                  </form>
+                  
+                  <span className="text-xs text-gray-500 mt-2 block">agora</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Barra de digitação */}
+            <div className="bg-[#F0F0F0] p-3 flex items-center space-x-2">
+              <div className="flex-1 bg-white rounded-full px-3 py-2">
+                <span className="text-sm text-gray-500">Digite uma mensagem...</span>
+              </div>
+              <div className="w-8 h-8 bg-[#25D366] rounded-full flex items-center justify-center">
+                <span className="text-white text-sm">🎤</span>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
