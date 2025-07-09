@@ -302,8 +302,6 @@ const Index = () => {
                           <rect width="24" height="16" fill="#009739"/>
                           <path d="M12 2L20 8L12 14L4 8L12 2Z" fill="#FFDF00"/>
                           <circle cx="12" cy="8" r="3.2" fill="#002776"/>
-                          <path d="M9.5 7.2C9.5 7.2 10.5 6.8 12 6.8C13.5 6.8 14.5 7.2 14.5 7.2" stroke="#FFDF00" strokeWidth="0.3" fill="none"/>
-                          <text x="12" y="7.8" textAnchor="middle" fontSize="2" fill="#FFDF00" fontFamily="Arial">ORDEM E PROGRESSO</text>
                           <circle cx="10.5" cy="5.5" r="0.15" fill="#FFDF00"/>
                           <circle cx="13.5" cy="5.5" r="0.15" fill="#FFDF00"/>
                           <circle cx="11" cy="6.2" r="0.1" fill="#FFDF00"/>
