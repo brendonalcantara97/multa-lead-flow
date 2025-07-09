@@ -199,18 +199,14 @@ const Index = () => {
       </header>
 
       {/* WhatsApp Float Button with Dialog */}
-      <div className="fixed z-50" style={{bottom: '-97px', right: '2px'}}>
+      <div className="fixed bottom-6 right-6 z-50">
         <Dialog open={isWhatsappDialogOpen} onOpenChange={setIsWhatsappDialogOpen}>
           <DialogTrigger asChild>
             <button 
-              className="shake animate-pulse cursor-pointer border-0 outline-none"
+              className="shake cursor-pointer border-0 outline-none"
               style={{
-                position: 'absolute',
-                bottom: '-97px',
-                right: '2px',
                 borderRadius: '0',
                 background: 'transparent url(/lovable-uploads/c45dac41-8b04-49b4-ac99-7529c88b1d75.png) center center no-repeat',
-                zIndex: 900,
                 boxShadow: 'none',
                 width: '60px',
                 height: '61px',
