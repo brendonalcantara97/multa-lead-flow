@@ -249,14 +249,18 @@ const Index = () => {
             </div>
 
             {/* Formulário compacto */}
-            <div className="p-4 pb-6">
+            <div className="p-4 pb-6 space-y-3">
+              {/* Bloco do texto */}
               <div className="bg-white rounded-lg p-4 shadow-sm">
-                <p className="text-sm text-gray-800 mb-4 text-left leading-relaxed">
+                <p className="text-sm text-gray-800 text-left leading-relaxed">
                   Olá! Está com dúvidas sobre multas ou problemas na CNH?<br />
                   Nossa equipe está pronta para te ajudar com uma avaliação gratuita e orientações especializadas.<br />
                   Preencha seus dados para começarmos a conversa pelo WhatsApp.
                 </p>
-                
+              </div>
+
+              {/* Bloco do formulário */}
+              <div className="bg-white rounded-lg p-4 shadow-sm">
                 <form onSubmit={handleWhatsappSubmit} className="space-y-3">
                   <Input 
                     type="text" 
