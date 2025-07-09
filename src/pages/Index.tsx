@@ -251,7 +251,7 @@ const Index = () => {
             </div>
 
             {/* Conversa simulada */}
-            <div className="p-4 space-y-3">
+            <div className="p-3 space-y-3 pb-2">
               {/* Mensagem da empresa */}
               <div className="flex justify-start">
                 <div className="bg-white rounded-md border border-[#cacaca] border-l border-b p-3 max-w-[340px] shadow-sm relative" style={{
