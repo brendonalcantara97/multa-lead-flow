@@ -5,9 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { MessageCircle, Scale, Shield, Car, MapPin, Phone, Mail, Star, Users, Award, X } from "lucide-react";
+import { MessageCircle, Scale, Shield, Car, MapPin, Phone, Mail, Star, Users, Award } from "lucide-react";
 import { toast } from "sonner";
-
 const Index = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -32,7 +31,6 @@ const Index = () => {
     fbc: "",
     ga_client_id: ""
   });
-
   useEffect(() => {
     // Capturar parâmetros de tracking
     const urlParams = new URLSearchParams(window.location.search);
@@ -69,20 +67,17 @@ const Index = () => {
       setTrackingData(simulatedData);
     }
   }, []);
-
   const getCookie = (name: string) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop()?.split(';').shift();
     return '';
   };
-
   const scrollToForm = () => {
     document.getElementById('form-section')?.scrollIntoView({
       behavior: 'smooth'
     });
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.phone) {
@@ -116,7 +111,7 @@ const Index = () => {
       // Redirecionar para WhatsApp após 2 segundos
       setTimeout(() => {
         const message = encodeURIComponent("Olá! Preenchi o formulário no site da SOS Multas e gostaria de receber ajuda com a minha multa.");
-        window.open(`https://wa.me/555133077772?text=${message}`, '_blank');
+        window.open(`https://wa.me/5551999999999?text=${message}`, '_blank');
       }, 2000);
 
       // Limpar formulário
@@ -131,11 +126,10 @@ const Index = () => {
       toast.error("Erro ao enviar dados. Tente novamente.");
     }
   };
-
   const handleWhatsappSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!whatsappFormData.name || !whatsappFormData.phone) {
-      toast.error("Por favor, preencha pelo menos o nome e telefone.");
+    if (!whatsappFormData.name || !whatsappFormData.email || !whatsappFormData.phone) {
+      toast.error("Por favor, preencha todos os campos obrigatórios");
       return;
     }
     try {
@@ -144,9 +138,9 @@ const Index = () => {
       const newLead = {
         id: Date.now(),
         name: whatsappFormData.name,
-        email: whatsappFormData.email || 'Não informado',
+        email: whatsappFormData.email,
         phone: whatsappFormData.phone,
-        violationType: whatsappFormData.violationType || 'Não especificado',
+        violationType: whatsappFormData.violationType || 'Não informado',
         ...trackingData,
         status: 'Novo Lead',
         createdAt: new Date().toISOString(),
@@ -165,17 +159,8 @@ const Index = () => {
       // Fechar dialog e redirecionar
       setIsWhatsappDialogOpen(false);
       setTimeout(() => {
-        const message = `Olá! Preciso de ajuda com multa de trânsito.
-
-*Dados do contato:*
-Nome: ${whatsappFormData.name}
-Email: ${whatsappFormData.email || 'Não informado'}
-Telefone: ${whatsappFormData.phone}
-Tipo de multa: ${whatsappFormData.violationType || 'Não especificado'}
-
-Aguardo retorno para análise do meu caso.`;
-        
-        window.open(`https://wa.me/5551999999999?text=${encodeURIComponent(message)}`, '_blank');
+        const message = encodeURIComponent(`Olá! Meu nome é ${whatsappFormData.name}, meu telefone é ${whatsappFormData.phone}. Tenho uma dúvida sobre uma multa${whatsappFormData.violationType ? ` por ${whatsappFormData.violationType}` : ''}. Poderiam me ajudar?`);
+        window.open(`https://wa.me/5551999999999?text=${message}`, '_blank');
       }, 1000);
 
       // Limpar formulário
@@ -190,7 +175,6 @@ Aguardo retorno para análise do meu caso.`;
       toast.error("Erro ao enviar dados. Tente novamente.");
     }
   };
-
   const selectViolationType = (type: string) => {
     setFormData(prev => ({
       ...prev,
@@ -198,9 +182,8 @@ Aguardo retorno para análise do meu caso.`;
     }));
     scrollToForm();
   };
+  return <div className="min-h-screen bg-white">
 
-  return (
-    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="fixed top-0 w-full bg-white shadow-sm z-50 border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -220,44 +203,50 @@ Aguardo retorno para análise do meu caso.`;
         <Dialog open={isWhatsappDialogOpen} onOpenChange={setIsWhatsappDialogOpen}>
           <DialogTrigger asChild>
             <button 
-              className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 cursor-pointer border-0 outline-none"
-              aria-label="Abrir WhatsApp"
-            >
-              <img 
-                src="/lovable-uploads/a46b7899-3f79-4c62-9d96-70161a30ba2b.png" 
-                alt="WhatsApp" 
-                width="24" 
-                height="24" 
-                className="object-contain"
-              />
-            </button>
+              className="shake cursor-pointer border-0 outline-none"
+              style={{
+                borderRadius: '0',
+                background: 'transparent url(/lovable-uploads/c45dac41-8b04-49b4-ac99-7529c88b1d75.png) center center no-repeat',
+                boxShadow: 'none',
+                width: '60px',
+                height: '61px',
+                backgroundSize: '60px 60px',
+                border: '0'
+              }}
+            />
           </DialogTrigger>
           <DialogContent 
-            className="fixed bottom-20 right-6 w-80 max-w-none p-0 border-0 shadow-2xl rounded-2xl overflow-hidden"
+            className="fixed bottom-20 right-6 w-80 max-w-none p-0 border-0 overflow-hidden max-h-[95vh] overflow-y-auto"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5ddd5' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-              backgroundColor: '#ece5dd'
+              width: '320px',
+              borderRadius: '12px',
+              boxShadow: '0 10px 20px rgba(0, 0, 0, 0.3)',
+              background: '#ECE5DD',
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='50' height='50' viewBox='0 0 50 50' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M0 0h50v50H0z'/%3E%3Cpath d='M10 10h30v30H10zM0 0h10v10H0zM40 0h10v10H40zM0 40h10v10H0zM40 40h10v10H40z' fill-opacity='0.02'/%3E%3C/g%3E%3C/svg%3E")`
             }}
           >
             {/* Header do WhatsApp */}
-            <div className="bg-green-500 text-white p-3 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
+            <div style={{ backgroundColor: '#25D366' }} className="text-white p-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center overflow-hidden">
                   <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas" className="w-full h-full object-contain" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-medium text-sm">SOS Multas</h3>
-                  <p className="text-xs opacity-90 flex items-center gap-1">
-                    <div className="w-2 h-2 bg-green-300 rounded-full"></div>
+                <div>
+                  <h3 className="font-bold text-sm">SOS Multas</h3>
+                  <p className="text-xs flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#25D366' }}></div>
                     Online
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsWhatsappDialogOpen(false)}
-                className="text-white hover:bg-green-600 p-1 rounded"
+                className="text-white hover:bg-green-700 p-1 rounded transition-colors"
               >
-                <X size={20} />
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="m18 6-12 12"/>
+                  <path d="m6 6 12 12"/>
+                </svg>
               </button>
             </div>
 
@@ -265,58 +254,75 @@ Aguardo retorno para análise do meu caso.`;
             <div className="p-4 min-h-[320px] max-h-[400px] overflow-y-auto space-y-3">
               {/* Mensagem da empresa */}
               <div className="flex justify-start">
-                <div className="bg-white rounded-md border border-[#cacaca] p-3 max-w-[280px] shadow-sm relative">
+                <div className="bg-white rounded-md border border-[#cacaca] border-l border-b p-3 max-w-[340px] shadow-sm relative" style={{
+                  borderTopStyle: 'none',
+                  borderRightStyle: 'none',
+                  borderRadius: '6px',
+                  alignSelf: 'flex-start'
+                }}>
                   <p className="text-sm text-[#4a4a4a] font-['Open_Sans',sans-serif] mb-3">
-                    Olá, precisa de ajuda especializada com multa de trânsito? Me informe seus dados para iniciarmos uma conversa e analisarmos seu caso.
+                    Olá, precisando de um suporte especializado ou de um orçamento sem custo? Me informe seu email e telefone para iniciarmos uma conversa.
                   </p>
                 </div>
               </div>
 
               {/* Formulário como resposta do usuário */}
               <div className="flex justify-end">
-                <div className="max-w-[280px] w-full">
+                <div className="max-w-[340px] w-full" style={{ alignSelf: 'flex-end' }}>
                   <form onSubmit={handleWhatsappSubmit} className="space-y-2.5">
                     <Input 
                       type="text" 
                       placeholder="Nome *" 
                       value={whatsappFormData.name} 
                       onChange={e => setWhatsappFormData(prev => ({...prev, name: e.target.value}))} 
-                      className="w-full h-10 text-sm font-['Open_Sans',sans-serif] text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-green-500 focus:ring-2 focus:ring-green-500 outline-none"
+                      className="w-full h-10 text-sm text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#25D366] outline-none"
                       style={{
-                        backgroundColor: '#dcf8c6'
+                        backgroundColor: '#DCF8C6',
+                        fontFamily: 'Open Sans, sans-serif'
                       }}
                       required 
                     />
                     
                     <Input 
                       type="email" 
-                      placeholder="Email" 
+                      placeholder="Email *" 
                       value={whatsappFormData.email} 
                       onChange={e => setWhatsappFormData(prev => ({...prev, email: e.target.value}))} 
-                      className="w-full h-10 text-sm font-['Open_Sans',sans-serif] text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-green-500 focus:ring-2 focus:ring-green-500 outline-none"
+                      className="w-full h-10 text-sm text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#25D366] outline-none"
                       style={{
-                        backgroundColor: '#dcf8c6'
+                        backgroundColor: '#DCF8C6',
+                        fontFamily: 'Open Sans, sans-serif'
                       }}
+                      required 
                     />
                     
-                    {/* Campo de telefone com bandeira do Brasil */}
                     <div className="flex gap-2">
-                      <div className="flex items-center bg-gray-100 px-3 rounded-md border border-[#cacaca]">
-                        <img
-                          src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMDA5NzM5Ii8+CjxyZWN0IHk9IjgiIHdpZHRoPSIyNCIgaGVpZ2h0PSI4IiBmaWxsPSIjRkZERjAwIi8+CjxyZWN0IHk9IjE2IiB3aWR0aD0iMjQiIGhlaWdodD0iOCIgZmlsbD0iIzAwMjc3NiIvPgo8L3N2Zz4K" 
-                          alt="Brasil"
-                          className="w-5 h-4"
-                        />
-                        <span className="ml-2 text-sm">+55</span>
+                      <div className="flex items-center px-3 rounded-md border border-[#cacaca]" style={{ backgroundColor: '#DCF8C6' }}>
+                        <svg width="24" height="16" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect width="24" height="16" fill="#009739"/>
+                          <path d="M12 2L20 8L12 14L4 8L12 2Z" fill="#FFDF00"/>
+                          <circle cx="12" cy="8" r="3.2" fill="#002776"/>
+                          <circle cx="10.5" cy="5.5" r="0.15" fill="#FFDF00"/>
+                          <circle cx="13.5" cy="5.5" r="0.15" fill="#FFDF00"/>
+                          <circle cx="11" cy="6.2" r="0.1" fill="#FFDF00"/>
+                          <circle cx="13" cy="6.2" r="0.1" fill="#FFDF00"/>
+                          <circle cx="12" cy="5.8" r="0.12" fill="#FFDF00"/>
+                          <circle cx="10.2" cy="9.5" r="0.1" fill="#FFDF00"/>
+                          <circle cx="13.8" cy="9.5" r="0.1" fill="#FFDF00"/>
+                          <circle cx="11.5" cy="10" r="0.08" fill="#FFDF00"/>
+                          <circle cx="12.5" cy="10" r="0.08" fill="#FFDF00"/>
+                        </svg>
+                        <span className="ml-2 text-sm text-[#4a4a4a]">+55</span>
                       </div>
                       <Input 
                         type="tel" 
                         placeholder="Telefone *" 
                         value={whatsappFormData.phone} 
                         onChange={e => setWhatsappFormData(prev => ({...prev, phone: e.target.value}))} 
-                        className="flex-1 h-10 text-sm font-['Open_Sans',sans-serif] text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-green-500 focus:ring-2 focus:ring-green-500 outline-none"
+                        className="flex-1 h-10 text-sm text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#25D366] outline-none"
                         style={{
-                          backgroundColor: '#dcf8c6'
+                          backgroundColor: '#DCF8C6',
+                          fontFamily: 'Open Sans, sans-serif'
                         }}
                         required 
                       />
@@ -327,28 +333,31 @@ Aguardo retorno para análise do meu caso.`;
                       onValueChange={value => setWhatsappFormData(prev => ({...prev, violationType: value}))}
                     >
                       <SelectTrigger 
-                        className="w-full h-10 text-sm font-['Open_Sans',sans-serif] text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-green-500 focus:ring-2 focus:ring-green-500 outline-none"
+                        className="w-full h-10 text-sm text-[#4a4a4a] border border-[#cacaca] rounded-md focus:border-[#25D366] outline-none"
                         style={{
-                          backgroundColor: '#dcf8c6'
+                          backgroundColor: '#DCF8C6',
+                          fontFamily: 'Open Sans, sans-serif'
                         }}
                       >
                         <SelectValue placeholder="Tipo de multa (opcional)" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Velocidade">Excesso de velocidade</SelectItem>
-                        <SelectItem value="Estacionamento">Estacionamento irregular</SelectItem>
-                        <SelectItem value="Semaforo">Avanço de sinal</SelectItem>
-                        <SelectItem value="CNH">CNH vencida/suspensa</SelectItem>
-                        <SelectItem value="Documentos">Documentos irregulares</SelectItem>
-                        <SelectItem value="Celular">Uso de celular</SelectItem>
-                        <SelectItem value="Alcool">Embriaguez</SelectItem>
-                        <SelectItem value="Outros">Outros</SelectItem>
+                        <SelectItem value="Excesso de Velocidade">Excesso de Velocidade</SelectItem>
+                        <SelectItem value="Excesso de Pontos">Excesso de Pontos</SelectItem>
+                        <SelectItem value="Bafômetro">Bafômetro</SelectItem>
+                        <SelectItem value="Suspensão da CNH">Suspensão da CNH</SelectItem>
+                        <SelectItem value="Cassação da CNH">Cassação da CNH</SelectItem>
+                        <SelectItem value="Outra">Outra</SelectItem>
                       </SelectContent>
                     </Select>
                 
                     <Button 
                       type="submit" 
-                      className="w-full max-w-[150px] h-10 text-white font-['Open_Sans',sans-serif] text-base font-normal rounded-md border-none cursor-pointer flex items-center justify-center self-end bg-green-500 hover:bg-green-600"
+                      className="w-full max-w-[150px] h-10 text-white text-base font-normal rounded-md border-none cursor-pointer flex items-center justify-center self-end ml-auto"
+                      style={{
+                        backgroundColor: '#075E54',
+                        fontFamily: 'Open Sans, sans-serif'
+                      }}
                     >
                       Iniciar conversa
                     </Button>
@@ -497,7 +506,7 @@ Solicite agora mesmo sua análise gratuita!</p>
             <Card className="text-center p-6 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => selectViolationType('cassacao')}>
               <CardContent className="pt-6">
                 <Car className="h-12 w-12 text-orange-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Recurso Contra Cassação da CNH </h3>
+                <h3 className="text-xl font-semibold mb-2">Recurso Contra Cassação da CNH </h3>
                 <p className="text-gray-600 mb-4">Caso sua CNH esteja em risco de cassação, nossa equipe especializada atua rapidamente para proteger seu direito de dirigir, oferecendo recursos bem fundamentados.</p>
                 <Button variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-50">
                   Tenho esse problema
@@ -632,9 +641,6 @@ Solicite agora mesmo sua análise gratuita!</p>
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
-

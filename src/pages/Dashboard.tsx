@@ -47,6 +47,9 @@ interface Lead {
 const Dashboard = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [period, setPeriod] = useState("30");
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,96 +65,148 @@ const Dashboard = () => {
   }, [navigate]);
 
   // Função para obter período de data
-  const getDateRange = (days: number) => {
+  const getDateRange = () => {
     const end = new Date();
     const start = new Date();
-    start.setDate(start.getDate() - days);
+    
+    if (period === 'custom') {
+      if (customStartDate && customEndDate) {
+        return {
+          start: new Date(customStartDate),
+          end: new Date(customEndDate)
+        };
+      }
+      start.setDate(start.getDate() - 30);
+    } else {
+      start.setDate(start.getDate() - parseInt(period));
+    }
+    
     return { start, end };
   };
 
-  // Métricas do mês atual
-  const getCurrentMonthMetrics = () => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
+  // Métricas do período atual
+  const getCurrentPeriodMetrics = () => {
+    const { start, end } = getDateRange();
     
-    const currentMonthLeads = leads.filter(lead => {
+    const periodLeads = leads.filter(lead => {
       const leadDate = new Date(lead.createdAt);
-      return leadDate.getMonth() === currentMonth && leadDate.getFullYear() === currentYear;
+      return leadDate >= start && leadDate <= end;
     });
 
-    const currentMonthClients = leads.filter(lead => {
-      return lead.status === 'Cliente' && lead.conversionDate && 
-        new Date(lead.conversionDate).getMonth() === currentMonth && 
-        new Date(lead.conversionDate).getFullYear() === currentYear;
+    const periodClients = leads.filter(lead => {
+      if (lead.status !== 'Cliente' || !lead.conversionDate) return false;
+      const convDate = new Date(lead.conversionDate);
+      return convDate >= start && convDate <= end;
     });
 
-    const totalRevenue = currentMonthClients.reduce((sum, lead) => sum + (lead.amount || 0), 0);
-    const conversionRate = currentMonthLeads.length > 0 ? 
-      (currentMonthClients.length / currentMonthLeads.length) * 100 : 0;
+    const totalRevenue = periodClients.reduce((sum, lead) => sum + (lead.amount || 0), 0);
+    const conversionRate = periodLeads.length > 0 ? 
+      (periodClients.length / periodLeads.length) * 100 : 0;
 
     return {
-      totalLeads: currentMonthLeads.length,
-      totalClients: currentMonthClients.length,
+      totalLeads: periodLeads.length,
+      totalClients: periodClients.length,
       totalRevenue,
       conversionRate
     };
   };
 
-  // Métricas do mês anterior
-  const getPreviousMonthMetrics = () => {
-    const now = new Date();
-    const prevMonth = now.getMonth() - 1;
-    const prevYear = prevMonth < 0 ? now.getFullYear() - 1 : now.getFullYear();
-    const adjustedMonth = prevMonth < 0 ? 11 : prevMonth;
+  // Métricas do período anterior (para comparação)
+  const getPreviousPeriodMetrics = () => {
+    const { start, end } = getDateRange();
+    const periodDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
     
-    const prevMonthLeads = leads.filter(lead => {
+    const prevEnd = new Date(start);
+    prevEnd.setDate(prevEnd.getDate() - 1);
+    const prevStart = new Date(prevEnd);
+    prevStart.setDate(prevStart.getDate() - periodDays);
+    
+    const prevPeriodLeads = leads.filter(lead => {
       const leadDate = new Date(lead.createdAt);
-      return leadDate.getMonth() === adjustedMonth && leadDate.getFullYear() === prevYear;
+      return leadDate >= prevStart && leadDate <= prevEnd;
     });
 
-    const prevMonthClients = leads.filter(lead => {
-      return lead.status === 'Cliente' && lead.conversionDate && 
-        new Date(lead.conversionDate).getMonth() === adjustedMonth && 
-        new Date(lead.conversionDate).getFullYear() === prevYear;
+    const prevPeriodClients = leads.filter(lead => {
+      if (lead.status !== 'Cliente' || !lead.conversionDate) return false;
+      const convDate = new Date(lead.conversionDate);
+      return convDate >= prevStart && convDate <= prevEnd;
     });
 
-    const totalRevenue = prevMonthClients.reduce((sum, lead) => sum + (lead.amount || 0), 0);
+    const totalRevenue = prevPeriodClients.reduce((sum, lead) => sum + (lead.amount || 0), 0);
     
     return {
-      totalLeads: prevMonthLeads.length,
-      totalClients: prevMonthClients.length,
+      totalLeads: prevPeriodLeads.length,
+      totalClients: prevPeriodClients.length,
       totalRevenue
     };
   };
 
-  // Dados para gráfico de leads por mês (últimos 6 meses)
-  const getLeadsByMonth = () => {
-    const monthsData = [];
-    const now = new Date();
+  // Dados para gráfico de leads (baseado no período selecionado)
+  const getLeadsByPeriod = () => {
+    const { start, end } = getDateRange();
+    const data = [];
     
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthName = date.toLocaleDateString('pt-BR', { month: 'short' });
+    if (period === '7') {
+      // Para 7 dias, mostrar por dia
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(start);
+        date.setDate(start.getDate() + i);
+        
+        const dayLeads = leads.filter(lead => {
+          const leadDate = new Date(lead.createdAt);
+          return leadDate.toDateString() === date.toDateString();
+        });
+        
+        data.push({
+          period: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+          leads: dayLeads.length
+        });
+      }
+    } else {
+      // Para 30+ dias, agrupar por semana
+      const weeks = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 7));
       
-      const monthLeads = leads.filter(lead => {
-        const leadDate = new Date(lead.createdAt);
-        return leadDate.getMonth() === date.getMonth() && 
-               leadDate.getFullYear() === date.getFullYear();
-      });
-      
-      monthsData.push({
-        month: monthName,
-        leads: monthLeads.length
-      });
+      for (let i = 0; i < weeks; i++) {
+        const weekStart = new Date(start);
+        weekStart.setDate(start.getDate() + (i * 7));
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        
+        const weekLeads = leads.filter(lead => {
+          const leadDate = new Date(lead.createdAt);
+          return leadDate >= weekStart && leadDate <= weekEnd;
+        });
+        
+        data.push({
+          period: `Sem ${i + 1}`,
+          leads: weekLeads.length
+        });
+      }
     }
     
-    return monthsData;
+    return data;
+  };
+
+  // Formatar data range para exibição
+  const getDateRangeDisplay = () => {
+    const { start, end } = getDateRange();
+    return `${start.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} - ${end.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}`;
+  };
+
+  // Handler para mudança de período
+  const handlePeriodChange = async (newPeriod: string) => {
+    setIsLoading(true);
+    setPeriod(newPeriod);
+    
+    // Simular loading para UX
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
   };
 
 
-  const currentMetrics = getCurrentMonthMetrics();
-  const previousMetrics = getPreviousMonthMetrics();
+  const currentMetrics = getCurrentPeriodMetrics();
+  const previousMetrics = getPreviousPeriodMetrics();
   const revenueGrowth = previousMetrics.totalRevenue > 0 ? 
     ((currentMetrics.totalRevenue - previousMetrics.totalRevenue) / previousMetrics.totalRevenue) * 100 : 0;
 
@@ -163,11 +218,18 @@ const Dashboard = () => {
   };
 
   const getStatusCounts = () => {
+    const { start, end } = getDateRange();
+    
+    const periodLeads = leads.filter(lead => {
+      const leadDate = new Date(lead.createdAt);
+      return leadDate >= start && leadDate <= end;
+    });
+    
     return {
-      novoLead: leads.filter(l => l.status === 'Novo Lead').length,
-      emAnalise: leads.filter(l => l.status === 'Em Análise').length,
-      recursoElaborado: leads.filter(l => l.status === 'Recurso Elaborado').length,
-      cliente: leads.filter(l => l.status === 'Cliente').length
+      novoLead: periodLeads.filter(l => l.status === 'Novo Lead').length,
+      emNegociacao: periodLeads.filter(l => l.status === 'Em Negociação').length,
+      cliente: periodLeads.filter(l => l.status === 'Cliente').length,
+      naoCliente: periodLeads.filter(l => l.status === 'Não Cliente').length
     };
   };
 
@@ -188,16 +250,39 @@ const Dashboard = () => {
             </h1>
           </div>
           <div className="flex items-center gap-4">
-            <Select value={period} onValueChange={setPeriod}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7">7 dias</SelectItem>
-                <SelectItem value="30">30 dias</SelectItem>
-                <SelectItem value="90">90 dias</SelectItem>
-              </SelectContent>
-            </Select>
+            {isLoading && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500"></div>
+            )}
+            <div className="flex flex-col items-end">
+              <Select value={period} onValueChange={handlePeriodChange}>
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7">7 dias</SelectItem>
+                  <SelectItem value="30">30 dias</SelectItem>
+                  <SelectItem value="90">90 dias</SelectItem>
+                  <SelectItem value="custom">Personalizado</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-xs text-gray-500 mt-1">{getDateRangeDisplay()}</span>
+            </div>
+            {period === 'custom' && (
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="px-2 py-1 border rounded text-sm"
+                />
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="px-2 py-1 border rounded text-sm"
+                />
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -208,7 +293,7 @@ const Dashboard = () => {
           {/* Valor Total Cobrado */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Receita do Mês</CardTitle>
+              <CardTitle className="text-sm font-medium">Receita do Período</CardTitle>
               <DollarSign className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
@@ -224,7 +309,7 @@ const Dashboard = () => {
                 <span className={revenueGrowth >= 0 ? "text-green-500" : "text-red-500"}>
                   {Math.abs(revenueGrowth).toFixed(1)}%
                 </span>
-                <span className="ml-1">vs mês anterior</span>
+                <span className="ml-1">vs período anterior</span>
               </div>
             </CardContent>
           </Card>
@@ -232,13 +317,13 @@ const Dashboard = () => {
           {/* Total de Leads */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Leads do Mês</CardTitle>
+              <CardTitle className="text-sm font-medium">Leads do Período</CardTitle>
               <Users className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{currentMetrics.totalLeads}</div>
               <p className="text-xs text-muted-foreground">
-                Mês anterior: {previousMetrics.totalLeads}
+                Período anterior: {previousMetrics.totalLeads}
               </p>
             </CardContent>
           </Card>
@@ -266,7 +351,7 @@ const Dashboard = () => {
             <CardContent>
               <div className="text-2xl font-bold">{currentMetrics.totalClients}</div>
               <p className="text-xs text-muted-foreground">
-                Mês anterior: {previousMetrics.totalClients}
+                Período anterior: {previousMetrics.totalClients}
               </p>
             </CardContent>
           </Card>
@@ -274,16 +359,16 @@ const Dashboard = () => {
 
         {/* Gráficos */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Leads por Mês */}
+          {/* Leads por Período */}
           <Card>
             <CardHeader>
-              <CardTitle>Leads por Mês</CardTitle>
+              <CardTitle>Leads por {period === '7' ? 'Dia' : 'Semana'}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={getLeadsByMonth()}>
+                <BarChart data={getLeadsByPeriod()}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
+                  <XAxis dataKey="period" />
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="leads" fill="#f97316" />
@@ -293,7 +378,12 @@ const Dashboard = () => {
           </Card>
 
           {/* Conversões por Dia */}
-          <ConversionsChart leads={leads} />
+          <ConversionsChart 
+            leads={leads} 
+            globalPeriod={period}
+            customStartDate={customStartDate}
+            customEndDate={customEndDate}
+          />
         </div>
 
         {/* Indicadores Auxiliares */}
@@ -307,15 +397,15 @@ const Dashboard = () => {
           
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-yellow-500">{statusCounts.emAnalise}</div>
-              <div className="text-sm text-gray-600">Em Análise</div>
+              <div className="text-2xl font-bold text-orange-500">{statusCounts.emNegociacao}</div>
+              <div className="text-sm text-gray-600">Em Negociação</div>
             </CardContent>
           </Card>
           
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-purple-500">{statusCounts.recursoElaborado}</div>
-              <div className="text-sm text-gray-600">Recursos Enviados</div>
+              <div className="text-2xl font-bold text-gray-500">{statusCounts.naoCliente}</div>
+              <div className="text-sm text-gray-600">Não Clientes</div>
             </CardContent>
           </Card>
           
