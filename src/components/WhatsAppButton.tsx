@@ -7,7 +7,7 @@ interface WhatsAppButtonProps {
 }
 
 const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
-  phoneNumber = "5551999999999", // Substitua pelo número real da SOS Multas
+  phoneNumber = "555133077772", // Número da empresa
   className = ""
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
