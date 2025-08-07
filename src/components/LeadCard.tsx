@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Phone, Mail, Eye, Clock, DollarSign } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Phone, Mail, Eye, Clock, DollarSign, Tags } from "lucide-react";
 import { Lead } from "@/types/lead";
 import { formatCurrency, getViolationTypeLabel, getViolationIcon, getDaysFromDate, getSourceIcon } from "@/utils/leadUtils";
 

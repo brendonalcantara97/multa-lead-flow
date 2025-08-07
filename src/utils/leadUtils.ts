@@ -8,6 +8,8 @@ export const formatCurrency = (value: number) => {
 export const getViolationTypeLabel = (type: string) => {
   const types: { [key: string]: string } = {
     'excesso-velocidade': 'Excesso de Velocidade',
+    'lei-seca': 'Lei Seca',
+    'cnh-suspensa': 'CNH Suspensa',
     'avanco-sinal': 'Avanço de Sinal',
     'bafometro': 'Bafômetro',
     'suspensao': 'Suspensão',
@@ -21,6 +23,8 @@ export const getViolationTypeLabel = (type: string) => {
 export const getViolationIcon = (type: string) => {
   const icons: { [key: string]: string } = {
     'excesso-velocidade': '🚗',
+    'lei-seca': '🚫🍺',
+    'cnh-suspensa': '🪪',
     'avanco-sinal': '🚦',
     'bafometro': '🍺',
     'suspensao': '⚠️',
@@ -39,9 +43,8 @@ export const getDaysFromDate = (dateString: string): number => {
 };
 
 export const getDaysInCurrentStatus = (lead: any): number => {
-  // Para simplificar, vamos usar a data de criação por agora
-  // Em um cenário real, você manteria um histórico de mudanças de status
-  return getDaysFromDate(lead.createdAt);
+  // Preferir a última movimentação se existir
+  return getDaysFromDate(lead.lastMovedAt || lead.createdAt);
 };
 
 export const getSourceIcon = (source?: string) => {

@@ -17,6 +17,12 @@ export interface Lead {
   gclid?: string;
   fbp?: string;
   documents: string[];
+  // Novos campos
+  tags?: string[];
+  cnhAtRisk?: boolean;
+  appealedBefore?: boolean;
+  urgency?: 'Alta' | 'Média' | 'Baixa';
+  lastMovedAt?: string; // para gatilhos de estagnação
 }
 
 export const CRM_COLUMNS = [
@@ -27,10 +33,22 @@ export const CRM_COLUMNS = [
     textColor: 'text-blue-700'
   },
   { 
-    id: 'Em Negociação', 
-    title: 'Em Negociação', 
+    id: 'Contato Realizado', 
+    title: 'Contato Realizado', 
     color: 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200',
     textColor: 'text-orange-700'
+  },
+  { 
+    id: 'Documentos Recebidos', 
+    title: 'Documentos Recebidos', 
+    color: 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200',
+    textColor: 'text-purple-700'
+  },
+  { 
+    id: 'Contrato Assinado', 
+    title: 'Contrato Assinado', 
+    color: 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200',
+    textColor: 'text-yellow-700'
   },
   { 
     id: 'Cliente', 
