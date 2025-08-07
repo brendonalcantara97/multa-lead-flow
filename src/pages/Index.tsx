@@ -32,14 +32,13 @@ const Index = () => {
     fbc: "",
     ga_client_id: ""
   });
-
   const handlePhoneChange = (value: string) => {
     // Remove todos os não dígitos
     const numbersOnly = value.replace(/\D/g, '');
-    
+
     // Limita a 11 dígitos (DD9XXXXYYYY)
     const limitedNumbers = numbersOnly.slice(0, 11);
-    
+
     // Aplica máscara DD9XXXX-YYYY
     let formattedValue = '';
     if (limitedNumbers.length > 7) {
@@ -47,7 +46,6 @@ const Index = () => {
     } else {
       formattedValue = limitedNumbers;
     }
-
     return formattedValue;
   };
   useEffect(() => {
@@ -216,7 +214,7 @@ const Index = () => {
           <nav className="hidden md:flex space-x-6">
             <a href="#sobre" className="text-gray-700 hover:text-orange-500 transition-colors">Sobre</a>
             <a href="#servicos" className="text-gray-700 hover:text-orange-500 transition-colors">Serviços</a>
-            <a href="#duvidas" className="text-gray-700 hover:text-orange-500 transition-colors">Dúvidas</a>
+            
             <a href="#unidades" className="text-gray-700 hover:text-orange-500 transition-colors">Unidades</a>
             <a href="#contato" className="text-gray-700 hover:text-orange-500 transition-colors">Contato</a>
           </nav>
@@ -414,21 +412,14 @@ const Index = () => {
                   <span className="font-semibold text-white">5000+ casos</span>
                 </div>
               </div>
-              <Button 
-                onClick={scrollToForm} 
-                className="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 py-4 rounded-lg font-semibold shadow-lg transform hover:scale-105 transition-all duration-200"
-              >
+              <Button onClick={scrollToForm} className="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 py-4 rounded-lg font-semibold shadow-lg transform hover:scale-105 transition-all duration-200">
                 Faça sua Análise Gratuita
               </Button>
             </div>
             <div className="flex justify-center items-center">
               <div className="relative">
                 <div className="absolute inset-0 bg-white rounded-full transform rotate-12 scale-105"></div>
-                <img 
-                  alt="Especialista SOS Multas com CNH" 
-                  src="/lovable-uploads/3e65e133-2408-4008-af8c-a86230f7b800.png" 
-                  className="relative w-80 h-80 rounded-full object-cover border-4 border-white shadow-2xl" 
-                />
+                <img alt="Especialista SOS Multas com CNH" src="/lovable-uploads/3e65e133-2408-4008-af8c-a86230f7b800.png" className="relative w-80 h-80 rounded-full object-cover border-4 border-white shadow-2xl" />
               </div>
             </div>
           </div>
@@ -633,7 +624,7 @@ const Index = () => {
               <ul className="space-y-2 text-gray-400">
                 <li><a href="#sobre" className="hover:text-orange-500 transition-colors">Sobre Nós</a></li>
                 <li><a href="#servicos" className="hover:text-orange-500 transition-colors">Serviços</a></li>
-                <li><a href="#duvidas" className="hover:text-orange-500 transition-colors">FAQ</a></li>
+                
                 <li><a href="/crm" className="hover:text-orange-500 transition-colors">Área Restrita</a></li>
               </ul>
             </div>
