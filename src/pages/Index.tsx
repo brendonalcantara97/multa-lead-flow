@@ -387,32 +387,49 @@ const Index = () => {
       </section>
 
       {/* Sobre Nós */}
-      <section id="sobre" className="py-16 bg-white">
+      <section id="sobre" className="py-16 bg-slate-900">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold text-black mb-6">Sobre a SOS Multas</h2>
-              <p className="text-gray-600 mb-4">Há mais de 15 anos a SOS Multas atua com ética e transparência na defesa dos direitos dos motoristas em Porto Alegre e região. Nossa equipe especializada em Matéria de Trânsito analisa cuidadosamente cada situação para identificar as melhores estratégias para defesa de multas, suspensão e cassação da CNH.</p>
-              <p className="text-gray-600 mb-6">Aqui, você conta com profissionais experientes que esclarecem suas dúvidas e realizam uma avaliação gratuita inicial para verificar as possibilidades legais de defesa do seu caso.
-
-Solicite agora mesmo sua análise gratuita!</p>
-              <div className="flex flex-wrap gap-6">
+            <div className="text-white">
+              <h2 className="text-4xl font-bold mb-6">
+                Descubra a situação da sua <span className="text-orange-500">CNH</span> sem pagar nada!
+              </h2>
+              <p className="text-gray-200 mb-4 text-lg">
+                Ao solicitar orçamento no botão abaixo, você garante uma <strong className="text-orange-500">análise totalmente gratuita</strong> da sua carteira de motorista.
+              </p>
+              <p className="text-gray-200 mb-8 text-lg">
+                Estamos prontos para responder rapidamente, esclarecer suas dúvidas e ajudá-lo a resolver seus problemas de trânsito.
+              </p>
+              <div className="flex flex-wrap gap-6 mb-8">
                 <div className="flex items-center gap-2">
                   <Award className="h-5 w-5 text-orange-500" />
-                  <span className="font-semibold">15+ anos</span>
+                  <span className="font-semibold text-white">15+ anos</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-orange-500" />
-                  <span className="font-semibold">4.8/5 Google</span>
+                  <span className="font-semibold text-white">4.8/5 Google</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="h-5 w-5 text-orange-500" />
-                  <span className="font-semibold">5000+ casos</span>
+                  <span className="font-semibold text-white">5000+ casos</span>
                 </div>
               </div>
+              <Button 
+                onClick={scrollToForm} 
+                className="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 py-4 rounded-lg font-semibold shadow-lg transform hover:scale-105 transition-all duration-200"
+              >
+                Faça sua Análise Gratuita
+              </Button>
             </div>
-            <div className="p-8 rounded-lg flex justify-center items-center">
-              <img alt="Especialista SOS Multas com CNH" src="/lovable-uploads/3e65e133-2408-4008-af8c-a86230f7b800.png" className="w-full max-w-md h-80 rounded-xl object-contain shadow-2xl border-2 border-orange-100" />
+            <div className="flex justify-center items-center">
+              <div className="relative">
+                <div className="absolute inset-0 bg-white rounded-full transform rotate-12 scale-105"></div>
+                <img 
+                  alt="Especialista SOS Multas com CNH" 
+                  src="/lovable-uploads/3e65e133-2408-4008-af8c-a86230f7b800.png" 
+                  className="relative w-80 h-80 rounded-full object-cover border-4 border-white shadow-2xl" 
+                />
+              </div>
             </div>
           </div>
         </div>
