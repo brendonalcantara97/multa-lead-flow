@@ -542,6 +542,7 @@ const Index = () => {
           <h2 className="text-3xl font-bold text-center text-black mb-10">Sobre a SOS Multas</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-white p-6 rounded-lg shadow-lg h-full">
+              <h3 className="text-xl font-bold text-black mb-4">Sobre a SOS Multas</h3>
               <p className="text-gray-700 text-base leading-relaxed">
                 A <strong className="text-orange-500">SOS MULTAS - Assessoria de Trânsito</strong>, surgiu em 2007 para, de forma responsável, garantir a manutenção do direito de dirigir dos seus clientes. Com profissionais qualificados, a empresa atua em defesas e recursos contra multas de trânsito. Desde as multas mais brandas às que acarretam as penalidades de suspensão e cassação da CNH (excesso de pontos, excesso de velocidade, bafômetro, entre outras penalidades).
               </p>
