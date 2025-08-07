@@ -478,7 +478,7 @@ const Index = () => {
                 </Select>
               </div>
               
-              <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white text-lg py-4 rounded-lg font-semibold">
+              <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white text-base md:text-lg py-3 md:py-4 rounded-md md:rounded-lg font-semibold">
                 Enviar e Receber Análise Gratuita
               </Button>
             </form>
