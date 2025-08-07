@@ -377,7 +377,7 @@ const Index = () => {
             <span className="text-orange-500">Exerça seu direito</span> de defesa<br />
             com especialistas.
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">Consultoria Especializada em Defesa de Multas e CNH em Porto Alegre e Região</p>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">Consultoria especializada em defesa de multas em Porto Alegre e Região</p>
           <Button onClick={scrollToForm} className="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 py-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200">
             Fazer minha análise gratuita
           </Button>
