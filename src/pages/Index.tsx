@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MessageCircle, Scale, Shield, Car, MapPin, Phone, Mail, Star, Users, Award } from "lucide-react";
 import { toast } from "sonner";
+import homemBrasileiro from "@/assets/homem-brasileiro-cnh.jpg";
 const Index = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -411,7 +412,7 @@ Solicite agora mesmo sua análise gratuita!</p>
               </div>
             </div>
             <div className="bg-gray-50 p-8 rounded-lg">
-              <img alt="Equipe SOS Multas" src="/lovable-uploads/78d36b32-b682-4d0d-aa1f-ecba95b6ae4a.jpg" className="w-full h-64 rounded-lg object-fill" />
+              <img alt="Especialista SOS Multas com CNH" src={homemBrasileiro} className="w-full h-64 rounded-lg object-fill" />
             </div>
           </div>
         </div>
