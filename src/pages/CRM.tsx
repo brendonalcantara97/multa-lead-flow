@@ -152,10 +152,38 @@ const CRM = () => {
               <BarChart3 className="h-4 w-4 mr-2" />
               Dashboard
             </Button>
-            <Button variant="outline" size="sm" onClick={handleLogout} className="hover:bg-red-50">
-              <LogOut className="h-4 w-4 mr-2" />
-              Sair
-            </Button>
+            
+            {/* Menu do Usuário */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="hover:bg-gray-50">
+                  <User className="h-4 w-4 mr-2" />
+                  Usuário
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-white border shadow-lg">
+                <DropdownMenuItem className="cursor-pointer hover:bg-gray-50">
+                  🔒 Trocar senha
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer hover:bg-red-50 text-red-600">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+        
+        {/* Campo de Busca */}
+        <div className="mt-4 max-w-md">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Buscar por nome ou telefone..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 bg-white/60 border-gray-200 focus:bg-white"
+            />
           </div>
         </div>
       </header>
