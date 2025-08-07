@@ -398,7 +398,7 @@ const Index = () => {
                 Ao solicitar orçamento no botão abaixo, você garante uma <strong className="text-orange-500">análise totalmente gratuita</strong> da sua carteira de motorista.
               </p>
               <p className="text-gray-200 mb-8 text-lg">
-                Estamos prontos para responder rapidamente, esclarecer suas dúvidas e ajudá-lo a resolver seus problemas de trânsito.
+                Nossa equipe especializada está pronta para responder com agilidade, tirar suas dúvidas e orientar você na solução de qualquer problema relacionado à sua CNH, multas, suspensão ou cassação.
               </p>
               <div className="flex flex-wrap gap-6 mb-8">
                 <div className="flex items-center gap-2">
