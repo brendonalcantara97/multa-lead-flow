@@ -537,11 +537,11 @@ const Index = () => {
       </section>
 
       {/* Sobre a SOS Multas */}
-      <section id="sobre-empresa" className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <h2 className="text-3xl font-bold text-center text-black mb-12">Sobre a SOS Multas</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-white p-8 rounded-lg shadow-lg">
+      <section id="sobre-empresa" className="py-12 bg-gray-50">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <h2 className="text-3xl font-bold text-center text-black mb-10">Sobre a SOS Multas</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white p-6 rounded-lg shadow-lg h-full">
               <p className="text-gray-700 text-base leading-relaxed">
                 A <strong className="text-orange-500">SOS MULTAS - Assessoria de Trânsito</strong>, surgiu em 2007 para, de forma responsável, garantir a manutenção do direito de dirigir dos seus clientes. Com profissionais qualificados, a empresa atua em defesas e recursos contra multas de trânsito. Desde as multas mais brandas às que acarretam as penalidades de suspensão e cassação da CNH (excesso de pontos, excesso de velocidade, bafômetro, entre outras penalidades).
               </p>
@@ -550,18 +550,18 @@ const Index = () => {
               </p>
             </div>
             
-            <div className="bg-white p-8 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-bold text-black mb-6">Nossa Missão</h3>
-              <p className="text-gray-700 text-lg leading-relaxed mb-4">
+            <div className="bg-white p-6 rounded-lg shadow-lg h-full">
+              <h3 className="text-xl font-bold text-black mb-4">Nossa Missão</h3>
+              <p className="text-gray-700 text-base leading-relaxed mb-3">
                 A defesa do <strong className="text-orange-500">DIREITO DE DIRIGIR</strong> do cidadão e o combate às ilegalidades e injustiças são nossa maior bandeira.
               </p>
-              <p className="text-gray-700 text-lg leading-relaxed mb-4">
+              <p className="text-gray-700 text-base leading-relaxed mb-3">
                 A SOS Multas atua há mais de 15 anos na orientação administrativa de motoristas em todo o Brasil, sempre em conformidade com a legislação vigente.
               </p>
-              <p className="text-gray-700 text-lg leading-relaxed mb-4">
+              <p className="text-gray-700 text-base leading-relaxed mb-3">
                 Nossa missão é prestar assessoria ética e transparente para condutores que buscam apoio em processos de suspensão, cassação e recursos administrativos relacionados ao direito de dirigir. A SOS Multas é uma empresa privada, sem qualquer vínculo com órgãos públicos de trânsito.
               </p>
-              <p className="text-gray-700 text-lg leading-relaxed">
+              <p className="text-gray-700 text-base leading-relaxed">
                 Todas as orientações são realizadas de forma personalizada, e a decisão final sobre cada caso cabe exclusivamente à autoridade competente.
               </p>
             </div>
