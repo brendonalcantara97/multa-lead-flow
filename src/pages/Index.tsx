@@ -411,8 +411,8 @@ Solicite agora mesmo sua análise gratuita!</p>
                 </div>
               </div>
             </div>
-            <div className="bg-gray-50 p-8 rounded-lg">
-              <img alt="Especialista SOS Multas com CNH" src="/lovable-uploads/3e65e133-2408-4008-af8c-a86230f7b800.png" className="w-full h-64 rounded-lg object-fill" />
+            <div className="p-8 rounded-lg">
+              <img alt="Especialista SOS Multas com CNH" src="/lovable-uploads/3e65e133-2408-4008-af8c-a86230f7b800.png" className="w-full h-64 rounded-lg object-contain" />
             </div>
           </div>
         </div>
