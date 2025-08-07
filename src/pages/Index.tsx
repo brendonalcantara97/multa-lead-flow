@@ -392,7 +392,7 @@ const Index = () => {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="text-white">
               <h2 className="text-4xl font-bold mb-6">
-                Descubra a situação da sua <span className="text-orange-500">CNH</span> sem pagar nada!
+                <span className="text-orange-500">Consulte</span> gratuitamente a situação da sua <span className="text-orange-500">CNH</span>
               </h2>
               <p className="text-gray-200 mb-4 text-lg">
                 Ao solicitar orçamento no botão abaixo, você garante uma <strong className="text-orange-500">análise totalmente gratuita</strong> da sua carteira de motorista.
