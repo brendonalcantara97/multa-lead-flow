@@ -536,44 +536,18 @@ const Index = () => {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section id="duvidas" className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4 max-w-3xl">
-          <h2 className="text-3xl font-bold text-center text-black mb-12">Perguntas Frequentes</h2>
-          <Accordion type="single" collapsible className="space-y-4">
-            <AccordionItem value="item-1" className="bg-white rounded-lg px-6">
-              <AccordionTrigger className="text-left">Tenho chance de reverter minha multa?</AccordionTrigger>
-              <AccordionContent>
-                Sim! Muitas multas podem ser contestadas por vícios processuais, irregularidades na autuação ou falhas técnicas. 
-                Nossa análise gratuita identificará as melhores estratégias para seu caso.
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="item-2" className="bg-white rounded-lg px-6">
-              <AccordionTrigger className="text-left">Quanto tempo demora o processo?</AccordionTrigger>
-              <AccordionContent>
-                O prazo varia conforme o tipo de recurso. Defesas de primeira instância: 30-60 dias. 
-                Recursos em instâncias superiores podem levar de 3 a 12 meses.
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="item-3" className="bg-white rounded-lg px-6">
-              <AccordionTrigger className="text-left">O que preciso enviar?</AccordionTrigger>
-              <AccordionContent>
-                Precisamos da notificação da multa, CNH, documento do veículo e procuração (que fornecemos). 
-                Em alguns casos, podem ser necessários documentos adicionais.
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="item-4" className="bg-white rounded-lg px-6">
-              <AccordionTrigger className="text-left">Quanto tempo demora o recurso contra CNH suspensa ou cassada?</AccordionTrigger>
-              <AccordionContent>
-                Em média, um processo de defesa contra suspensão ou cassação da CNH pode durar entre 60 e 180 dias, 
-                dependendo do órgão responsável e da complexidade do caso. Durante esse tempo, a SOS Multas atua com 
-                agilidade e mantém você informado sobre cada avanço do processo.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+      {/* Sobre a SOS Multas */}
+      <section id="sobre-empresa" className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-3xl font-bold text-center text-black mb-12">Sobre a SOS Multas</h2>
+          <div className="bg-white p-8 rounded-lg shadow-lg">
+            <p className="text-gray-700 text-lg leading-relaxed">
+              A <strong className="text-orange-500">SOS MULTAS - Assessoria de Trânsito</strong>, surgiu em 2007 para, de forma responsável, garantir a manutenção do direito de dirigir dos seus clientes. Com profissionais qualificados, a empresa atua em defesas e recursos contra multas de trânsito. Desde as multas mais brandas às que acarretam as penalidades de suspensão e cassação da CNH (excesso de pontos, excesso de velocidade, bafômetro, entre outras penalidades).
+            </p>
+            <p className="text-gray-700 text-lg leading-relaxed mt-6">
+              Ao longo da sua trajetória a <strong className="text-orange-500">SOS MULTAS</strong> adquiriu credibilidade e tornou-se referência em assessoria de trânsito no Rio Grande do Sul e em Santa Catarina, tanto para seus clientes como para prestadores de outros serviços relacionados ao trânsito (lojistas, despachantes, vistoriadores, empresa com frota de veículos, etc.).
+            </p>
+          </div>
         </div>
       </section>
 
