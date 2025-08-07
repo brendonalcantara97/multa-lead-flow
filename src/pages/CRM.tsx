@@ -222,7 +222,6 @@ const CRM = () => {
                                 lead={lead} 
                                 onViewDetails={handleViewDetails}
                                 onStatusChange={updateLeadStatus}
-                                onUpdateLead={updateLead}
                                 columns={CRM_COLUMNS}
                               />
                             </div>
