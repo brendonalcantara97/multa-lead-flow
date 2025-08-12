@@ -536,7 +536,7 @@ const Index = () => {
                 A <strong className="text-orange-500">SOS MULTAS - Assessoria de Trânsito</strong>, surgiu em 2007 para, de forma responsável, garantir a manutenção do direito de dirigir dos seus clientes. Com profissionais qualificados, a empresa atua em defesas e recursos contra multas de trânsito. Desde as multas mais brandas às que acarretam as penalidades de suspensão e cassação da CNH (excesso de pontos, excesso de velocidade, bafômetro, entre outras penalidades).
               </p>
               <p className="text-gray-700 text-base leading-relaxed mt-4">
-                Ao longo da sua trajetória a <strong className="text-orange-500">SOS MULTAS</strong> adquiriu credibilidade e tornou-se referência em assessoria de trânsito no Rio Grande do Sul e em Santa Catarina, tanto para seus clientes como para prestadores de outros serviços relacionados ao trânsito (lojistas, despachantes, vistoriadores, empresa com frota de veículos, etc.).
+                Ao longo da sua trajetória a SOS MULTAS adquiriu credibilidade e tornou-se referência em assessoria de trânsito no Rio Grande do Sul e em Santa Catarina, tanto para seus clientes como para prestadores de outros serviços relacionados ao trânsito.
               </p>
             </div>
             
