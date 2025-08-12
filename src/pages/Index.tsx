@@ -246,7 +246,7 @@ const Index = () => {
             {/* Header do WhatsApp */}
             <div style={{
             backgroundColor: '#25D366'
-          }} className="text-white p-3 flex items-center justify-between">
+          }} className="text-white p-3 flex items-center justify-between bg-slate-900">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center overflow-hidden">
                   <img src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" alt="SOS Multas" className="w-full h-full object-contain" />
