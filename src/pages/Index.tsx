@@ -430,9 +430,7 @@ const Index = () => {
       <section id="form-section" className="py-16 bg-gray-50">
         <div className="container mx-auto px-4 max-w-2xl">
           <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-3xl font-bold text-center text-black mb-2">
-              Análise Gratuita da sua Multa
-            </h2>
+            <h2 className="text-3xl font-bold text-center text-black mb-2">Análise Gratuita da sua MULTA ou CNH</h2>
             <p className="text-center text-gray-600 mb-8">
               Preencha os dados abaixo e receba uma avaliação sem compromisso
             </p>
