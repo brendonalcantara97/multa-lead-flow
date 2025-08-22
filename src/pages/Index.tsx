@@ -9,7 +9,28 @@ import { MessageCircle, Scale, Shield, Car, MapPin, Phone, Mail, Star, Users, Aw
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
+import { supabase } from "@/integrations/supabase/client";
 import homemBrasileiro from "@/assets/homem-brasileiro-cnh.jpg";
+
+// Função para mapear tipos de violação do formulário para enum do banco
+const mapViolationTypeToEnum = (violationType: string) => {
+  const mapping: { [key: string]: "excesso-velocidade" | "excesso-pontos" | "bafometro" | "suspensao-cnh" | "cassacao-cnh" | "outra" } = {
+    'excesso-velocidade': 'excesso-velocidade',
+    'Excesso de Velocidade': 'excesso-velocidade',
+    'excesso-pontos': 'excesso-pontos',
+    'Excesso de Pontos': 'excesso-pontos',
+    'bafometro': 'bafometro',
+    'Bafômetro': 'bafometro',
+    'suspensao': 'suspensao-cnh',
+    'Suspensão da CNH': 'suspensao-cnh',
+    'cassacao': 'cassacao-cnh',
+    'Cassação da CNH': 'cassacao-cnh',
+    'outras': 'outra',
+    'Outra': 'outra'
+  };
+  
+  return mapping[violationType] || 'outra';
+};
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useSupabaseAuth();
@@ -105,33 +126,67 @@ const Index = () => {
       toast.error("Por favor, preencha todos os campos obrigatórios");
       return;
     }
+    
     try {
-      // Salvar lead no localStorage (simulando banco de dados)
-      const leads = JSON.parse(localStorage.getItem('sos-leads') || '[]');
-      const newLead = {
-        id: Date.now(),
-        ...formData,
-        ...trackingData,
-        status: 'Novo Lead',
-        createdAt: new Date().toISOString(),
-        observations: '',
-        documents: []
-      };
+      // Se usuário não estiver logado, salvar no localStorage (modo de demonstração)
+      if (!user) {
+        const leads = JSON.parse(localStorage.getItem('sos-leads') || '[]');
+        const newLead = {
+          id: Date.now(),
+          ...formData,
+          ...trackingData,
+          status: 'Novo Lead',
+          createdAt: new Date().toISOString(),
+          observations: '',
+          documents: []
+        };
 
-      // Log detalhado do lead sendo salvo
-      console.log('💾 Salvando novo lead:', newLead);
-      console.log('📈 Dados de tracking incluídos:', trackingData);
-      leads.push(newLead);
-      localStorage.setItem('sos-leads', JSON.stringify(leads));
+        console.log('💾 Salvando novo lead no localStorage:', newLead);
+        leads.push(newLead);
+        localStorage.setItem('sos-leads', JSON.stringify(leads));
+        console.log('✅ Lead salvo no localStorage! Total de leads:', leads.length);
+      } else {
+        // Se usuário está logado, salvar no Supabase
+        const { data: sourceData, error: sourceError } = await supabase.rpc('get_or_create_lead_source', {
+          p_utm_source: trackingData.utm_source || null,
+          p_utm_medium: trackingData.utm_medium || null,
+          p_utm_campaign: trackingData.utm_campaign || null,
+          p_utm_term: trackingData.utm_term || null,
+          p_utm_content: null,
+          p_gclid: trackingData.gclid || null,
+          p_gbraid: null,
+          p_fbp: trackingData.fbp || null,
+          p_fbclid: null
+        });
 
-      // Mostrar dados salvos no console
-      console.log('✅ Lead salvo com sucesso! Total de leads:', leads.length);
-      console.log('🗄️ Todos os leads no localStorage:', leads);
+        if (sourceError) {
+          console.error('Erro ao criar/buscar fonte:', sourceError);
+          throw sourceError;
+        }
+
+        const { error: leadError } = await supabase.from('leads').insert({
+          user_id: user.id,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          violation_type: mapViolationTypeToEnum(formData.violationType),
+          lead_source_id: sourceData,
+          lead_origin: 'website',
+          observations: 'Lead capturado via formulário principal do site'
+        });
+
+        if (leadError) {
+          console.error('Erro ao salvar lead:', leadError);
+          throw leadError;
+        }
+
+        console.log('✅ Lead salvo no Supabase com sucesso!');
+      }
+
       toast.success("Dados enviados com sucesso! Redirecionando para WhatsApp...");
 
       // Redirecionar para WhatsApp após 2 segundos
       setTimeout(() => {
-        // Converter telefone para formato WhatsApp (+55DD9XXXXYYYY)
         const phoneDigits = formData.phone.replace(/\D/g, '');
         const whatsappPhone = `55${phoneDigits}`;
         const message = encodeURIComponent("Olá! Preenchi o formulário no site da SOS Multas e gostaria de receber ajuda com a minha multa.");
@@ -156,34 +211,71 @@ const Index = () => {
       toast.error("Por favor, preencha todos os campos obrigatórios");
       return;
     }
+    
     try {
-      // Salvar lead simplificado
-      const leads = JSON.parse(localStorage.getItem('sos-leads') || '[]');
-      const newLead = {
-        id: Date.now(),
-        name: whatsappFormData.name,
-        email: whatsappFormData.email,
-        phone: whatsappFormData.phone,
-        violationType: whatsappFormData.violationType || 'Não informado',
-        ...trackingData,
-        status: 'Novo Lead',
-        createdAt: new Date().toISOString(),
-        observations: 'Lead via botão WhatsApp',
-        documents: []
-      };
+      // Se usuário não estiver logado, salvar no localStorage (modo de demonstração)
+      if (!user) {
+        const leads = JSON.parse(localStorage.getItem('sos-leads') || '[]');
+        const newLead = {
+          id: Date.now(),
+          name: whatsappFormData.name,
+          email: whatsappFormData.email,
+          phone: whatsappFormData.phone,
+          violationType: whatsappFormData.violationType || 'Não informado',
+          ...trackingData,
+          status: 'Novo Lead',
+          createdAt: new Date().toISOString(),
+          observations: 'Lead via botão WhatsApp',
+          documents: []
+        };
 
-      // Log do lead WhatsApp
-      console.log('📱 Salvando lead via WhatsApp:', newLead);
-      console.log('📊 Tracking data incluído:', trackingData);
-      leads.push(newLead);
-      localStorage.setItem('sos-leads', JSON.stringify(leads));
-      console.log('✅ Lead WhatsApp salvo! Total:', leads.length);
+        console.log('📱 Salvando lead via WhatsApp no localStorage:', newLead);
+        leads.push(newLead);
+        localStorage.setItem('sos-leads', JSON.stringify(leads));
+        console.log('✅ Lead WhatsApp salvo no localStorage! Total:', leads.length);
+      } else {
+        // Se usuário está logado, salvar no Supabase
+        const { data: sourceData, error: sourceError } = await supabase.rpc('get_or_create_lead_source', {
+          p_utm_source: trackingData.utm_source || null,
+          p_utm_medium: trackingData.utm_medium || null,
+          p_utm_campaign: trackingData.utm_campaign || null,
+          p_utm_term: trackingData.utm_term || null,
+          p_utm_content: null,
+          p_gclid: trackingData.gclid || null,
+          p_gbraid: null,
+          p_fbp: trackingData.fbp || null,
+          p_fbclid: null
+        });
+
+        if (sourceError) {
+          console.error('Erro ao criar/buscar fonte WhatsApp:', sourceError);
+          throw sourceError;
+        }
+
+        const { error: leadError } = await supabase.from('leads').insert({
+          user_id: user.id,
+          name: whatsappFormData.name,
+          email: whatsappFormData.email,
+          phone: whatsappFormData.phone,
+          violation_type: mapViolationTypeToEnum(whatsappFormData.violationType),
+          lead_source_id: sourceData,
+          lead_origin: 'whatsapp',
+          observations: 'Lead capturado via botão WhatsApp do site'
+        });
+
+        if (leadError) {
+          console.error('Erro ao salvar lead WhatsApp:', leadError);
+          throw leadError;
+        }
+
+        console.log('✅ Lead WhatsApp salvo no Supabase com sucesso!');
+      }
+
       toast.success("Dados salvos! Redirecionando para WhatsApp...");
 
       // Fechar dialog e redirecionar
       setIsWhatsappDialogOpen(false);
       setTimeout(() => {
-        // Converter telefone para formato WhatsApp (+55DD9XXXXYYYY)  
         const phoneDigits = whatsappFormData.phone.replace(/\D/g, '');
         const whatsappPhone = `55${phoneDigits}`;
         const message = encodeURIComponent(`Olá! Meu nome é ${whatsappFormData.name}. Tenho uma dúvida sobre uma multa${whatsappFormData.violationType ? ` por ${whatsappFormData.violationType}` : ''}. Poderiam me ajudar?`);
@@ -221,15 +313,19 @@ const Index = () => {
             <a href="#unidades" className="text-gray-700 hover:text-orange-500 transition-colors">Unidades</a>
             <a href="#contato" className="text-gray-700 hover:text-orange-500 transition-colors">Contato</a>
             {user ? (
-              <Button 
-                onClick={() => navigate('/crm')}
-                variant="outline" 
-                size="sm"
-                className="ml-4"
-              >
-                <Settings className="h-4 w-4 mr-2" />
-                CRM
-              </Button>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">
+                  Olá, {user.user_metadata?.first_name || user.email}
+                </span>
+                <Button 
+                  onClick={() => navigate('/crm')}
+                  variant="outline" 
+                  size="sm"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  CRM
+                </Button>
+              </div>
             ) : (
               <Button 
                 onClick={() => navigate('/auth')}
