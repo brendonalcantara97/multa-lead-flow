@@ -3,62 +3,66 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { BarChart3, LogOut, FileText, Filter } from "lucide-react";
-import { User, Search } from 'lucide-react';
+import { BarChart3, LogOut, FileText, Search, User } from "lucide-react";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { Lead, CRM_COLUMNS } from "@/types/lead";
+import { Lead, CRM_COLUMNS, convertLeadFromDB } from "@/types/lead";
 import { LeadCard } from "@/components/LeadCard";
 import { LeadModal } from "@/components/LeadModal";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { getDaysFromDate } from "@/utils/leadUtils";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
+import { useLeads } from "@/hooks/useLeads";
 
 const CRM = () => {
-  const [leads, setLeads] = useState<Lead[]>([]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [filterType, setFilterType] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const navigate = useNavigate();
+  
+  const { user, loading: authLoading, signOut } = useSupabaseAuth();
+  const { leads: dbLeads, loading: leadsLoading, updateLeadStatus, updateLead } = useLeads();
 
+  // Convert DB leads to frontend format
+  const leads = dbLeads.map(convertLeadFromDB);
 
   useEffect(() => {
-    // Verificar autenticação
-    if (!localStorage.getItem('sos-auth')) {
-      navigate('/login');
-      return;
+    if (!authLoading && !user) {
+      navigate('/auth');
     }
+  }, [user, authLoading, navigate]);
 
-    // Carregar leads do localStorage e normalizar + gatilhos
-    const storedLeads: Lead[] = JSON.parse(localStorage.getItem('sos-leads') || '[]');
-    const nowIso = new Date().toISOString();
-    let changed = false;
-    const normalized = storedLeads.map((l: any) => {
-      const tags = Array.isArray(l.tags) ? l.tags : [];
-      const lastMovedAt = l.lastMovedAt || l.createdAt || nowIso;
-      const days = getDaysFromDate(lastMovedAt);
-      const hasFrio = tags.includes('Frio');
-      if (days >= 7 && !hasFrio) {
-        changed = true;
-        return { ...l, tags: [...tags, 'Frio'], lastMovedAt };
+  useEffect(() => {
+    if (leads.length > 0) {
+      // alerta de follow-up para Novo Lead parado >=3 dias
+      const followUps = leads.filter((l: Lead) => 
+        l.status === 'novo-lead' && 
+        getDaysFromDate(l.lastMovedAt || l.createdAt) >= 3
+      );
+      if (followUps.length > 0) {
+        toast.warning(`Há ${followUps.length} lead(s) aguardando follow-up há 3+ dias em Novo Lead.`);
       }
-      return { ...l, tags, lastMovedAt };
-    });
-    setLeads(normalized);
-    if (changed) localStorage.setItem('sos-leads', JSON.stringify(normalized));
-
-    // alerta de follow-up para Novo Lead parado >=3 dias
-    const followUps = normalized.filter((l: any) => l.status === 'Novo Lead' && getDaysFromDate(l.lastMovedAt || l.createdAt) >= 3);
-    if (followUps.length > 0) {
-      toast.warning(`Há ${followUps.length} lead(s) aguardando follow-up há 3+ dias em Novo Lead.`);
     }
-  }, [navigate]);
+  }, [leads]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('sos-auth');
-    navigate('/login');
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/auth');
   };
+
+  if (authLoading || leadsLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -67,51 +71,34 @@ const CRM = () => {
     
     if (source.droppableId === destination.droppableId) return;
 
-    const leadId = parseInt(draggableId);
+    const leadId = draggableId;
     const newStatus = destination.droppableId;
     
-    const updatedLeads = leads.map(lead => {
-      if (lead.id === leadId) {
-        const updatedLead = { ...lead, status: newStatus, lastMovedAt: new Date().toISOString() };
-        if (newStatus === 'Cliente' && !updatedLead.conversionDate) {
-          updatedLead.conversionDate = new Date().toISOString();
-        }
-        return updatedLead;
-      }
-      return lead;
-    });
-    
-    setLeads(updatedLeads);
-    localStorage.setItem('sos-leads', JSON.stringify(updatedLeads));
-    toast.success(`Lead movido para ${newStatus}!`);
+    updateLeadStatus(leadId, newStatus);
   };
 
-  const updateLeadStatus = (leadId: number, newStatus: string) => {
-  const updatedLeads = leads.map(lead => {
-    if (lead.id === leadId) {
-      const updatedLead = { ...lead, status: newStatus, lastMovedAt: new Date().toISOString() };
-      // Se movendo para Cliente, definir data de conversão
-      if (newStatus === 'Cliente' && !updatedLead.conversionDate) {
-        updatedLead.conversionDate = new Date().toISOString();
-      }
-      return updatedLead;
-    }
-    return lead;
-  });
-    
-    setLeads(updatedLeads);
-    localStorage.setItem('sos-leads', JSON.stringify(updatedLeads));
-    toast.success("Status atualizado com sucesso!");
+  const handleStatusChange = (leadId: string, newStatus: string) => {
+    updateLeadStatus(leadId, newStatus);
   };
 
-  const updateLead = (updatedLead: Lead) => {
-    const updatedLeads = leads.map(lead => 
-      lead.id === updatedLead.id ? updatedLead : lead
-    );
-    setLeads(updatedLeads);
-    localStorage.setItem('sos-leads', JSON.stringify(updatedLeads));
+  const handleUpdateLead = (updatedLead: Lead) => {
+    const updates = {
+      name: updatedLead.name,
+      email: updatedLead.email,
+      phone: updatedLead.phone,
+      violation_type: updatedLead.violationType,
+      observations: updatedLead.observations,
+      amount: updatedLead.amount,
+      payment_method: updatedLead.paymentMethod,
+      rejection_reason: updatedLead.rejectionReason,
+      tags: updatedLead.tags,
+      cnh_at_risk: updatedLead.cnhAtRisk,
+      appealed_before: updatedLead.appealedBefore,
+      urgency: updatedLead.urgency,
+    };
+    
+    updateLead(updatedLead.id, updates);
     setIsEditModalOpen(false);
-    toast.success("Lead atualizado com sucesso!");
   };
 
   const getLeadsByStatus = (status: string) => {
@@ -238,7 +225,7 @@ const CRM = () => {
                       } transition-colors duration-200`}
                     >
                       {getLeadsByStatus(column.id).map((lead, index) => (
-                        <Draggable key={lead.id} draggableId={lead.id.toString()} index={index}>
+                        <Draggable key={lead.id} draggableId={lead.id} index={index}>
                           {(provided, snapshot) => (
                             <div
                               ref={provided.innerRef}
@@ -249,7 +236,7 @@ const CRM = () => {
                               <LeadCard 
                                 lead={lead} 
                                 onViewDetails={handleViewDetails}
-                                onStatusChange={updateLeadStatus}
+                                onStatusChange={handleStatusChange}
                                 columns={CRM_COLUMNS}
                               />
                             </div>
@@ -281,7 +268,7 @@ const CRM = () => {
         lead={selectedLead}
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        onSave={updateLead}
+        onSave={handleUpdateLead}
         columns={CRM_COLUMNS}
       />
     </div>

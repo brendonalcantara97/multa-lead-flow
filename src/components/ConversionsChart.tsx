@@ -17,15 +17,15 @@ import {
 } from "recharts";
 
 interface Lead {
-  id: number;
+  id: string;
   name: string;
-  email: string;
+  email?: string;
   phone: string;
   violationType: string;
   status: string;
   createdAt: string;
-  observations: string;
-  amount: number;
+  observations?: string;
+  amount?: number;
   conversionDate?: string;
   paymentMethod?: string;
   utm_source?: string;
@@ -33,7 +33,7 @@ interface Lead {
   utm_campaign?: string;
   gclid?: string;
   fbp?: string;
-  documents: string[];
+  documents?: string[];
 }
 
 interface ConversionsChartProps {
@@ -114,7 +114,7 @@ export const ConversionsChart = ({
       date.setDate(start.getDate() + i);
       
       const dayConversions = leads.filter(lead => {
-        if (!lead.conversionDate || lead.status !== 'Cliente') return false;
+        if (!lead.conversionDate || lead.status !== 'cliente') return false;
         const convDate = new Date(lead.conversionDate);
         return convDate.toDateString() === date.toDateString();
       });

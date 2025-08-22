@@ -5,10 +5,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { MessageCircle, Scale, Shield, Car, MapPin, Phone, Mail, Star, Users, Award } from "lucide-react";
+import { MessageCircle, Scale, Shield, Car, MapPin, Phone, Mail, Star, Users, Award, Settings } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import homemBrasileiro from "@/assets/homem-brasileiro-cnh.jpg";
 const Index = () => {
+  const navigate = useNavigate();
+  const { user } = useSupabaseAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -214,9 +218,28 @@ const Index = () => {
           <nav className="hidden md:flex space-x-6">
             <a href="#sobre" className="text-gray-700 hover:text-orange-500 transition-colors">Sobre</a>
             <a href="#servicos" className="text-gray-700 hover:text-orange-500 transition-colors">Serviços</a>
-            
             <a href="#unidades" className="text-gray-700 hover:text-orange-500 transition-colors">Unidades</a>
             <a href="#contato" className="text-gray-700 hover:text-orange-500 transition-colors">Contato</a>
+            {user ? (
+              <Button 
+                onClick={() => navigate('/crm')}
+                variant="outline" 
+                size="sm"
+                className="ml-4"
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                CRM
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => navigate('/auth')}
+                variant="outline" 
+                size="sm"
+                className="ml-4"
+              >
+                Login
+              </Button>
+            )}
           </nav>
         </div>
       </header>
@@ -623,7 +646,7 @@ const Index = () => {
                 <li><a href="#sobre" className="hover:text-orange-500 transition-colors">Sobre Nós</a></li>
                 <li><a href="#servicos" className="hover:text-orange-500 transition-colors">Serviços</a></li>
                 
-                <li><a href="/crm" className="hover:text-orange-500 transition-colors">Área Restrita</a></li>
+                <li><a href="/auth" className="hover:text-orange-500 transition-colors">Área Restrita</a></li>
               </ul>
             </div>
             

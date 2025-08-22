@@ -10,7 +10,7 @@ import { formatCurrency, getViolationTypeLabel, getViolationIcon, getDaysFromDat
 interface LeadCardProps {
   lead: Lead;
   onViewDetails: (lead: Lead) => void;
-  onStatusChange: (leadId: number, newStatus: string) => void;
+  onStatusChange: (leadId: string, newStatus: string) => void;
   columns: Array<{ id: string; title: string; color: string; textColor: string }>;
 }
 

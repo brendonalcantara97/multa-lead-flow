@@ -1,65 +1,133 @@
 export interface Lead {
-  id: number;
+  id: string;
   name: string;
-  email: string;
+  email?: string;
   phone: string;
   violationType: string;
   status: string;
   createdAt: string;
-  observations: string;
-  amount: number;
+  observations?: string;
+  amount?: number;
   conversionDate?: string;
   paymentMethod?: string;
-  rejectionReason?: string; // Para quando mover para "Não Cliente"
+  rejectionReason?: string;
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
+  utm_term?: string;
+  utm_content?: string;
   gclid?: string;
+  gbraid?: string;
   fbp?: string;
-  documents: string[];
-  // Novos campos
+  fbclid?: string;
+  documents?: string[];
   tags?: string[];
   cnhAtRisk?: boolean;
   appealedBefore?: boolean;
   urgency?: 'Alta' | 'Média' | 'Baixa';
-  lastMovedAt?: string; // para gatilhos de estagnação
+  lastMovedAt?: string;
+}
+
+// Interface for compatibility with Supabase schema
+export interface LeadDB {
+  id: string;
+  user_id: string;
+  name: string;
+  email?: string;
+  phone: string;
+  violation_type: string;
+  status: string;
+  amount?: number;
+  conversion_date?: string;
+  payment_method?: string;
+  cnh_at_risk?: boolean;
+  appealed_before?: boolean;
+  urgency?: string;
+  last_moved_at?: string;
+  observations?: string;
+  rejection_reason?: string;
+  documents?: string[];
+  tags?: string[];
+  created_at?: string;
+  updated_at?: string;
+  // Source tracking
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  utm_term?: string;
+  utm_content?: string;
+  gclid?: string;
+  gbraid?: string;
+  fbp?: string;
+  fbclid?: string;
 }
 
 export const CRM_COLUMNS = [
   { 
-    id: 'Novo Lead', 
+    id: 'novo-lead', 
     title: 'Novo Lead', 
     color: 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200',
     textColor: 'text-blue-700'
   },
   { 
-    id: 'Contato Realizado', 
+    id: 'contato-realizado', 
     title: 'Contato Realizado', 
     color: 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200',
     textColor: 'text-orange-700'
   },
   { 
-    id: 'Documentos Recebidos', 
+    id: 'documentos-recebidos', 
     title: 'Documentos Recebidos', 
     color: 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200',
     textColor: 'text-purple-700'
   },
   { 
-    id: 'Contrato Assinado', 
+    id: 'contrato-assinado', 
     title: 'Contrato Assinado', 
     color: 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200',
     textColor: 'text-yellow-700'
   },
   { 
-    id: 'Cliente', 
+    id: 'cliente', 
     title: 'Cliente', 
     color: 'bg-gradient-to-br from-green-50 to-green-100 border-green-200',
     textColor: 'text-green-700'
   },
   { 
-    id: 'Não Cliente', 
+    id: 'nao-cliente', 
     title: 'Não Cliente', 
     color: 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200',
     textColor: 'text-gray-700'
   }
 ];
+
+// Helper function to convert between frontend and database format
+export const convertLeadFromDB = (dbLead: LeadDB): Lead => ({
+  id: dbLead.id,
+  name: dbLead.name,
+  email: dbLead.email,
+  phone: dbLead.phone,
+  violationType: dbLead.violation_type,
+  status: dbLead.status,
+  createdAt: dbLead.created_at || '',
+  observations: dbLead.observations,
+  amount: dbLead.amount,
+  conversionDate: dbLead.conversion_date,
+  paymentMethod: dbLead.payment_method,
+  rejectionReason: dbLead.rejection_reason,
+  utm_source: dbLead.utm_source,
+  utm_medium: dbLead.utm_medium,
+  utm_campaign: dbLead.utm_campaign,
+  utm_term: dbLead.utm_term,
+  utm_content: dbLead.utm_content,
+  gclid: dbLead.gclid,
+  gbraid: dbLead.gbraid,
+  fbp: dbLead.fbp,
+  fbclid: dbLead.fbclid,
+  documents: dbLead.documents || [],
+  tags: dbLead.tags,
+  cnhAtRisk: dbLead.cnh_at_risk,
+  appealedBefore: dbLead.appealed_before,
+  urgency: dbLead.urgency as 'Alta' | 'Média' | 'Baixa',
+  lastMovedAt: dbLead.last_moved_at,
+});

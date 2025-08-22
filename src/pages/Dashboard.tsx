@@ -10,8 +10,7 @@ import {
   Users, 
   DollarSign, 
   Target, 
-  Calendar,
-  FileText
+  Calendar
 } from "lucide-react";
 import { 
   BarChart, 
@@ -23,46 +22,40 @@ import {
   ResponsiveContainer 
 } from "recharts";
 import { ConversionsChart } from "@/components/ConversionsChart";
-
-interface Lead {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  violationType: string;
-  status: string;
-  createdAt: string;
-  observations: string;
-  amount: number;
-  conversionDate?: string;
-  paymentMethod?: string;
-  utm_source?: string;
-  utm_medium?: string;
-  utm_campaign?: string;
-  gclid?: string;
-  fbp?: string;
-  documents: string[];
-}
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
+import { useLeads } from "@/hooks/useLeads";
+import { convertLeadFromDB } from "@/types/lead";
 
 const Dashboard = () => {
-  const [leads, setLeads] = useState<Lead[]>([]);
   const [period, setPeriod] = useState("30");
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Verificar autenticação
-    if (!localStorage.getItem('sos-auth')) {
-      navigate('/login');
-      return;
-    }
+  const { user, loading: authLoading } = useSupabaseAuth();
+  const { leads: dbLeads, loading: leadsLoading } = useLeads();
 
-    // Carregar leads do localStorage
-    const storedLeads = JSON.parse(localStorage.getItem('sos-leads') || '[]');
-    setLeads(storedLeads);
-  }, [navigate]);
+  // Convert DB leads to frontend format
+  const leads = dbLeads.map(convertLeadFromDB);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading || leadsLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   // Função para obter período de data
   const getDateRange = () => {
@@ -94,7 +87,7 @@ const Dashboard = () => {
     });
 
     const periodClients = leads.filter(lead => {
-      if (lead.status !== 'Cliente' || !lead.conversionDate) return false;
+      if (lead.status !== 'cliente' || !lead.conversionDate) return false;
       const convDate = new Date(lead.conversionDate);
       return convDate >= start && convDate <= end;
     });
@@ -127,7 +120,7 @@ const Dashboard = () => {
     });
 
     const prevPeriodClients = leads.filter(lead => {
-      if (lead.status !== 'Cliente' || !lead.conversionDate) return false;
+      if (lead.status !== 'cliente' || !lead.conversionDate) return false;
       const convDate = new Date(lead.conversionDate);
       return convDate >= prevStart && convDate <= prevEnd;
     });
@@ -226,10 +219,12 @@ const Dashboard = () => {
     });
     
     return {
-      novoLead: periodLeads.filter(l => l.status === 'Novo Lead').length,
-      emNegociacao: periodLeads.filter(l => l.status === 'Em Negociação').length,
-      cliente: periodLeads.filter(l => l.status === 'Cliente').length,
-      naoCliente: periodLeads.filter(l => l.status === 'Não Cliente').length
+      novoLead: periodLeads.filter(l => l.status === 'novo-lead').length,
+      contatoRealizado: periodLeads.filter(l => l.status === 'contato-realizado').length,
+      documentosRecebidos: periodLeads.filter(l => l.status === 'documentos-recebidos').length,
+      contratoAssinado: periodLeads.filter(l => l.status === 'contrato-assinado').length,
+      cliente: periodLeads.filter(l => l.status === 'cliente').length,
+      naoCliente: periodLeads.filter(l => l.status === 'nao-cliente').length
     };
   };
 
@@ -387,7 +382,7 @@ const Dashboard = () => {
         </div>
 
         {/* Indicadores Auxiliares */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <Card>
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-blue-500">{statusCounts.novoLead}</div>
@@ -397,22 +392,36 @@ const Dashboard = () => {
           
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-orange-500">{statusCounts.emNegociacao}</div>
-              <div className="text-sm text-gray-600">Em Negociação</div>
+              <div className="text-2xl font-bold text-orange-500">{statusCounts.contatoRealizado}</div>
+              <div className="text-sm text-gray-600">Contato Realizado</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-gray-500">{statusCounts.naoCliente}</div>
-              <div className="text-sm text-gray-600">Não Clientes</div>
+              <div className="text-2xl font-bold text-purple-500">{statusCounts.documentosRecebidos}</div>
+              <div className="text-sm text-gray-600">Documentos Recebidos</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-yellow-500">{statusCounts.contratoAssinado}</div>
+              <div className="text-sm text-gray-600">Contrato Assinado</div>
             </CardContent>
           </Card>
           
           <Card>
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-green-500">{statusCounts.cliente}</div>
-              <div className="text-sm text-gray-600">Clientes Ativos</div>
+              <div className="text-sm text-gray-600">Clientes</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-gray-500">{statusCounts.naoCliente}</div>
+              <div className="text-sm text-gray-600">Não Clientes</div>
             </CardContent>
           </Card>
         </div>
