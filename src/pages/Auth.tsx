@@ -14,6 +14,8 @@ const Auth = () => {
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
   
   const navigate = useNavigate();
   const { user, loading } = useSupabaseAuth();
@@ -91,6 +93,35 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      // First check if email is authorized
+      const authorizedEmail = await checkEmailAuthorization(forgotPasswordEmail);
+      
+      if (!authorizedEmail) {
+        throw new Error('Email não autorizado. Entre em contato com o administrador.');
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
+        redirectTo: `${window.location.origin}/auth`
+      });
+
+      if (error) throw error;
+
+      toast.success(`Email de redefinição de senha enviado para ${forgotPasswordEmail}`);
+      setForgotPasswordEmail('');
+      setShowForgotPassword(false);
+    } catch (error: any) {
+      console.error('Forgot password error:', error);
+      toast.error(error.message || 'Erro ao enviar email de redefinição');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center">
@@ -136,7 +167,7 @@ const Auth = () => {
               </p>
             </CardHeader>
             <CardContent>
-              {!showInviteForm ? (
+              {!showInviteForm && !showForgotPassword ? (
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Corporativo</Label>
@@ -183,7 +214,15 @@ const Auth = () => {
                     Entrar no Sistema
                   </Button>
 
-                  <div className="text-center pt-4">
+                  <div className="text-center pt-4 space-y-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowForgotPassword(true)}
+                      className="text-sm text-gray-600 hover:text-orange-600 block w-full"
+                    >
+                      Esqueci minha senha
+                    </Button>
                     <Button
                       type="button"
                       variant="ghost"
@@ -194,6 +233,46 @@ const Auth = () => {
                     </Button>
                   </div>
                 </form>
+              ) : showForgotPassword ? (
+                <div className="space-y-4">
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg font-semibold">Redefinir Senha</h3>
+                    <p className="text-sm text-gray-600">
+                      Informe seu email para receber instruções de redefinição
+                    </p>
+                  </div>
+                  
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="forgotEmail">Seu Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="forgotEmail"
+                          type="email"
+                          placeholder="seu.email@empresa.com.br"
+                          value={forgotPasswordEmail}
+                          onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading ? 'Enviando...' : 'Enviar Email de Redefinição'}
+                    </Button>
+                    
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowForgotPassword(false)}
+                      className="w-full"
+                    >
+                      Voltar ao Login
+                    </Button>
+                  </form>
+                </div>
               ) : (
                 <div className="space-y-4">
                   <div className="text-center mb-4">

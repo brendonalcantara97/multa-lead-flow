@@ -1,1 +1,43 @@
 project_id = "ccugheskgrtykfofcpxk"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[graphql]
+enabled = true
+port = 54329
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[inbucket]
+enabled = true
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[storage]
+enabled = true
+port = 54326
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+port = 54324
+site_url = "https://ccugheskgrtykfofcpxk.lovableproject.com"
+additional_redirect_urls = ["https://localhost:3000"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+security_refresh_token_reuse_interval = 10
+enable_signup = true
+
+[edge_functions]
+enabled = true
+port = 54323
+
+[functions.send-invitation]
+verify_jwt = false

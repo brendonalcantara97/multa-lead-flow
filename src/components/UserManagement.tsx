@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus, Trash2, Mail, Shield, UserCheck } from "lucide-react";
+import { UserPlus, Trash2, Mail, Shield, UserCheck, Send, Key } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -17,12 +17,14 @@ interface AuthorizedEmail {
   role: string;
   is_active: boolean;
   created_at: string;
+  has_account?: boolean;
 }
 
 export const UserManagement = () => {
   const [authorizedEmails, setAuthorizedEmails] = useState<AuthorizedEmail[]>([]);
   const [loading, setLoading] = useState(true);
   const [addingUser, setAddingUser] = useState(false);
+  const [sendingInvite, setSendingInvite] = useState<string | null>(null);
   const [newUser, setNewUser] = useState({
     email: '',
     firstName: '',
@@ -42,6 +44,7 @@ export const UserManagement = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
       setAuthorizedEmails(data || []);
     } catch (error: any) {
       console.error('Erro ao buscar emails autorizados:', error);
@@ -77,7 +80,7 @@ export const UserManagement = () => {
         throw error;
       }
 
-      toast.success('Usuário adicionado com sucesso!');
+      toast.success('Usuário adicionado com sucesso! Clique em "Enviar Convite" para criar a conta.');
       setNewUser({ email: '', firstName: '', lastName: '', role: 'user' });
       fetchAuthorizedEmails();
     } catch (error: any) {
@@ -123,6 +126,49 @@ export const UserManagement = () => {
     } catch (error: any) {
       console.error('Erro ao remover usuário:', error);
       toast.error('Erro ao remover usuário');
+    }
+  };
+
+  const handleSendInvite = async (user: AuthorizedEmail) => {
+    setSendingInvite(user.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-invitation', {
+        body: {
+          email: user.email,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          role: user.role
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast.success(`Convite enviado para ${user.email}!`);
+        fetchAuthorizedEmails(); // Refresh to update account status
+      } else {
+        throw new Error(data?.error || 'Erro ao enviar convite');
+      }
+    } catch (error: any) {
+      console.error('Erro ao enviar convite:', error);
+      toast.error(error.message || 'Erro ao enviar convite');
+    } finally {
+      setSendingInvite(null);
+    }
+  };
+
+  const handleResetPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth`
+      });
+
+      if (error) throw error;
+
+      toast.success(`Email de redefinição de senha enviado para ${email}`);
+    } catch (error: any) {
+      console.error('Erro ao enviar reset de senha:', error);
+      toast.error(error.message || 'Erro ao enviar email de redefinição');
     }
   };
 
@@ -259,13 +305,49 @@ export const UserManagement = () => {
                           {user.first_name} {user.last_name}
                         </p>
                       )}
-                      <p className="text-xs text-gray-400">
-                        Adicionado em {new Date(user.created_at).toLocaleDateString('pt-BR')}
-                      </p>
+                      <div className="flex items-center gap-2 text-xs text-gray-400">
+                        <span>Adicionado em {new Date(user.created_at).toLocaleDateString('pt-BR')}</span>
+                        {user.has_account ? (
+                          <Badge variant="outline" className="text-green-600 border-green-600">
+                            ✓ Conta criada
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-orange-600 border-orange-600">
+                            ⏳ Aguardando convite
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-2">
+                    {!user.has_account ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSendInvite(user)}
+                        disabled={sendingInvite === user.id}
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                      >
+                        {sendingInvite === user.id ? (
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-green-600 mr-1"></div>
+                        ) : (
+                          <Send className="h-4 w-4 mr-1" />
+                        )}
+                        {sendingInvite === user.id ? 'Enviando...' : 'Enviar Convite'}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleResetPassword(user.email)}
+                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      >
+                        <Key className="h-4 w-4 mr-1" />
+                        Reset Senha
+                      </Button>
+                    )}
+                    
                     <Button
                       variant="outline"
                       size="sm"
