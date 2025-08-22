@@ -3,9 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
-import { Mail, Lock, User, LogIn } from "lucide-react";
+import { Mail, Lock, LogIn, ArrowLeft, Building } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
@@ -13,13 +12,9 @@ import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [signupData, setSignupData] = useState({ 
-    email: '', 
-    password: '', 
-    confirmPassword: '',
-    firstName: '',
-    lastName: ''
-  });
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  
   const navigate = useNavigate();
   const { user, loading } = useSupabaseAuth();
 
@@ -30,67 +25,67 @@ const Auth = () => {
     }
   }, [user, loading, navigate]);
 
+  // Verificar se email está autorizado
+  const checkEmailAuthorization = async (email: string) => {
+    const { data, error } = await supabase
+      .from('authorized_emails')
+      .select('*')
+      .eq('email', email.toLowerCase())
+      .eq('is_active', true)
+      .single();
+
+    if (error || !data) {
+      return null;
+    }
+    return data;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      // Primeiro verificar se o email está autorizado
+      const authorizedEmail = await checkEmailAuthorization(loginData.email);
+      
+      if (!authorizedEmail) {
+        throw new Error('Email não autorizado. Entre em contato com o administrador.');
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: loginData.email,
         password: loginData.password,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('Email ou senha incorretos');
+        }
+        throw error;
+      }
 
       toast.success('Login realizado com sucesso!');
       navigate('/crm');
     } catch (error: any) {
-      toast.error('Erro no login: ' + error.message);
+      console.error('Login error:', error);
+      toast.error(error.message || 'Erro no login');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleInviteRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (signupData.password !== signupData.confirmPassword) {
-      toast.error('As senhas não coincidem');
-      return;
-    }
-
-    if (signupData.password.length < 6) {
-      toast.error('A senha deve ter pelo menos 6 caracteres');
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { data, error } = await supabase.auth.signUp({
-        email: signupData.email,
-        password: signupData.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            first_name: signupData.firstName,
-            last_name: signupData.lastName,
-          }
-        }
-      });
-
-      if (error) throw error;
-
-      toast.success('Conta criada com sucesso! Verifique seu email.');
-      // Don't navigate immediately, wait for email confirmation
+      // Aqui você pode implementar uma lógica para enviar solicitação de convite
+      // Por enquanto, vamos apenas mostrar uma mensagem
+      toast.info(`Solicitação de acesso enviada para ${inviteEmail}. Aguarde aprovação do administrador.`);
+      setInviteEmail('');
+      setShowInviteForm(false);
     } catch (error: any) {
-      if (error.message.includes('User already registered')) {
-        toast.error('Este email já está cadastrado. Tente fazer login.');
-      } else {
-        toast.error('Erro no cadastro: ' + error.message);
-      }
+      toast.error('Erro ao enviar solicitação');
     } finally {
       setIsLoading(false);
     }
@@ -105,55 +100,71 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
-            SOS Multas
-          </h1>
-          <p className="text-gray-600 mt-2">Sistema de Gestão de Leads</p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
+      {/* Header com botão voltar */}
+      <div className="flex items-center justify-between p-4">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 text-gray-600 hover:text-orange-600"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Voltar ao site
+        </Button>
+      </div>
 
-        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Acesse sua conta</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Cadastrar</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="login">
+      <div className="flex items-center justify-center px-4 pt-8">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <img 
+              src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" 
+              alt="SOS Multas" 
+              className="h-16 mx-auto mb-4"
+            />
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
+              SOS Multas
+            </h1>
+            <p className="text-gray-600 mt-2">Sistema de Gestão de Leads</p>
+          </div>
+
+          <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="space-y-1 text-center">
+              <Building className="h-8 w-8 mx-auto text-orange-500 mb-2" />
+              <CardTitle className="text-2xl">Acesso Corporativo</CardTitle>
+              <p className="text-sm text-gray-600">
+                Apenas funcionários autorizados podem acessar
+              </p>
+            </CardHeader>
+            <CardContent>
+              {!showInviteForm ? (
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
+                    <Label htmlFor="email">Email Corporativo</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
-                        id="login-email"
+                        id="email"
                         type="email"
-                        placeholder="seu@email.com"
+                        placeholder="seu.email@empresa.com.br"
                         value={loginData.email}
                         onChange={(e) => setLoginData({...loginData, email: e.target.value})}
-                        className="pl-10"
+                        className="pl-10 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
                         required
                       />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="login-password">Senha</Label>
+                    <Label htmlFor="password">Senha</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
-                        id="login-password"
+                        id="password"
                         type="password"
                         placeholder="Sua senha"
                         value={loginData.password}
                         onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-                        className="pl-10"
+                        className="pl-10 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
                         required
                       />
                     </div>
@@ -161,7 +172,7 @@ const Auth = () => {
                   
                   <Button 
                     type="submit" 
-                    className="w-full bg-orange-500 hover:bg-orange-600"
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5"
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -169,113 +180,69 @@ const Auth = () => {
                     ) : (
                       <LogIn className="h-4 w-4 mr-2" />
                     )}
-                    Entrar
+                    Entrar no Sistema
                   </Button>
-                </form>
-              </TabsContent>
-              
-              <TabsContent value="signup">
-                <form onSubmit={handleSignup} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-firstName">Nome</Label>
-                      <Input
-                        id="signup-firstName"
-                        type="text"
-                        placeholder="Nome"
-                        value={signupData.firstName}
-                        onChange={(e) => setSignupData({...signupData, firstName: e.target.value})}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-lastName">Sobrenome</Label>
-                      <Input
-                        id="signup-lastName"
-                        type="text"
-                        placeholder="Sobrenome"
-                        value={signupData.lastName}
-                        onChange={(e) => setSignupData({...signupData, lastName: e.target.value})}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        placeholder="seu@email.com"
-                        value={signupData.email}
-                        onChange={(e) => setSignupData({...signupData, email: e.target.value})}
-                        className="pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Senha</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        placeholder="Mínimo 6 caracteres"
-                        value={signupData.password}
-                        onChange={(e) => setSignupData({...signupData, password: e.target.value})}
-                        className="pl-10"
-                        required
-                        minLength={6}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-confirmPassword">Confirmar Senha</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signup-confirmPassword"
-                        type="password"
-                        placeholder="Confirme sua senha"
-                        value={signupData.confirmPassword}
-                        onChange={(e) => setSignupData({...signupData, confirmPassword: e.target.value})}
-                        className="pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-orange-500 hover:bg-orange-600"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    ) : (
-                      <User className="h-4 w-4 mr-2" />
-                    )}
-                    Criar Conta
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
 
-        <div className="text-center mt-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/')}
-            className="text-gray-600 hover:text-gray-800"
-          >
-            ← Voltar ao início
-          </Button>
+                  <div className="text-center pt-4">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowInviteForm(true)}
+                      className="text-sm text-gray-600 hover:text-orange-600"
+                    >
+                      Não tem acesso? Solicitar convite
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg font-semibold">Solicitar Acesso</h3>
+                    <p className="text-sm text-gray-600">
+                      Informe seu email para solicitar acesso ao sistema
+                    </p>
+                  </div>
+                  
+                  <form onSubmit={handleInviteRequest} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="inviteEmail">Seu Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="inviteEmail"
+                          type="email"
+                          placeholder="seu.email@empresa.com.br"
+                          value={inviteEmail}
+                          onChange={(e) => setInviteEmail(e.target.value)}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading ? 'Enviando...' : 'Solicitar Acesso'}
+                    </Button>
+                    
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowInviteForm(false)}
+                      className="w-full"
+                    >
+                      Voltar ao Login
+                    </Button>
+                  </form>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="text-center mt-6">
+            <p className="text-xs text-gray-500">
+              Sistema restrito aos funcionários da SOS Multas
+            </p>
+          </div>
         </div>
       </div>
     </div>

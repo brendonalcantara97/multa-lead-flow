@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      authorized_emails: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          invited_by: string | null
+          is_active: boolean | null
+          last_name: string | null
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean | null
+          last_name?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean | null
+          last_name?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lead_documents: {
         Row: {
           document_name: string

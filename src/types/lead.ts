@@ -62,42 +62,56 @@ export interface LeadDB {
   fbclid?: string;
 }
 
+import { UserPlus, Trash2, Mail, Shield, UserCheck, Clock, DollarSign, AlertCircle } from "lucide-react";
+
 export const CRM_COLUMNS = [
   { 
     id: 'novo-lead', 
     title: 'Novo Lead', 
     color: 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200',
-    textColor: 'text-blue-700'
+    bgColor: 'bg-blue-100',
+    textColor: 'text-blue-700',
+    icon: Clock
   },
   { 
     id: 'contato-realizado', 
     title: 'Contato Realizado', 
     color: 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200',
-    textColor: 'text-orange-700'
+    bgColor: 'bg-orange-100',
+    textColor: 'text-orange-700',
+    icon: UserPlus
   },
   { 
     id: 'documentos-recebidos', 
     title: 'Documentos Recebidos', 
     color: 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200',
-    textColor: 'text-purple-700'
+    bgColor: 'bg-purple-100',
+    textColor: 'text-purple-700',
+    icon: Mail
   },
   { 
     id: 'contrato-assinado', 
     title: 'Contrato Assinado', 
     color: 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200',
-    textColor: 'text-yellow-700'
+    bgColor: 'bg-yellow-100',
+    textColor: 'text-yellow-700',
+    icon: Shield
   },
   { 
     id: 'cliente', 
     title: 'Cliente', 
     color: 'bg-gradient-to-br from-green-50 to-green-100 border-green-200',
-    textColor: 'text-green-700'
+    bgColor: 'bg-green-100',
+    textColor: 'text-green-700',
+    icon: UserCheck
   },
   { 
     id: 'nao-cliente', 
     title: 'Não Cliente', 
     color: 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200',
-    textColor: 'text-gray-700'
+    bgColor: 'bg-gray-100',
+    textColor: 'text-gray-700',
+    icon: AlertCircle
   }
 ];
 

@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { BarChart3, LogOut, FileText, Search, User } from "lucide-react";
+import { BarChart3, LogOut, FileText, Search, User, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Lead, CRM_COLUMNS, convertLeadFromDB } from "@/types/lead";
@@ -14,12 +13,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { getDaysFromDate } from "@/utils/leadUtils";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { useLeads } from "@/hooks/useLeads";
+import { UserManagement } from "@/components/UserManagement";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const CRM = () => {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [filterType, setFilterType] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<string>('leads');
   const navigate = useNavigate();
   
   const { user, loading: authLoading, signOut } = useSupabaseAuth();
@@ -77,11 +79,12 @@ const CRM = () => {
     updateLeadStatus(leadId, newStatus);
   };
 
-  const handleStatusChange = (leadId: string, newStatus: string) => {
-    updateLeadStatus(leadId, newStatus);
+  const handleLeadClick = (lead: Lead) => {
+    setSelectedLead(lead);
+    setIsEditModalOpen(true);
   };
 
-  const handleUpdateLead = (updatedLead: Lead) => {
+  const handleSaveLead = (updatedLead: Lead) => {
     const updates = {
       name: updatedLead.name,
       email: updatedLead.email,
@@ -98,7 +101,6 @@ const CRM = () => {
     };
     
     updateLead(updatedLead.id, updates);
-    setIsEditModalOpen(false);
   };
 
   const getLeadsByStatus = (status: string) => {
@@ -109,166 +111,197 @@ const CRM = () => {
     if (searchTerm.trim()) {
       const q = searchTerm.trim().toLowerCase();
       filteredLeads = filteredLeads.filter(lead =>
-        lead.name.toLowerCase().includes(q) || lead.phone.replace(/\D/g, '').includes(q.replace(/\D/g, ''))
+        lead.name.toLowerCase().includes(q) || 
+        lead.email?.toLowerCase().includes(q) ||
+        lead.phone.replace(/\D/g, '').includes(q.replace(/\D/g, ''))
       );
     }
     return filteredLeads;
   };
 
-  const handleViewDetails = (lead: Lead) => {
-    setSelectedLead(lead);
-    setIsEditModalOpen(true);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header Modernizado */}
-      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200 p-4 sticky top-0 z-10">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
-              SOS Multas - CRM
-            </h1>
-            <div className="hidden md:flex items-center gap-2 text-sm text-gray-600 bg-white/60 rounded-full px-3 py-1">
-              <span className="font-medium">Total:</span>
-              <span className="font-bold text-orange-600">{leads.length} leads</span>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow-sm border-b">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <img 
+                src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" 
+                alt="SOS Multas" 
+                className="h-10"
+              />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">CRM - SOS Multas</h1>
+                <p className="text-sm text-gray-600">
+                  Olá, {user?.user_metadata?.first_name || user?.email}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" onClick={() => navigate('/dashboard')} className="hover:bg-blue-50">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Dashboard
-            </Button>
             
-            {/* Menu do Usuário */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="hover:bg-gray-50">
-                  <User className="h-4 w-4 mr-2" />
-                  Usuário
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-white border shadow-lg">
-                <DropdownMenuItem className="cursor-pointer hover:bg-gray-50">
-                  🔒 Trocar senha
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer hover:bg-red-50 text-red-600">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sair
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-        
-        {/* Campo de Busca */}
-        <div className="mt-4 max-w-md">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Buscar por nome ou telefone..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-white/60 border-gray-200 focus:bg-white"
-            />
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/')}
+                className="flex items-center gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                Ir para Site
+              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <User className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sair
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Estatísticas do Funil */}
       <div className="p-6">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-          {CRM_COLUMNS.map(column => {
-            const count = getLeadsByStatus(column.id).length;
-            const percentage = leads.length > 0 ? (count / leads.length * 100).toFixed(1) : '0';
-            
-            return (
-              <Card key={column.id} className="group hover:shadow-lg transition-all duration-200 border-0 bg-white/60 backdrop-blur-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className={`w-3 h-3 rounded-full ${column.color.includes('blue') ? 'bg-blue-500' : 
-                                     column.color.includes('orange') ? 'bg-orange-500' : 
-                                     column.color.includes('green') ? 'bg-green-500' : 'bg-gray-500'}`} />
-                    <span className="text-xs text-gray-500">{percentage}%</span>
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 mb-1">{count}</div>
-                  <div className="text-sm text-gray-600">{column.title}</div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="leads" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Gestão de Leads
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Usuários Autorizados
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Kanban Board Modernizado */}
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {CRM_COLUMNS.map(column => (
-              <div key={column.id} className="bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className={`${column.color} p-4 border-b border-gray-200`}>
-                  <div className="flex items-center justify-between">
-                    <h2 className={`font-semibold text-lg ${column.textColor}`}>
-                      {column.title}
-                    </h2>
-                    <div className={`px-2 py-1 rounded-full text-xs font-medium bg-white/80 ${column.textColor}`}>
-                      {getLeadsByStatus(column.id).length}
-                    </div>
-                  </div>
-                </div>
-                
-                <Droppable droppableId={column.id}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`p-4 max-h-[600px] overflow-y-auto min-h-[200px] ${
-                        snapshot.isDraggingOver ? 'bg-blue-50/50' : ''
-                      } transition-colors duration-200`}
-                    >
-                      {getLeadsByStatus(column.id).map((lead, index) => (
-                        <Draggable key={lead.id} draggableId={lead.id} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform duration-200`}
-                            >
-                              <LeadCard 
-                                lead={lead} 
-                                onViewDetails={handleViewDetails}
-                                onStatusChange={handleStatusChange}
-                                columns={CRM_COLUMNS}
-                              />
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                      
-                      {getLeadsByStatus(column.id).length === 0 && (
-                        <div className="text-center text-gray-400 py-12">
-                          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                            <FileText className="h-8 w-8 opacity-50" />
-                          </div>
-                          <p className="text-sm">Nenhum lead nesta etapa</p>
-                          <p className="text-xs text-gray-300 mt-1">Arraste leads aqui</p>
+          <TabsContent value="leads">
+            {/* Estatísticas */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+              {CRM_COLUMNS.map((column) => {
+                const count = getLeadsByStatus(column.id).length;
+                return (
+                  <Card key={column.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">{column.title}</p>
+                          <p className="text-2xl font-bold text-gray-900">{count}</p>
                         </div>
-                      )}
-                    </div>
-                  )}
-                </Droppable>
+                        <div className={`p-3 rounded-full ${column.bgColor}`}>
+                          <column.icon className={`h-6 w-6 ${column.textColor}`} />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {/* Filtros */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Buscar por nome, email ou telefone..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </div>
-            ))}
-          </div>
-        </DragDropContext>
+              
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              >
+                <option value="all">Todos os tipos de multa</option>
+                <option value="excesso-velocidade">Excesso de Velocidade</option>
+                <option value="excesso-pontos">Excesso de Pontos</option>
+                <option value="bafometro">Bafômetro</option>
+                <option value="suspensao-cnh">Suspensão da CNH</option>
+                <option value="cassacao-cnh">Cassação da CNH</option>
+              </select>
+            </div>
+
+            {/* Kanban Board */}
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                {CRM_COLUMNS.map((column) => {
+                  const columnLeads = getLeadsByStatus(column.id);
+                  
+                  return (
+                    <div key={column.id} className="bg-gray-100 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                          <column.icon className={`h-5 w-5 ${column.textColor}`} />
+                          {column.title}
+                        </h3>
+                        <span className="bg-white px-2 py-1 rounded-full text-sm font-medium">
+                          {columnLeads.length}
+                        </span>
+                      </div>
+                      
+                      <Droppable droppableId={column.id}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            className={`space-y-3 min-h-[200px] ${
+                              snapshot.isDraggingOver ? 'bg-blue-50 border-2 border-blue-200 border-dashed rounded-lg' : ''
+                            }`}
+                          >
+                            {columnLeads.map((lead, index) => (
+                              <Draggable key={lead.id} draggableId={lead.id.toString()} index={index}>
+                                {(provided, snapshot) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    className={snapshot.isDragging ? 'rotate-3 scale-105' : ''}
+                                  >
+                                    <LeadCard 
+                                      lead={lead} 
+                                      onViewDetails={() => handleLeadClick(lead)}
+                                      onStatusChange={updateLeadStatus}
+                                      columns={CRM_COLUMNS}
+                                    />
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </div>
+                  );
+                })}
+              </div>
+            </DragDropContext>
+          </TabsContent>
+
+          <TabsContent value="users">
+            <UserManagement />
+          </TabsContent>
+        </Tabs>
       </div>
 
-      {/* Modal de Detalhes Modernizado */}
-      <LeadModal 
+      {/* Modal de edição */}
+      <LeadModal
         lead={selectedLead}
         isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onSave={handleUpdateLead}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedLead(null);
+        }}
+        onSave={handleSaveLead}
         columns={CRM_COLUMNS}
       />
     </div>
