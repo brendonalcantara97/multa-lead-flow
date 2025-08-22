@@ -19,7 +19,10 @@ export type Database = {
           created_at: string
           email: string
           first_name: string | null
+          has_account: boolean | null
           id: string
+          invitation_sent: boolean | null
+          invitation_sent_at: string | null
           invited_by: string | null
           is_active: boolean | null
           last_name: string | null
@@ -30,7 +33,10 @@ export type Database = {
           created_at?: string
           email: string
           first_name?: string | null
+          has_account?: boolean | null
           id?: string
+          invitation_sent?: boolean | null
+          invitation_sent_at?: string | null
           invited_by?: string | null
           is_active?: boolean | null
           last_name?: string | null
@@ -41,7 +47,10 @@ export type Database = {
           created_at?: string
           email?: string
           first_name?: string | null
+          has_account?: boolean | null
           id?: string
+          invitation_sent?: boolean | null
+          invitation_sent_at?: string | null
           invited_by?: string | null
           is_active?: boolean | null
           last_name?: string | null

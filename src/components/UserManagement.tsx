@@ -18,6 +18,8 @@ interface AuthorizedEmail {
   is_active: boolean;
   created_at: string;
   has_account?: boolean;
+  invitation_sent?: boolean;
+  invitation_sent_at?: string | null;
 }
 
 export const UserManagement = () => {
@@ -145,6 +147,17 @@ export const UserManagement = () => {
 
       if (data?.success) {
         toast.success(`Convite enviado para ${user.email}!`);
+        
+        // Update invitation status in database
+        await supabase
+          .from('authorized_emails')
+          .update({ 
+            invitation_sent: true, 
+            invitation_sent_at: new Date().toISOString(),
+            has_account: true 
+          })
+          .eq('id', user.id);
+          
         fetchAuthorizedEmails(); // Refresh to update account status
       } else {
         throw new Error(data?.error || 'Erro ao enviar convite');
@@ -310,6 +323,10 @@ export const UserManagement = () => {
                         {user.has_account ? (
                           <Badge variant="outline" className="text-green-600 border-green-600">
                             ✓ Conta criada
+                          </Badge>
+                        ) : user.invitation_sent ? (
+                          <Badge variant="outline" className="text-blue-600 border-blue-600">
+                            📧 Convite enviado
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="text-orange-600 border-orange-600">
