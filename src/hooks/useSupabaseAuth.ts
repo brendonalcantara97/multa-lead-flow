@@ -25,14 +25,18 @@ export const useSupabaseAuth = () => {
         .from('authorized_emails')
         .select('*')
         .eq('email', email.toLowerCase())
-        .eq('is_active', true)
-        .single();
+        .eq('is_active', true);
 
-      if (error || !data) {
+      if (error) {
+        console.error('Error checking user authorization:', error);
         return null;
       }
 
-      return data as AuthorizedUser;
+      if (!data || data.length === 0) {
+        return null;
+      }
+
+      return data[0] as AuthorizedUser;
     } catch (error) {
       console.error('Error checking user authorization:', error);
       return null;

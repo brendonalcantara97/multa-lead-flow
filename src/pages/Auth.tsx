@@ -36,13 +36,18 @@ const Auth = () => {
       .from('authorized_emails')
       .select('*')
       .eq('email', email.toLowerCase())
-      .eq('is_active', true)
-      .single();
+      .eq('is_active', true);
 
-    if (error || !data) {
+    if (error) {
+      console.error('Error checking authorization:', error);
       return null;
     }
-    return data;
+    
+    if (!data || data.length === 0) {
+      return null;
+    }
+    
+    return data[0];
   };
 
   const handleLogin = async (e: React.FormEvent) => {
