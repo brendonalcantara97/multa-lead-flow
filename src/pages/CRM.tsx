@@ -24,17 +24,20 @@ const CRM = () => {
   const [activeTab, setActiveTab] = useState<string>('leads');
   const navigate = useNavigate();
   
-  const { user, loading: authLoading, signOut } = useSupabaseAuth();
+  const { user, loading: authLoading, signOut, authorizedUser, isAuthenticated, isAuthorized } = useSupabaseAuth();
   const { leads: dbLeads, loading: leadsLoading, updateLeadStatus, updateLead } = useLeads();
 
   // Convert DB leads to frontend format
   const leads = dbLeads.map(convertLeadFromDB);
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!authLoading && !isAuthenticated) {
+      navigate('/auth');
+    } else if (!authLoading && user && !isAuthorized) {
+      toast.error('Acesso não autorizado. Entre em contato com o administrador.');
       navigate('/auth');
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, isAuthenticated, isAuthorized, navigate]);
 
   useEffect(() => {
     if (leads.length > 0) {
@@ -133,7 +136,12 @@ const CRM = () => {
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">CRM - SOS Multas</h1>
                 <p className="text-sm text-gray-600">
-                  Olá, {user?.user_metadata?.first_name || user?.email}
+                  Olá, {authorizedUser?.first_name || user?.user_metadata?.first_name || user?.email}
+                  {authorizedUser?.role && authorizedUser.role !== 'user' && (
+                    <span className="ml-2 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
+                      {authorizedUser.role}
+                    </span>
+                  )}
                 </p>
               </div>
             </div>

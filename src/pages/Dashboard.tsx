@@ -33,17 +33,19 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const { user, loading: authLoading } = useSupabaseAuth();
+  const { user, loading: authLoading, isAuthenticated, isAuthorized } = useSupabaseAuth();
   const { leads: dbLeads, loading: leadsLoading } = useLeads();
 
   // Convert DB leads to frontend format
   const leads = dbLeads.map(convertLeadFromDB);
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!authLoading && !isAuthenticated) {
+      navigate('/auth');
+    } else if (!authLoading && user && !isAuthorized) {
       navigate('/auth');
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, isAuthenticated, isAuthorized, navigate]);
 
   if (authLoading || leadsLoading) {
     return (

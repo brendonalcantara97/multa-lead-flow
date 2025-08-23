@@ -18,14 +18,17 @@ const Auth = () => {
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
   
   const navigate = useNavigate();
-  const { user, loading } = useSupabaseAuth();
+  const { user, loading, authorizedUser, isAuthorized } = useSupabaseAuth();
 
   // Redirect if already logged in
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading && user && isAuthorized) {
       navigate('/crm');
+    } else if (!loading && user && !isAuthorized) {
+      // Usuário logado mas não autorizado
+      toast.error('Acesso não autorizado. Entre em contato com o administrador.');
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, isAuthorized, navigate]);
 
   // Verificar se email está autorizado
   const checkEmailAuthorization = async (email: string) => {
