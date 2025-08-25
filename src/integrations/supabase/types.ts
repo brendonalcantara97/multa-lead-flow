@@ -421,6 +421,23 @@ export type Database = {
       }
     }
     Functions: {
+      get_current_user_auth_info: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          email: string
+          first_name: string | null
+          has_account: boolean | null
+          id: string
+          invitation_sent: boolean | null
+          invitation_sent_at: string | null
+          invited_by: string | null
+          is_active: boolean | null
+          last_name: string | null
+          role: string | null
+          updated_at: string
+        }
+      }
       get_or_create_lead_source: {
         Args: {
           p_fbclid?: string
@@ -434,6 +451,10 @@ export type Database = {
           p_utm_term?: string
         }
         Returns: string
+      }
+      is_admin: {
+        Args: { user_id?: string }
+        Returns: boolean
       }
     }
     Enums: {

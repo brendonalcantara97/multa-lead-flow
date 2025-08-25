@@ -25,6 +25,8 @@ interface AuthorizedEmail {
 export const UserManagement = () => {
   const [authorizedEmails, setAuthorizedEmails] = useState<AuthorizedEmail[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
   const [addingUser, setAddingUser] = useState(false);
   const [sendingInvite, setSendingInvite] = useState<string | null>(null);
   const [newUser, setNewUser] = useState({
@@ -34,9 +36,35 @@ export const UserManagement = () => {
     role: 'user'
   });
 
+  // Check if current user is admin
   useEffect(() => {
-    fetchAuthorizedEmails();
+    const checkAdminStatus = async () => {
+      try {
+        const { data, error } = await supabase.rpc('is_admin');
+        if (error) {
+          console.error('Error checking admin status:', error);
+          setIsAdmin(false);
+        } else {
+          setIsAdmin(data || false);
+        }
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+        setIsAdmin(false);
+      } finally {
+        setCheckingAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
   }, []);
+
+  useEffect(() => {
+    if (isAdmin && !checkingAdmin) {
+      fetchAuthorizedEmails();
+    } else if (!checkingAdmin) {
+      setLoading(false);
+    }
+  }, [isAdmin, checkingAdmin]);
 
   const fetchAuthorizedEmails = async () => {
     try {
@@ -200,6 +228,27 @@ export const UserManagement = () => {
       default: return 'Usuário';
     }
   };
+
+  if (checkingAdmin) {
+    return <div className="text-center py-8">Verificando permissões...</div>;
+  }
+
+  if (!isAdmin) {
+    return (
+      <Card>
+        <CardContent className="text-center py-12">
+          <Shield className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Acesso Restrito</h3>
+          <p className="text-gray-600 mb-4">
+            Você não tem permissão para acessar o gerenciamento de usuários.
+          </p>
+          <p className="text-sm text-gray-500">
+            Esta funcionalidade está disponível apenas para administradores do sistema.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (loading) {
     return <div className="text-center py-8">Carregando usuários...</div>;
