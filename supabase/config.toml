@@ -41,3 +41,6 @@ port = 54323
 
 [functions.send-invitation]
 verify_jwt = false
+
+[functions.capture-lead-info]
+verify_jwt = false

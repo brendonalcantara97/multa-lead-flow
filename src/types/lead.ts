@@ -26,6 +26,9 @@ export interface Lead {
   appealedBefore?: boolean;
   urgency?: 'Alta' | 'Média' | 'Baixa';
   lastMovedAt?: string;
+  // Device and location data
+  user_agent?: string;
+  ip_address?: string;
 }
 
 // Interface for compatibility with Supabase schema
@@ -60,6 +63,9 @@ export interface LeadDB {
   gbraid?: string;
   fbp?: string;
   fbclid?: string;
+  // Device and location data
+  user_agent?: string;
+  ip_address?: string;
 }
 
 import { UserPlus, Trash2, Mail, Shield, UserCheck, Clock, DollarSign, AlertCircle } from "lucide-react";
@@ -144,4 +150,7 @@ export const convertLeadFromDB = (dbLead: LeadDB): Lead => ({
   appealedBefore: dbLead.appealed_before,
   urgency: dbLead.urgency as 'Alta' | 'Média' | 'Baixa',
   lastMovedAt: dbLead.last_moved_at,
+  // Device and location data
+  user_agent: dbLead.user_agent,
+  ip_address: dbLead.ip_address,
 });
