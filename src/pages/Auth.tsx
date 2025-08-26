@@ -110,20 +110,34 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
+      console.log('Iniciando reset de senha para:', forgotPasswordEmail);
+      
       // First check if email is authorized
       const authorizedEmail = await checkEmailAuthorization(forgotPasswordEmail);
+      console.log('Email encontrado na authorized_emails:', authorizedEmail);
       
       if (!authorizedEmail) {
         throw new Error('Email não autorizado. Entre em contato com o administrador.');
       }
 
-      const { error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
-        redirectTo: 'https://sosmultasportoalegre.com.br/auth'
+      // Construct redirectTo dynamically  
+      const currentOrigin = window.location.origin;
+      const redirectTo = `${currentOrigin}/auth`;
+      
+      console.log('Enviando reset com redirectTo:', redirectTo);
+
+      const { data, error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
+        redirectTo: redirectTo
       });
 
-      if (error) throw error;
+      console.log('Response from resetPasswordForEmail:', { data, error });
 
-      toast.success(`Email de redefinição de senha enviado para ${forgotPasswordEmail}`);
+      if (error) {
+        console.error('Supabase reset error:', error);
+        throw error;
+      }
+
+      toast.success(`Email de redefinição de senha enviado para ${forgotPasswordEmail}. Verifique sua caixa de entrada.`);
       setForgotPasswordEmail('');
       setShowForgotPassword(false);
     } catch (error: any) {
