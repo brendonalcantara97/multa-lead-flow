@@ -155,14 +155,14 @@ const CRM = () => {
             </div>
             
             <div className="flex items-center gap-4">
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/')}
-                className="flex items-center gap-2"
-              >
-                <FileText className="h-4 w-4" />
-                Ir para Site
-              </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-2"
+            >
+              <BarChart3 className="h-4 w-4" />
+              Dashboard
+            </Button>
               
               {authorizedUser?.role === 'admin' && (
                 <Button 
