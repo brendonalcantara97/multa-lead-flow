@@ -5,30 +5,21 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: credentials.username,
-        password: credentials.password,
-      });
-
-      if (error) {
-        toast.error("Credenciais inválidas. Verifique seu email e senha.");
-        return;
-      }
-
+    // Login simples para demonstração
+    if (credentials.username === "admin" && credentials.password === "123456") {
+      localStorage.setItem('sos-auth', 'true');
       toast.success("Login realizado com sucesso!");
       navigate('/crm');
-    } catch (error) {
-      toast.error("Erro interno. Tente novamente.");
+    } else {
+      toast.error("Credenciais inválidas. Use admin/123456");
     }
   };
 
@@ -45,8 +36,8 @@ const Login = () => {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <Input
-                type="email"
-                placeholder="Email"
+                type="text"
+                placeholder="Usuário"
                 value={credentials.username}
                 onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
                 className="w-full"
@@ -70,7 +61,7 @@ const Login = () => {
           
           <div className="mt-4 p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>Acesso Corporativo:</strong> Use suas credenciais autorizadas para acessar o sistema
+              <strong>Demo:</strong> Use admin/123456 para acessar
             </p>
           </div>
         </CardContent>

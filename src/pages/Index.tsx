@@ -67,7 +67,6 @@ const Index = () => {
     fbclid: "",
     ga_client_id: ""
   });
-  const [deviceInfo, setDeviceInfo] = useState<{ user_agent?: string; ip_address?: string }>({});
   const handlePhoneChange = (value: string) => {
     // Remove todos os não dígitos
     const numbersOnly = value.replace(/\D/g, '');
@@ -120,32 +119,6 @@ const Index = () => {
     }
 
     console.log('📊 Dados de tracking capturados:', trackingInfo);
-
-    // Capturar User-Agent
-    const userAgent = navigator.userAgent;
-    console.log('🖥️ User-Agent capturado:', userAgent);
-
-    // Capturar IP via Edge Function
-    const captureIpAddress = async () => {
-      try {
-        const response = await supabase.functions.invoke('capture-lead-info');
-        if (response.data?.ip_address) {
-          console.log('🌐 IP capturado:', response.data.ip_address);
-          setDeviceInfo({
-            user_agent: userAgent,
-            ip_address: response.data.ip_address
-          });
-        }
-      } catch (error) {
-        console.error('Erro ao capturar IP:', error);
-        setDeviceInfo({
-          user_agent: userAgent,
-          ip_address: 'unknown'
-        });
-      }
-    };
-
-    captureIpAddress();
   }, []);
   const getCookie = (name: string) => {
     const value = `; ${document.cookie}`;
@@ -210,9 +183,7 @@ const Index = () => {
           violation_type: mapViolationTypeToEnum(formData.violationType),
           lead_source_id: sourceData,
           lead_origin: 'website',
-          observations: 'Lead capturado via formulário principal do site',
-          user_agent: deviceInfo.user_agent,
-          ip_address: deviceInfo.ip_address
+          observations: 'Lead capturado via formulário principal do site'
         });
 
         if (leadError) {
@@ -309,9 +280,7 @@ const Index = () => {
           violation_type: mapViolationTypeToEnum(whatsappFormData.violationType),
           lead_source_id: sourceData,
           lead_origin: 'whatsapp',
-          observations: 'Lead capturado via botão WhatsApp do site',
-          user_agent: deviceInfo.user_agent,
-          ip_address: deviceInfo.ip_address
+          observations: 'Lead capturado via botão WhatsApp do site'
         });
 
         if (leadError) {

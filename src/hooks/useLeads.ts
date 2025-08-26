@@ -34,9 +34,6 @@ export interface LeadFromDB {
   gbraid?: string;
   fbp?: string;
   fbclid?: string;
-  // Device and location data
-  user_agent?: string;
-  ip_address?: string;
 }
 
 export const useLeads = () => {
@@ -60,7 +57,7 @@ export const useLeads = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setLeads((data || []) as LeadFromDB[]);
+      setLeads(data || []);
     } catch (error: any) {
       toast.error('Erro ao carregar leads: ' + error.message);
     } finally {

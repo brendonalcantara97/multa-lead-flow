@@ -28,8 +28,8 @@ file_size_limit = "50MiB"
 [auth]
 enabled = true
 port = 54324
-site_url = "https://sosmultasportoalegre.com.br"
-additional_redirect_urls = ["https://sosmultasportoalegre.com.br", "https://ccugheskgrtykfofcpxk.lovableproject.com", "https://localhost:3000"]
+site_url = "https://ccugheskgrtykfofcpxk.lovableproject.com"
+additional_redirect_urls = ["https://localhost:3000"]
 jwt_expiry = 3600
 refresh_token_rotation_enabled = true
 security_refresh_token_reuse_interval = 10
@@ -40,7 +40,4 @@ enabled = true
 port = 54323
 
 [functions.send-invitation]
-verify_jwt = false
-
-[functions.capture-lead-info]
 verify_jwt = false
