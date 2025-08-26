@@ -326,15 +326,6 @@ const Index = () => {
                   CRM
                 </Button>
               </div>
-            ) : (
-              <Button 
-                onClick={() => navigate('/auth')}
-                variant="outline" 
-                size="sm"
-                className="ml-4"
-              >
-                Login
-              </Button>
             )}
           </nav>
         </div>
