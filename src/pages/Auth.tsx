@@ -139,7 +139,7 @@ const Auth = () => {
         throw new Error('Email não autorizado. Entre em contato com o administrador.');
       }
 
-      // Construct redirectTo dynamically  
+      // Construct redirectTo dynamically - use current environment URL
       const currentOrigin = window.location.origin;
       const redirectTo = `${currentOrigin}/auth`;
       
