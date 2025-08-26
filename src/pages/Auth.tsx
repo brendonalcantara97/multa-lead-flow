@@ -150,7 +150,7 @@ const Auth = () => {
 
       // Construct redirectTo dynamically - use current environment URL
       const currentOrigin = window.location.origin;
-      const redirectTo = `${currentOrigin}/auth`;
+      const redirectTo = `${currentOrigin}/auth/reset-password-force`;
       console.log('Enviando reset com redirectTo:', redirectTo);
       const {
         data,
