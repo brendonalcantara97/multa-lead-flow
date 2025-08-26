@@ -86,8 +86,10 @@ const Auth = () => {
         throw error;
       }
       
-      console.log('Login successful:', data);
+      console.log('Login successful, session will be handled by auth state change');
       toast.success('Login realizado com sucesso!');
+      // Don't navigate here - let the useEffect handle it
+      
     } catch (error: any) {
       console.error('Login error:', error);
       toast.error(error.message || 'Erro no login');

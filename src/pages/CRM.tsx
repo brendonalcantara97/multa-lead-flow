@@ -21,7 +21,7 @@ const CRM = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const navigate = useNavigate();
   
-  const { user, loading, signOut, isAuthenticated } = useSupabaseAuth();
+  const { user, session, loading, signOut, isAuthenticated } = useSupabaseAuth();
   const { leads: dbLeads, loading: leadsLoading, updateLeadStatus, updateLead } = useLeads();
   const { toast } = useToast();
 
@@ -30,13 +30,20 @@ const CRM = () => {
 
   useEffect(() => {
     // Only redirect after auth is fully initialized
-    if (loading) return;
+    if (loading) {
+      console.log('CRM: Still loading auth state');
+      return;
+    }
+    
+    console.log('CRM: Auth state - isAuthenticated:', isAuthenticated, 'user:', !!user, 'session:', !!session);
     
     if (!isAuthenticated) {
-      console.log('CRM: Redirecting to auth - authenticated:', isAuthenticated);
+      console.log('CRM: Not authenticated, redirecting to auth');
       navigate('/auth');
+    } else {
+      console.log('CRM: User authenticated, staying on CRM');
     }
-  }, [loading, isAuthenticated, navigate]);
+  }, [loading, isAuthenticated, navigate, user, session]);
 
   useEffect(() => {
     if (leads.length > 0) {

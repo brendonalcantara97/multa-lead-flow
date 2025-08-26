@@ -7,45 +7,64 @@ export const useSupabaseAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [needsPasswordReset, setNeedsPasswordReset] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [initialized, setInitialized] = useState(false);
-
-  // Handle auth state changes
-  const handleAuthState = (session: Session | null) => {
-    console.log('Auth state change:', session ? 'logged in' : 'logged out');
-    
-    setSession(session);
-    setUser(session?.user ?? null);
-
-    if (session?.user) {
-      // Check if password reset is needed
-      const isTemporaryPassword = session.user.user_metadata?.is_temp_password === true;
-      setNeedsPasswordReset(isTemporaryPassword);
-    } else {
-      setNeedsPasswordReset(false);
-    }
-    
-    if (!initialized) {
-      setInitialized(true);
-    }
-    setLoading(false);
-  };
 
   useEffect(() => {
     let isMounted = true;
 
+    // Get initial session immediately
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (!isMounted) return;
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          return;
+        }
+
+        console.log('Initial session:', session ? 'found' : 'not found');
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          const isTemporaryPassword = session.user.user_metadata?.is_temp_password === true;
+          setNeedsPasswordReset(isTemporaryPassword);
+        } else {
+          setNeedsPasswordReset(false);
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Session check error:', error);
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         if (!isMounted) return;
-        handleAuthState(session);
+        
+        console.log('Auth event:', event, session ? 'with session' : 'no session');
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          const isTemporaryPassword = session.user.user_metadata?.is_temp_password === true;
+          setNeedsPasswordReset(isTemporaryPassword);
+        } else {
+          setNeedsPasswordReset(false);
+        }
+        
+        setLoading(false);
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!isMounted) return;
-      handleAuthState(session);
-    });
+    // Get initial session
+    getInitialSession();
 
     return () => {
       isMounted = false;
@@ -62,9 +81,9 @@ export const useSupabaseAuth = () => {
     user,
     session,
     needsPasswordReset,
-    loading: loading || !initialized,
+    loading,
     signOut,
-    isAuthenticated: !!user,
-    isAuthorized: !!user
+    isAuthenticated: !!session && !!user,
+    isAuthorized: !!session && !!user
   };
 };
