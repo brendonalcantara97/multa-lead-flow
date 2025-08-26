@@ -114,7 +114,7 @@ const Auth = () => {
       }
 
       const { error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
-        redirectTo: `${window.location.origin}/auth`
+        redirectTo: 'https://sosmultasportoalegre.com.br/auth'
       });
 
       if (error) throw error;

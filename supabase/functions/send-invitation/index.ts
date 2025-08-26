@@ -92,7 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
           
           <div style="text-align: center; margin-bottom: 25px;">
-            <a href="${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.lovableproject.com') || ''}//auth" 
+            <a href="https://sosmultasportoalegre.com.br/auth" 
                style="background: #ea580c; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
               Acessar Sistema
             </a>
