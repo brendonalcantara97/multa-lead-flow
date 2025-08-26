@@ -223,6 +223,7 @@ export type Database = {
           email: string | null
           first_contact_at: string | null
           id: string
+          ip_address: unknown | null
           is_duplicated: boolean | null
           last_interaction_at: string | null
           last_moved_at: string | null
@@ -237,6 +238,7 @@ export type Database = {
           tags: string[] | null
           updated_at: string | null
           urgency: Database["public"]["Enums"]["urgency_level"] | null
+          user_agent: string | null
           user_id: string
           violation_type: Database["public"]["Enums"]["violation_type"]
         }
@@ -251,6 +253,7 @@ export type Database = {
           email?: string | null
           first_contact_at?: string | null
           id?: string
+          ip_address?: unknown | null
           is_duplicated?: boolean | null
           last_interaction_at?: string | null
           last_moved_at?: string | null
@@ -265,6 +268,7 @@ export type Database = {
           tags?: string[] | null
           updated_at?: string | null
           urgency?: Database["public"]["Enums"]["urgency_level"] | null
+          user_agent?: string | null
           user_id: string
           violation_type: Database["public"]["Enums"]["violation_type"]
         }
@@ -279,6 +283,7 @@ export type Database = {
           email?: string | null
           first_contact_at?: string | null
           id?: string
+          ip_address?: unknown | null
           is_duplicated?: boolean | null
           last_interaction_at?: string | null
           last_moved_at?: string | null
@@ -293,6 +298,7 @@ export type Database = {
           tags?: string[] | null
           updated_at?: string | null
           urgency?: Database["public"]["Enums"]["urgency_level"] | null
+          user_agent?: string | null
           user_id?: string
           violation_type?: Database["public"]["Enums"]["violation_type"]
         }
@@ -364,7 +370,6 @@ export type Database = {
           cnh_at_risk: boolean | null
           conversion_date: string | null
           created_at: string | null
-          document_count: number | null
           documents: string[] | null
           email: string | null
           fbclid: string | null
@@ -373,6 +378,7 @@ export type Database = {
           gbraid: string | null
           gclid: string | null
           id: string | null
+          ip_address: unknown | null
           is_duplicated: boolean | null
           last_interaction_at: string | null
           last_moved_at: string | null
@@ -387,6 +393,7 @@ export type Database = {
           tags: string[] | null
           updated_at: string | null
           urgency: Database["public"]["Enums"]["urgency_level"] | null
+          user_agent: string | null
           user_id: string | null
           utm_campaign: string | null
           utm_content: string | null
