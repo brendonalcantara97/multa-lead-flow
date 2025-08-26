@@ -111,6 +111,10 @@ const Auth = () => {
         }
         throw error;
       }
+      
+      console.log('🔐 LOGIN SUCCESSFUL - User data:', data.user);
+      console.log('🔐 LOGIN SUCCESSFUL - Session data:', data.session);
+      
       toast.success('Login realizado com sucesso!');
     } catch (error: any) {
       console.error('Login error:', error);

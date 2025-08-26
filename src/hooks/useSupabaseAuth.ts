@@ -47,7 +47,13 @@ export const useSupabaseAuth = () => {
 
   // Handle auth state changes
   const handleAuthState = async (session: Session | null) => {
-    console.log('Auth state change:', session ? 'logged in' : 'logged out');
+    console.log('🔄 Auth state change:', session ? 'logged in' : 'logged out');
+    
+    if (session?.user) {
+      console.log('👤 User in handleAuthState:', session.user);
+      console.log('📧 User email:', session.user.email);
+      console.log('🆔 User ID:', session.user.id);
+    }
     
     setSession(session);
     setUser(session?.user ?? null);
