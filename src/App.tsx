@@ -11,6 +11,7 @@ import Auth from "./pages/Auth";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import UserManagement from "./pages/UserManagement";
+import ForcePasswordReset from "./pages/ForcePasswordReset";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/crm/settings/users" element={<UserManagement />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/reset-password-force" element={<ForcePasswordReset />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
