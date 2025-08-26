@@ -33,13 +33,17 @@ const Auth = () => {
     const accessToken = hashParams.get('access_token');
     const type = hashParams.get('type');
     
+    console.log('Processing URL hash params:', { type, hasAccessToken: !!accessToken });
+    
     if (type === 'recovery' && accessToken) {
       // User came from password recovery email link
+      console.log('Processing password recovery link');
       // Set the session first, then navigate
       supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: hashParams.get('refresh_token') || ''
       }).then(() => {
+        console.log('Session set, navigating to password reset');
         navigate('/auth/reset-password-force');
       });
       return;
@@ -53,6 +57,7 @@ const Auth = () => {
         access_token: accessToken,
         refresh_token: hashParams.get('refresh_token') || ''
       }).then(() => {
+        console.log('Invite session set, navigating to password reset');
         // For invites, redirect to password reset to set initial password
         navigate('/auth/reset-password-force');
       });
@@ -148,9 +153,8 @@ const Auth = () => {
         throw new Error('Email não autorizado. Entre em contato com o administrador.');
       }
 
-      // Construct redirectTo dynamically - use current environment URL
-      const currentOrigin = window.location.origin;
-      const redirectTo = `${currentOrigin}/auth`;
+      // Always use production domain for password reset redirects
+      const redirectTo = 'https://sosmultasportoalegre.com.br/auth';
       console.log('Enviando reset com redirectTo:', redirectTo);
       const {
         data,

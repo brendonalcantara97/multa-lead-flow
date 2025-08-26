@@ -29,9 +29,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Enviando convite para: ${email}`);
 
-    // Construct redirectTo dynamically - prefer production domain
-    const origin = req.headers.get('origin') || 'https://sosmultasportoalegre.com.br';
-    const redirectTo = `${origin}/auth`;
+    // Always use production domain for email redirects
+    const redirectTo = 'https://sosmultasportoalegre.com.br/auth';
 
     console.log(`Redirect URL configurado: ${redirectTo}`);
 
