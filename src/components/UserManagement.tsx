@@ -201,7 +201,7 @@ export const UserManagement = () => {
   const handleResetPassword = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://sosmultasportoalegre.com.br/auth'
+        redirectTo: `${window.location.origin}/auth`
       });
 
       if (error) throw error;
