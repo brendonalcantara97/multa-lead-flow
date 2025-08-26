@@ -29,21 +29,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Enviando convite para: ${email}`);
 
-    // Construct redirectTo dynamically - prefer production domain
+    // Construct redirectTo dynamically
     const origin = req.headers.get('origin') || 'https://sosmultasportoalegre.com.br';
     const redirectTo = `${origin}/auth`;
 
     console.log(`Redirect URL configurado: ${redirectTo}`);
 
     // Send invitation using Supabase's built-in method
-    console.log(`Tentando enviar convite com os seguintes dados:`, {
-      email,
-      firstName,
-      lastName,
-      role,
-      redirectTo
-    });
-
     const { data, error } = await supabase.auth.admin.inviteUserByEmail(email, {
       redirectTo: redirectTo,
       data: {
@@ -54,12 +46,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (error) {
-      console.error('Erro detalhado ao enviar convite:', {
-        error: error,
-        message: error.message,
-        status: error.status,
-        details: error
-      });
+      console.error('Erro ao enviar convite:', error);
       throw new Error(`Erro ao enviar convite: ${error.message}`);
     }
 

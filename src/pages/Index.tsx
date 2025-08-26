@@ -12,14 +12,6 @@ import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { supabase } from "@/integrations/supabase/client";
 import homemBrasileiro from "@/assets/homem-brasileiro-cnh.jpg";
 
-// Declarações TypeScript para GTM
-declare global {
-  interface Window {
-    gtag?: (...args: any[]) => void;
-    trackLeadEvent?: (eventName: string, leadData: any) => void;
-  }
-}
-
 // Função para mapear tipos de violação do formulário para enum do banco
 const mapViolationTypeToEnum = (violationType: string) => {
   const mapping: { [key: string]: "excesso-velocidade" | "excesso-pontos" | "bafometro" | "suspensao-cnh" | "cassacao-cnh" | "outra" } = {
@@ -39,9 +31,6 @@ const mapViolationTypeToEnum = (violationType: string) => {
   
   return mapping[violationType] || 'outra';
 };
-// Número do WhatsApp da empresa
-const COMPANY_WHATSAPP = "555133077772";
-
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useSupabaseAuth();
@@ -63,11 +52,9 @@ const Index = () => {
     utm_medium: "",
     utm_campaign: "",
     utm_term: "",
-    utm_content: "",
     gclid: "",
-    gbraid: "",
     fbp: "",
-    fbclid: "",
+    fbc: "",
     ga_client_id: ""
   });
   const handlePhoneChange = (value: string) => {
@@ -87,18 +74,16 @@ const Index = () => {
     return formattedValue;
   };
   useEffect(() => {
-    // Capturar parâmetros de tracking completos
+    // Capturar parâmetros de tracking
     const urlParams = new URLSearchParams(window.location.search);
     const trackingInfo = {
       utm_source: urlParams.get('utm_source') || '',
       utm_medium: urlParams.get('utm_medium') || '',
       utm_campaign: urlParams.get('utm_campaign') || '',
       utm_term: urlParams.get('utm_term') || '',
-      utm_content: urlParams.get('utm_content') || '',
       gclid: urlParams.get('gclid') || '',
-      gbraid: urlParams.get('gbraid') || '',
-      fbp: localStorage.getItem('_fbp') || getCookie('_fbp') || '',
-      fbclid: urlParams.get('fbclid') || getCookie('_fbc') || '',
+      fbp: localStorage.getItem('_fbp') || '',
+      fbc: localStorage.getItem('_fbc') || '',
       ga_client_id: getCookie('_ga') || ''
     };
     setTrackingData(trackingInfo);
@@ -108,20 +93,21 @@ const Index = () => {
     console.log('📊 URL atual:', window.location.href);
     console.log('🍪 Cookies disponíveis:', document.cookie);
 
-    // Disparar evento GTM de page view com parâmetros
-    if (window.gtag) {
-      window.gtag('event', 'page_view', {
-        page_title: 'SOS Multas - Home',
-        page_location: window.location.href,
-        utm_source: trackingInfo.utm_source,
-        utm_medium: trackingInfo.utm_medium,
-        utm_campaign: trackingInfo.utm_campaign,
-        gclid: trackingInfo.gclid,
-        fbp: trackingInfo.fbp
-      });
+    // Simular dados para teste se não houver parâmetros reais
+    if (!trackingInfo.utm_source && !trackingInfo.gclid) {
+      const simulatedData = {
+        utm_source: 'google',
+        utm_medium: 'cpc',
+        utm_campaign: 'teste_multas_poa',
+        utm_term: 'multa+porto+alegre',
+        gclid: 'CjwKCAiA1-6PBhBKEiwA',
+        fbp: 'fb.1.1234567890.987654321',
+        fbc: 'fb.1.1234567890.AbCdEfGhIjKlMnOpQrStUvWxYz',
+        ga_client_id: 'GA1.2.1234567890.1234567890'
+      };
+      console.log('🧪 Simulando dados de tracking para teste:', simulatedData);
+      setTrackingData(simulatedData);
     }
-
-    console.log('📊 Dados de tracking capturados:', trackingInfo);
   }, []);
   const getCookie = (name: string) => {
     const value = `; ${document.cookie}`;
@@ -166,11 +152,11 @@ const Index = () => {
           p_utm_medium: trackingData.utm_medium || null,
           p_utm_campaign: trackingData.utm_campaign || null,
           p_utm_term: trackingData.utm_term || null,
-          p_utm_content: trackingData.utm_content || null,
+          p_utm_content: null,
           p_gclid: trackingData.gclid || null,
-          p_gbraid: trackingData.gbraid || null,
+          p_gbraid: null,
           p_fbp: trackingData.fbp || null,
-          p_fbclid: trackingData.fbclid || null
+          p_fbclid: null
         });
 
         if (sourceError) {
@@ -195,23 +181,16 @@ const Index = () => {
         }
 
         console.log('✅ Lead salvo no Supabase com sucesso!');
-        
-        // Disparar evento GTM de conversão
-        if (window.trackLeadEvent) {
-          window.trackLeadEvent('lead_form_submission', {
-            ...formData,
-            ...trackingData,
-            form_type: 'main_form'
-          });
-        }
       }
 
       toast.success("Dados enviados com sucesso! Redirecionando para WhatsApp...");
 
       // Redirecionar para WhatsApp após 2 segundos
       setTimeout(() => {
-        const message = encodeURIComponent(`Olá! Preenchi o formulário no site da SOS Multas e gostaria de receber ajuda com a minha multa.`);
-        window.open(`https://wa.me/${COMPANY_WHATSAPP}?text=${message}`, '_blank');
+        const phoneDigits = formData.phone.replace(/\D/g, '');
+        const whatsappPhone = `55${phoneDigits}`;
+        const message = encodeURIComponent("Olá! Preenchi o formulário no site da SOS Multas e gostaria de receber ajuda com a minha multa.");
+        window.open(`https://wa.me/${whatsappPhone}?text=${message}`, '_blank');
       }, 2000);
 
       // Limpar formulário
@@ -261,11 +240,11 @@ const Index = () => {
           p_utm_medium: trackingData.utm_medium || null,
           p_utm_campaign: trackingData.utm_campaign || null,
           p_utm_term: trackingData.utm_term || null,
-          p_utm_content: trackingData.utm_content || null,
+          p_utm_content: null,
           p_gclid: trackingData.gclid || null,
-          p_gbraid: trackingData.gbraid || null,
+          p_gbraid: null,
           p_fbp: trackingData.fbp || null,
-          p_fbclid: trackingData.fbclid || null
+          p_fbclid: null
         });
 
         if (sourceError) {
@@ -290,15 +269,6 @@ const Index = () => {
         }
 
         console.log('✅ Lead WhatsApp salvo no Supabase com sucesso!');
-        
-        // Disparar evento GTM de conversão WhatsApp
-        if (window.trackLeadEvent) {
-          window.trackLeadEvent('whatsapp_lead_submission', {
-            ...whatsappFormData,
-            ...trackingData,
-            form_type: 'whatsapp_form'
-          });
-        }
       }
 
       toast.success("Dados salvos! Redirecionando para WhatsApp...");
@@ -306,8 +276,10 @@ const Index = () => {
       // Fechar dialog e redirecionar
       setIsWhatsappDialogOpen(false);
       setTimeout(() => {
-        const message = encodeURIComponent(`Olá! Meu nome é ${whatsappFormData.name}. Tenho uma dúvida sobre uma multa${whatsappFormData.violationType ? ` por ${whatsappFormData.violationType}` : ""}. Poderiam me ajudar?`);
-        window.open(`https://wa.me/${COMPANY_WHATSAPP}?text=${message}`, '_blank');
+        const phoneDigits = whatsappFormData.phone.replace(/\D/g, '');
+        const whatsappPhone = `55${phoneDigits}`;
+        const message = encodeURIComponent(`Olá! Meu nome é ${whatsappFormData.name}. Tenho uma dúvida sobre uma multa${whatsappFormData.violationType ? ` por ${whatsappFormData.violationType}` : ''}. Poderiam me ajudar?`);
+        window.open(`https://wa.me/${whatsappPhone}?text=${message}`, '_blank');
       }, 1000);
 
       // Limpar formulário
@@ -340,7 +312,7 @@ const Index = () => {
             <a href="#servicos" className="text-gray-700 hover:text-orange-500 transition-colors">Serviços</a>
             <a href="#unidades" className="text-gray-700 hover:text-orange-500 transition-colors">Unidades</a>
             <a href="#contato" className="text-gray-700 hover:text-orange-500 transition-colors">Contato</a>
-            {user && (
+            {user ? (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">
                   Olá, {user.user_metadata?.first_name || user.email}
@@ -354,6 +326,15 @@ const Index = () => {
                   CRM
                 </Button>
               </div>
+            ) : (
+              <Button 
+                onClick={() => navigate('/auth')}
+                variant="outline" 
+                size="sm"
+                className="ml-4"
+              >
+                Login
+              </Button>
             )}
           </nav>
         </div>

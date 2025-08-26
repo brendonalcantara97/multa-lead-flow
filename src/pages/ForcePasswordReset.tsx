@@ -76,49 +76,45 @@ const ForcePasswordReset = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header similar ao CRM */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <img 
-                src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" 
-                alt="SOS Multas" 
-                className="h-10"
-              />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">SOS Multas</h1>
-                <p className="text-sm text-gray-600">Sistema de Gestão de Leads</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/auth')}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Voltar ao login
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={handleSignOut}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                Sair
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
+      {/* Header com botão voltar */}
+      <div className="flex items-center justify-between p-4">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/auth')}
+          className="flex items-center gap-2 text-gray-600 hover:text-orange-600"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Voltar ao login
+        </Button>
+        
+        <Button
+          variant="ghost"
+          onClick={handleSignOut}
+          className="text-gray-600 hover:text-orange-600"
+        >
+          Sair
+        </Button>
+      </div>
 
-      <div className="flex items-center justify-center px-4 py-12">
+      <div className="flex items-center justify-center px-4 pt-8">
         <div className="w-full max-w-md">
-          <Card className="shadow-lg border bg-white">
+          <div className="text-center mb-8">
+            <img 
+              src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" 
+              alt="SOS Multas" 
+              className="h-16 mx-auto mb-4"
+            />
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
+              SOS Multas
+            </h1>
+            <p className="text-gray-600 mt-2">Redefinição de Senha Obrigatória</p>
+          </div>
+
+          <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader className="space-y-1 text-center">
               <Shield className="h-8 w-8 mx-auto text-orange-500 mb-2" />
-              <CardTitle className="text-2xl text-gray-900">Alterar Senha</CardTitle>
+              <CardTitle className="text-2xl">Alterar Senha</CardTitle>
               <p className="text-sm text-gray-600">
                 Por segurança, você deve definir uma nova senha antes de continuar
               </p>
