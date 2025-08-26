@@ -169,44 +169,47 @@ const Auth = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
-      {/* Header com botão voltar */}
-      <div className="flex items-center justify-between p-4">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-gray-600 hover:text-orange-600"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Voltar ao site
-        </Button>
-      </div>
-
-      <div className="flex items-center justify-center px-4 pt-8">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <img 
-              src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" 
-              alt="SOS Multas" 
-              className="h-16 mx-auto mb-4"
-            />
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
-              SOS Multas
-            </h1>
-            <p className="text-gray-600 mt-2">Sistema de Gestão de Leads</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header similar ao CRM */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <img 
+                src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" 
+                alt="SOS Multas" 
+                className="h-10"
+              />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">SOS Multas</h1>
+                <p className="text-sm text-gray-600">Sistema de Gestão de Leads</p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Voltar ao site
+            </Button>
           </div>
+        </div>
+      </header>
 
-          <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+      <div className="flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          <Card className="shadow-lg border bg-white">
             <CardHeader className="space-y-1 text-center">
               <Building className="h-8 w-8 mx-auto text-orange-500 mb-2" />
-              <CardTitle className="text-2xl">Acesso Corporativo</CardTitle>
+              <CardTitle className="text-2xl text-gray-900">Acesso Corporativo</CardTitle>
               <p className="text-sm text-gray-600">
                 Apenas funcionários autorizados podem acessar
               </p>
@@ -281,7 +284,7 @@ const Auth = () => {
               ) : showForgotPassword ? (
                 <div className="space-y-4">
                   <div className="text-center mb-4">
-                    <h3 className="text-lg font-semibold">Redefinir Senha</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">Redefinir Senha</h3>
                     <p className="text-sm text-gray-600">
                       Informe seu email para receber instruções de redefinição
                     </p>
@@ -298,13 +301,17 @@ const Auth = () => {
                           placeholder="seu.email@empresa.com.br"
                           value={forgotPasswordEmail}
                           onChange={(e) => setForgotPasswordEmail(e.target.value)}
-                          className="pl-10"
+                          className="pl-10 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
                           required
                         />
                       </div>
                     </div>
                     
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5" 
+                      disabled={isLoading}
+                    >
                       {isLoading ? 'Enviando...' : 'Enviar Email de Redefinição'}
                     </Button>
                     
@@ -312,7 +319,7 @@ const Auth = () => {
                       type="button"
                       variant="ghost"
                       onClick={() => setShowForgotPassword(false)}
-                      className="w-full"
+                      className="w-full text-gray-600 hover:text-gray-900"
                     >
                       Voltar ao Login
                     </Button>
@@ -321,7 +328,7 @@ const Auth = () => {
               ) : (
                 <div className="space-y-4">
                   <div className="text-center mb-4">
-                    <h3 className="text-lg font-semibold">Solicitar Acesso</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">Solicitar Acesso</h3>
                     <p className="text-sm text-gray-600">
                       Informe seu email para solicitar acesso ao sistema
                     </p>
@@ -338,13 +345,17 @@ const Auth = () => {
                           placeholder="seu.email@empresa.com.br"
                           value={inviteEmail}
                           onChange={(e) => setInviteEmail(e.target.value)}
-                          className="pl-10"
+                          className="pl-10 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
                           required
                         />
                       </div>
                     </div>
                     
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5" 
+                      disabled={isLoading}
+                    >
                       {isLoading ? 'Enviando...' : 'Solicitar Acesso'}
                     </Button>
                     
@@ -352,7 +363,7 @@ const Auth = () => {
                       type="button"
                       variant="ghost"
                       onClick={() => setShowInviteForm(false)}
-                      className="w-full"
+                      className="w-full text-gray-600 hover:text-gray-900"
                     >
                       Voltar ao Login
                     </Button>
