@@ -312,7 +312,7 @@ const Index = () => {
             <a href="#servicos" className="text-gray-700 hover:text-orange-500 transition-colors">Serviços</a>
             <a href="#unidades" className="text-gray-700 hover:text-orange-500 transition-colors">Unidades</a>
             <a href="#contato" className="text-gray-700 hover:text-orange-500 transition-colors">Contato</a>
-            {user ? (
+            {user && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">
                   Olá, {user.user_metadata?.first_name || user.email}
