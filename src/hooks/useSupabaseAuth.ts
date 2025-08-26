@@ -23,12 +23,15 @@ export const useSupabaseAuth = () => {
   // Verificar se usuário está autorizado
   const checkUserAuthorization = async (email: string): Promise<AuthorizedUser | null> => {
     try {
+      console.log('Checking authorization for email:', email);
       const { data, error } = await supabase
         .from('authorized_emails')
         .select('*')
         .eq('email', email.toLowerCase())
         .eq('is_active', true)
         .single();
+
+      console.log('Authorization check result:', { data, error });
 
       if (error || !data) {
         console.log('User not found in authorized_emails:', email);
@@ -71,11 +74,16 @@ export const useSupabaseAuth = () => {
               });
           }
         } else {
-          // Unauthorized user - clear state and sign out
+          // Unauthorized user - clear state but don't force logout immediately
+          console.warn('Usuário não autorizado tentou acessar o sistema');
           setAuthorizedUser(null);
           setNeedsPasswordReset(false);
-          supabase.auth.signOut();
-          console.warn('Usuário não autorizado tentou acessar o sistema');
+          // Give some time for the auth check to complete before signing out
+          setTimeout(() => {
+            if (!authorized) {
+              supabase.auth.signOut();
+            }
+          }, 1000);
         }
       } catch (error) {
         console.error('Error in auth state handler:', error);

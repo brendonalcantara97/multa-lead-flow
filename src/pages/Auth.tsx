@@ -112,7 +112,6 @@ const Auth = () => {
         throw error;
       }
       toast.success('Login realizado com sucesso!');
-      navigate('/crm');
     } catch (error: any) {
       console.error('Login error:', error);
       toast.error(error.message || 'Erro no login');
