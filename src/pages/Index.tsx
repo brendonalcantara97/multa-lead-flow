@@ -118,23 +118,7 @@ const Index = () => {
       });
     }
 
-    // Simular dados para teste se não houver parâmetros reais
-    if (!trackingInfo.utm_source && !trackingInfo.gclid) {
-      const simulatedData = {
-        utm_source: 'google',
-        utm_medium: 'cpc',
-        utm_campaign: 'teste_multas_poa',
-        utm_term: 'multa+porto+alegre',
-        utm_content: 'homepage',
-        gclid: 'CjwKCAiA1-6PBhBKEiwA',
-        gbraid: 'gb.1.1234567890.987654321',
-        fbp: 'fb.1.1234567890.987654321',
-        fbclid: 'IwAR0AbCdEfGhIjKlMnOpQrStUvWxYz',
-        ga_client_id: 'GA1.2.1234567890.1234567890'
-      };
-      console.log('🧪 Simulando dados de tracking para teste:', simulatedData);
-      setTrackingData(simulatedData);
-    }
+    console.log('📊 Dados de tracking capturados:', trackingInfo);
   }, []);
   const getCookie = (name: string) => {
     const value = `; ${document.cookie}`;
