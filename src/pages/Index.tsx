@@ -12,6 +12,14 @@ import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { supabase } from "@/integrations/supabase/client";
 import homemBrasileiro from "@/assets/homem-brasileiro-cnh.jpg";
 
+// Declarações TypeScript para GTM
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+    trackLeadEvent?: (eventName: string, leadData: any) => void;
+  }
+}
+
 // Função para mapear tipos de violação do formulário para enum do banco
 const mapViolationTypeToEnum = (violationType: string) => {
   const mapping: { [key: string]: "excesso-velocidade" | "excesso-pontos" | "bafometro" | "suspensao-cnh" | "cassacao-cnh" | "outra" } = {
@@ -52,9 +60,11 @@ const Index = () => {
     utm_medium: "",
     utm_campaign: "",
     utm_term: "",
+    utm_content: "",
     gclid: "",
+    gbraid: "",
     fbp: "",
-    fbc: "",
+    fbclid: "",
     ga_client_id: ""
   });
   const handlePhoneChange = (value: string) => {
@@ -74,16 +84,18 @@ const Index = () => {
     return formattedValue;
   };
   useEffect(() => {
-    // Capturar parâmetros de tracking
+    // Capturar parâmetros de tracking completos
     const urlParams = new URLSearchParams(window.location.search);
     const trackingInfo = {
       utm_source: urlParams.get('utm_source') || '',
       utm_medium: urlParams.get('utm_medium') || '',
       utm_campaign: urlParams.get('utm_campaign') || '',
       utm_term: urlParams.get('utm_term') || '',
+      utm_content: urlParams.get('utm_content') || '',
       gclid: urlParams.get('gclid') || '',
-      fbp: localStorage.getItem('_fbp') || '',
-      fbc: localStorage.getItem('_fbc') || '',
+      gbraid: urlParams.get('gbraid') || '',
+      fbp: localStorage.getItem('_fbp') || getCookie('_fbp') || '',
+      fbclid: urlParams.get('fbclid') || getCookie('_fbc') || '',
       ga_client_id: getCookie('_ga') || ''
     };
     setTrackingData(trackingInfo);
@@ -93,6 +105,19 @@ const Index = () => {
     console.log('📊 URL atual:', window.location.href);
     console.log('🍪 Cookies disponíveis:', document.cookie);
 
+    // Disparar evento GTM de page view com parâmetros
+    if (window.gtag) {
+      window.gtag('event', 'page_view', {
+        page_title: 'SOS Multas - Home',
+        page_location: window.location.href,
+        utm_source: trackingInfo.utm_source,
+        utm_medium: trackingInfo.utm_medium,
+        utm_campaign: trackingInfo.utm_campaign,
+        gclid: trackingInfo.gclid,
+        fbp: trackingInfo.fbp
+      });
+    }
+
     // Simular dados para teste se não houver parâmetros reais
     if (!trackingInfo.utm_source && !trackingInfo.gclid) {
       const simulatedData = {
@@ -100,9 +125,11 @@ const Index = () => {
         utm_medium: 'cpc',
         utm_campaign: 'teste_multas_poa',
         utm_term: 'multa+porto+alegre',
+        utm_content: 'homepage',
         gclid: 'CjwKCAiA1-6PBhBKEiwA',
+        gbraid: 'gb.1.1234567890.987654321',
         fbp: 'fb.1.1234567890.987654321',
-        fbc: 'fb.1.1234567890.AbCdEfGhIjKlMnOpQrStUvWxYz',
+        fbclid: 'IwAR0AbCdEfGhIjKlMnOpQrStUvWxYz',
         ga_client_id: 'GA1.2.1234567890.1234567890'
       };
       console.log('🧪 Simulando dados de tracking para teste:', simulatedData);
@@ -152,11 +179,11 @@ const Index = () => {
           p_utm_medium: trackingData.utm_medium || null,
           p_utm_campaign: trackingData.utm_campaign || null,
           p_utm_term: trackingData.utm_term || null,
-          p_utm_content: null,
+          p_utm_content: trackingData.utm_content || null,
           p_gclid: trackingData.gclid || null,
-          p_gbraid: null,
+          p_gbraid: trackingData.gbraid || null,
           p_fbp: trackingData.fbp || null,
-          p_fbclid: null
+          p_fbclid: trackingData.fbclid || null
         });
 
         if (sourceError) {
@@ -181,6 +208,15 @@ const Index = () => {
         }
 
         console.log('✅ Lead salvo no Supabase com sucesso!');
+        
+        // Disparar evento GTM de conversão
+        if (window.trackLeadEvent) {
+          window.trackLeadEvent('lead_form_submission', {
+            ...formData,
+            ...trackingData,
+            form_type: 'main_form'
+          });
+        }
       }
 
       toast.success("Dados enviados com sucesso! Redirecionando para WhatsApp...");
@@ -240,11 +276,11 @@ const Index = () => {
           p_utm_medium: trackingData.utm_medium || null,
           p_utm_campaign: trackingData.utm_campaign || null,
           p_utm_term: trackingData.utm_term || null,
-          p_utm_content: null,
+          p_utm_content: trackingData.utm_content || null,
           p_gclid: trackingData.gclid || null,
-          p_gbraid: null,
+          p_gbraid: trackingData.gbraid || null,
           p_fbp: trackingData.fbp || null,
-          p_fbclid: null
+          p_fbclid: trackingData.fbclid || null
         });
 
         if (sourceError) {
@@ -269,6 +305,15 @@ const Index = () => {
         }
 
         console.log('✅ Lead WhatsApp salvo no Supabase com sucesso!');
+        
+        // Disparar evento GTM de conversão WhatsApp
+        if (window.trackLeadEvent) {
+          window.trackLeadEvent('whatsapp_lead_submission', {
+            ...whatsappFormData,
+            ...trackingData,
+            form_type: 'whatsapp_form'
+          });
+        }
       }
 
       toast.success("Dados salvos! Redirecionando para WhatsApp...");
