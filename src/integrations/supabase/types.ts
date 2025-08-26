@@ -102,6 +102,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "lead_documents_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_with_sources"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "lead_documents_uploaded_by_fkey"
             columns: ["uploaded_by"]
             isOneToOne: false
@@ -193,6 +200,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_status_history_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_with_sources"
             referencedColumns: ["id"]
           },
         ]
@@ -388,7 +402,29 @@ export type Database = {
           utm_term: string | null
           violation_type: Database["public"]["Enums"]["violation_type"] | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_lead_source_id_fkey"
+            columns: ["lead_source_id"]
+            isOneToOne: false
+            referencedRelation: "lead_sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
@@ -408,49 +444,6 @@ export type Database = {
           role: string | null
           updated_at: string
         }
-      }
-      get_leads_with_sources: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          amount: number
-          appealed_before: boolean
-          assigned_to: string
-          assigned_to_name: string
-          cnh_at_risk: boolean
-          conversion_date: string
-          created_at: string
-          documents: string[]
-          email: string
-          fbclid: string
-          fbp: string
-          first_contact_at: string
-          gbraid: string
-          gclid: string
-          id: string
-          ip_address: unknown
-          is_duplicated: boolean
-          last_interaction_at: string
-          last_moved_at: string
-          lead_origin: string
-          lead_source_id: string
-          name: string
-          observations: string
-          payment_method: Database["public"]["Enums"]["payment_method"]
-          phone: string
-          rejection_reason: string
-          status: Database["public"]["Enums"]["lead_status"]
-          tags: string[]
-          updated_at: string
-          urgency: Database["public"]["Enums"]["urgency_level"]
-          user_agent: string
-          user_id: string
-          utm_campaign: string
-          utm_content: string
-          utm_medium: string
-          utm_source: string
-          utm_term: string
-          violation_type: Database["public"]["Enums"]["violation_type"]
-        }[]
       }
       get_or_create_lead_source: {
         Args: {
