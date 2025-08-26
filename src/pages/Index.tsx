@@ -210,7 +210,7 @@ const Index = () => {
 
       // Redirecionar para WhatsApp após 2 segundos
       setTimeout(() => {
-        const message = encodeURIComponent(`Olá! Preenchi o formulário no site da SOS Multas e gostaria de receber ajuda com a minha multa. Meus dados: Nome: ${formData.name}, Email: ${formData.email}, Telefone: ${formData.phone}.`);
+        const message = encodeURIComponent(`Olá! Preenchi o formulário no site da SOS Multas e gostaria de receber ajuda com a minha multa.`);
         window.open(`https://wa.me/${COMPANY_WHATSAPP}?text=${message}`, '_blank');
       }, 2000);
 
@@ -306,7 +306,7 @@ const Index = () => {
       // Fechar dialog e redirecionar
       setIsWhatsappDialogOpen(false);
       setTimeout(() => {
-        const message = encodeURIComponent(`Olá! Meu nome é ${whatsappFormData.name}. Tenho uma dúvida sobre uma multa${whatsappFormData.violationType ? ` por ${whatsappFormData.violationType}` : ''}. Meus dados: Email: ${whatsappFormData.email}, Telefone: ${whatsappFormData.phone}. Poderiam me ajudar?`);
+        const message = encodeURIComponent(`Olá! Meu nome é ${whatsappFormData.name}. Tenho uma dúvida sobre uma multa${whatsappFormData.violationType ? ` por ${whatsappFormData.violationType}` : ""}. Poderiam me ajudar?`);
         window.open(`https://wa.me/${COMPANY_WHATSAPP}?text=${message}`, '_blank');
       }, 1000);
 
