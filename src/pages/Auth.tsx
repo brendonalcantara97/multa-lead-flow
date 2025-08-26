@@ -20,6 +20,18 @@ const Auth = () => {
   const navigate = useNavigate();
   const { user, loading, authorizedUser, isAuthorized, needsPasswordReset } = useSupabaseAuth();
 
+  // Check for password recovery link
+  useEffect(() => {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const type = hashParams.get('type');
+    
+    if (type === 'recovery') {
+      // User came from password recovery email link
+      navigate('/auth/reset-password-force');
+      return;
+    }
+  }, [navigate]);
+
   // Redirect if already logged in
   useEffect(() => {
     if (!loading && user && isAuthorized) {
