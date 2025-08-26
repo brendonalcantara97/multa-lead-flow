@@ -22,7 +22,6 @@ const Auth = () => {
   const {
     user,
     loading,
-    authorizedUser,
     isAuthorized,
     needsPasswordReset
   } = useSupabaseAuth();
@@ -68,51 +67,27 @@ const Auth = () => {
       } else {
         navigate('/crm');
       }
-    } else if (!loading && user && !isAuthorized) {
-      // Usuário logado mas não autorizado
-      toast.error('Acesso não autorizado. Entre em contato com o administrador.');
     }
   }, [user, loading, isAuthorized, needsPasswordReset, navigate]);
 
-  // Verificar se email está autorizado
-  const checkEmailAuthorization = async (email: string) => {
-    const {
-      data,
-      error
-    } = await supabase.from('authorized_emails').select('*').eq('email', email.toLowerCase()).eq('is_active', true);
-    if (error) {
-      console.error('Error checking authorization:', error);
-      return null;
-    }
-    if (!data || data.length === 0) {
-      return null;
-    }
-    return data[0];
-  };
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // Primeiro verificar se o email está autorizado
-      const authorizedEmail = await checkEmailAuthorization(loginData.email);
-      if (!authorizedEmail) {
-        throw new Error('Email não autorizado. Entre em contato com o administrador.');
-      }
-      const {
-        data,
-        error
-      } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: loginData.email,
         password: loginData.password
       });
+      
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
           throw new Error('Email ou senha incorretos');
         }
         throw error;
       }
+      
+      console.log('Login successful:', data);
       toast.success('Login realizado com sucesso!');
-      navigate('/crm');
     } catch (error: any) {
       console.error('Login error:', error);
       toast.error(error.message || 'Erro no login');
@@ -141,31 +116,21 @@ const Auth = () => {
     try {
       console.log('Iniciando reset de senha para:', forgotPasswordEmail);
 
-      // First check if email is authorized
-      const authorizedEmail = await checkEmailAuthorization(forgotPasswordEmail);
-      console.log('Email encontrado na authorized_emails:', authorizedEmail);
-      if (!authorizedEmail) {
-        throw new Error('Email não autorizado. Entre em contato com o administrador.');
-      }
-
       // Construct redirectTo dynamically - use current environment URL
       const currentOrigin = window.location.origin;
       const redirectTo = `${currentOrigin}/auth`;
       console.log('Enviando reset com redirectTo:', redirectTo);
-      const {
-        data,
-        error
-      } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
+      
+      const { data, error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
         redirectTo: redirectTo
       });
-      console.log('Response from resetPasswordForEmail:', {
-        data,
-        error
-      });
+      
+      console.log('Response from resetPasswordForEmail:', { data, error });
       if (error) {
         console.error('Supabase reset error:', error);
         throw error;
       }
+      
       toast.success(`Email de redefinição de senha enviado para ${forgotPasswordEmail}. Verifique sua caixa de entrada.`);
       setForgotPasswordEmail('');
       setShowForgotPassword(false);
@@ -206,18 +171,18 @@ const Auth = () => {
           <Card className="shadow-lg border bg-white">
             <CardHeader className="space-y-1 text-center">
               <Building className="h-8 w-8 mx-auto text-orange-500 mb-2" />
-              <CardTitle className="text-2xl text-gray-900">Acesso Corporativo</CardTitle>
+              <CardTitle className="text-2xl text-gray-900">Login</CardTitle>
               <p className="text-sm text-gray-600">
-                Apenas funcionários autorizados podem acessar
+                Acesse sua conta do sistema
               </p>
             </CardHeader>
             <CardContent>
               {!showInviteForm && !showForgotPassword ? <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Corporativo</Label>
+                    <Label htmlFor="email">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input id="email" type="email" placeholder="seu.email@empresa.com.br" value={loginData.email} onChange={e => setLoginData({
+                      <Input id="email" type="email" placeholder="seu.email@exemplo.com" value={loginData.email} onChange={e => setLoginData({
                     ...loginData,
                     email: e.target.value
                   })} className="pl-10 border-gray-300 focus:border-orange-500 focus:ring-orange-500" required />

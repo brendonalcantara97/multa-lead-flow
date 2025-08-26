@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { BarChart3, LogOut, FileText, Search, User, Shield, Settings } from "lucide-react";
+import { BarChart3, LogOut, FileText, Search, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Lead, CRM_COLUMNS, convertLeadFromDB } from "@/types/lead";
@@ -13,18 +13,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { getDaysFromDate } from "@/utils/leadUtils";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { useLeads } from "@/hooks/useLeads";
-import { UserManagement } from "@/components/UserManagement";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const CRM = () => {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [filterType, setFilterType] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<string>('leads');
   const navigate = useNavigate();
   
-  const { user, loading, signOut, authorizedUser, isAuthenticated, isAuthorized } = useSupabaseAuth();
+  const { user, loading, signOut, isAuthenticated } = useSupabaseAuth();
   const { leads: dbLeads, loading: leadsLoading, updateLeadStatus, updateLead } = useLeads();
   const { toast } = useToast();
 
@@ -35,11 +32,11 @@ const CRM = () => {
     // Only redirect after auth is fully initialized
     if (loading) return;
     
-    if (!isAuthenticated || !isAuthorized) {
-      console.log('CRM: Redirecting to auth - authenticated:', isAuthenticated, 'authorized:', isAuthorized);
+    if (!isAuthenticated) {
+      console.log('CRM: Redirecting to auth - authenticated:', isAuthenticated);
       navigate('/auth');
     }
-  }, [loading, isAuthenticated, isAuthorized, navigate]);
+  }, [loading, isAuthenticated, navigate]);
 
   useEffect(() => {
     if (leads.length > 0) {
@@ -73,7 +70,7 @@ const CRM = () => {
   }
 
   // Don't render if not authenticated (will redirect)
-  if (!isAuthenticated || !isAuthorized) {
+  if (!isAuthenticated) {
     return null;
   }
 
@@ -144,12 +141,7 @@ const CRM = () => {
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">CRM - SOS Multas</h1>
                 <p className="text-sm text-gray-600">
-                  Olá, {authorizedUser?.first_name || user?.user_metadata?.first_name || user?.email}
-                  {authorizedUser?.role && authorizedUser.role !== 'user' && (
-                    <span className="ml-2 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
-                      {authorizedUser.role}
-                    </span>
-                  )}
+                  Olá, {user?.user_metadata?.first_name || user?.email}
                 </p>
               </div>
             </div>
@@ -164,16 +156,6 @@ const CRM = () => {
               Dashboard
             </Button>
               
-              {authorizedUser?.role === 'admin' && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate('/crm/settings/users')}
-                  className="flex items-center gap-2"
-                >
-                  <Settings className="h-4 w-4" />
-                  Gerenciar Usuários
-                </Button>
-              )}
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -198,130 +180,111 @@ const CRM = () => {
       </header>
 
       <div className="p-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="leads" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Gestão de Leads
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Usuários Autorizados
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="leads">
-            {/* Estatísticas */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-              {CRM_COLUMNS.map((column) => {
-                const count = getLeadsByStatus(column.id).length;
-                return (
-                  <Card key={column.id}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">{column.title}</p>
-                          <p className="text-2xl font-bold text-gray-900">{count}</p>
-                        </div>
-                        <div className={`p-3 rounded-full ${column.bgColor}`}>
-                          <column.icon className={`h-6 w-6 ${column.textColor}`} />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-
-            {/* Filtros */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Buscar por nome, email ou telefone..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              >
-                <option value="all">Todos os tipos de multa</option>
-                <option value="excesso-velocidade">Excesso de Velocidade</option>
-                <option value="excesso-pontos">Excesso de Pontos</option>
-                <option value="bafometro">Bafômetro</option>
-                <option value="suspensao-cnh">Suspensão da CNH</option>
-                <option value="cassacao-cnh">Cassação da CNH</option>
-              </select>
-            </div>
-
-            {/* Kanban Board */}
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {CRM_COLUMNS.map((column) => {
-                  const columnLeads = getLeadsByStatus(column.id);
-                  
-                  return (
-                    <div key={column.id} className="bg-gray-100 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-                          <column.icon className={`h-5 w-5 ${column.textColor}`} />
-                          {column.title}
-                        </h3>
-                        <span className="bg-white px-2 py-1 rounded-full text-sm font-medium">
-                          {columnLeads.length}
-                        </span>
-                      </div>
-                      
-                      <Droppable droppableId={column.id}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.droppableProps}
-                            className={`space-y-3 min-h-[200px] ${
-                              snapshot.isDraggingOver ? 'bg-blue-50 border-2 border-blue-200 border-dashed rounded-lg' : ''
-                            }`}
-                          >
-                            {columnLeads.map((lead, index) => (
-                              <Draggable key={lead.id} draggableId={lead.id.toString()} index={index}>
-                                {(provided, snapshot) => (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    className={snapshot.isDragging ? 'rotate-3 scale-105' : ''}
-                                  >
-                                    <LeadCard 
-                                      lead={lead} 
-                                      onViewDetails={() => handleLeadClick(lead)}
-                                      onStatusChange={updateLeadStatus}
-                                      columns={CRM_COLUMNS}
-                                    />
-                                  </div>
-                                )}
-                              </Draggable>
-                            ))}
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
+        {/* Estatísticas */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          {CRM_COLUMNS.map((column) => {
+            const count = getLeadsByStatus(column.id).length;
+            return (
+              <Card key={column.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">{column.title}</p>
+                      <p className="text-2xl font-bold text-gray-900">{count}</p>
                     </div>
-                  );
-                })}
-              </div>
-            </DragDropContext>
-          </TabsContent>
+                    <div className={`p-3 rounded-full ${column.bgColor}`}>
+                      <column.icon className={`h-6 w-6 ${column.textColor}`} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
 
-          <TabsContent value="users">
-            <UserManagement />
-          </TabsContent>
-        </Tabs>
+        {/* Filtros */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Buscar por nome, email ou telefone..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+          
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          >
+            <option value="all">Todos os tipos de multa</option>
+            <option value="excesso-velocidade">Excesso de Velocidade</option>
+            <option value="excesso-pontos">Excesso de Pontos</option>
+            <option value="bafometro">Bafômetro</option>
+            <option value="suspensao-cnh">Suspensão da CNH</option>
+            <option value="cassacao-cnh">Cassação da CNH</option>
+          </select>
+        </div>
+
+        {/* Kanban Board */}
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {CRM_COLUMNS.map((column) => {
+              const columnLeads = getLeadsByStatus(column.id);
+              
+              return (
+                <div key={column.id} className="bg-gray-100 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                      <column.icon className={`h-5 w-5 ${column.textColor}`} />
+                      {column.title}
+                    </h3>
+                    <span className="bg-white px-2 py-1 rounded-full text-sm font-medium">
+                      {columnLeads.length}
+                    </span>
+                  </div>
+                  
+                  <Droppable droppableId={column.id}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`space-y-3 min-h-[200px] ${
+                          snapshot.isDraggingOver ? 'bg-blue-50 border-2 border-blue-200 border-dashed rounded-lg' : ''
+                        }`}
+                      >
+                        {columnLeads.map((lead, index) => (
+                          <Draggable key={lead.id} draggableId={lead.id.toString()} index={index}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={snapshot.isDragging ? 'rotate-3 scale-105' : ''}
+                              >
+                                <LeadCard 
+                                  lead={lead} 
+                                  onViewDetails={() => handleLeadClick(lead)}
+                                  onStatusChange={updateLeadStatus}
+                                  columns={CRM_COLUMNS}
+                                />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              );
+            })}
+          </div>
+        </DragDropContext>
       </div>
 
       {/* Modal de edição */}

@@ -35,17 +35,17 @@ const UserManagement = () => {
   });
   
   const navigate = useNavigate();
-  const { isAuthorized, authorizedUser } = useSupabaseAuth();
+  const { isAuthenticated } = useSupabaseAuth();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!isAuthorized || !authorizedUser || authorizedUser.role !== 'admin') {
+    if (!isAuthenticated) {
       navigate('/crm');
       return;
     }
     
     fetchUsers();
-  }, [isAuthorized, authorizedUser, navigate]);
+  }, [isAuthenticated, navigate]);
 
   const fetchUsers = async () => {
     try {
