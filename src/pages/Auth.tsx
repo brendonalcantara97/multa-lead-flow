@@ -18,17 +18,21 @@ const Auth = () => {
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
   
   const navigate = useNavigate();
-  const { user, loading, authorizedUser, isAuthorized } = useSupabaseAuth();
+  const { user, loading, authorizedUser, isAuthorized, needsPasswordReset } = useSupabaseAuth();
 
   // Redirect if already logged in
   useEffect(() => {
     if (!loading && user && isAuthorized) {
-      navigate('/crm');
+      if (needsPasswordReset) {
+        navigate('/auth/reset-password-force');
+      } else {
+        navigate('/crm');
+      }
     } else if (!loading && user && !isAuthorized) {
       // Usuário logado mas não autorizado
       toast.error('Acesso não autorizado. Entre em contato com o administrador.');
     }
-  }, [user, loading, isAuthorized, navigate]);
+  }, [user, loading, isAuthorized, needsPasswordReset, navigate]);
 
   // Verificar se email está autorizado
   const checkEmailAuthorization = async (email: string) => {
