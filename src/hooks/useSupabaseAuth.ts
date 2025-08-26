@@ -16,6 +16,7 @@ export const useSupabaseAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [authorizedUser, setAuthorizedUser] = useState<AuthorizedUser | null>(null);
+  const [needsPasswordReset, setNeedsPasswordReset] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Verificar se usuário está autorizado
@@ -57,6 +58,10 @@ export const useSupabaseAuth = () => {
           if (authorized) {
             setAuthorizedUser(authorized);
             
+            // Verificar se precisa redefinir senha
+            const isTemporaryPassword = session.user.user_metadata?.is_temp_password === true;
+            setNeedsPasswordReset(isTemporaryPassword);
+            
             // Atualizar status has_account se necessário
             if (!authorized.has_account) {
               await supabase
@@ -67,11 +72,13 @@ export const useSupabaseAuth = () => {
           } else {
             // Usuário não autorizado - fazer logout
             setAuthorizedUser(null);
+            setNeedsPasswordReset(false);
             await supabase.auth.signOut();
             console.warn('Usuário não autorizado tentou acessar o sistema');
           }
         } else {
           setAuthorizedUser(null);
+          setNeedsPasswordReset(false);
         }
         
         setLoading(false);
@@ -89,6 +96,10 @@ export const useSupabaseAuth = () => {
         if (authorized) {
           setAuthorizedUser(authorized);
           
+          // Verificar se precisa redefinir senha
+          const isTemporaryPassword = session.user.user_metadata?.is_temp_password === true;
+          setNeedsPasswordReset(isTemporaryPassword);
+          
           // Atualizar status has_account se necessário
           if (!authorized.has_account) {
             await supabase
@@ -99,8 +110,11 @@ export const useSupabaseAuth = () => {
         } else {
           // Usuário não autorizado - fazer logout
           setAuthorizedUser(null);
+          setNeedsPasswordReset(false);
           await supabase.auth.signOut();
         }
+      } else {
+        setNeedsPasswordReset(false);
       }
       
       setLoading(false);
@@ -119,6 +133,7 @@ export const useSupabaseAuth = () => {
     user,
     session,
     authorizedUser,
+    needsPasswordReset,
     loading,
     signOut,
     isAuthenticated: !!user && !!authorizedUser,
