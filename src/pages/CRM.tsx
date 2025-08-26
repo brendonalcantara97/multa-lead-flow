@@ -182,10 +182,6 @@ const CRM = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    Dashboard
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="h-4 w-4 mr-2" />
                     Sair
