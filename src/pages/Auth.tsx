@@ -27,11 +27,12 @@ const Auth = () => {
     needsPasswordReset
   } = useSupabaseAuth();
 
-  // Check for password recovery link
+  // Check for password recovery link and invite link
   useEffect(() => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const accessToken = hashParams.get('access_token');
     const type = hashParams.get('type');
+    
     if (type === 'recovery' && accessToken) {
       // User came from password recovery email link
       // Set the session first, then navigate
@@ -39,6 +40,20 @@ const Auth = () => {
         access_token: accessToken,
         refresh_token: hashParams.get('refresh_token') || ''
       }).then(() => {
+        navigate('/auth/reset-password-force');
+      });
+      return;
+    }
+    
+    if (type === 'invite' && accessToken) {
+      // User came from invitation email link
+      console.log('Processing invite link with token:', accessToken);
+      // Set the session first
+      supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: hashParams.get('refresh_token') || ''
+      }).then(() => {
+        // For invites, redirect to password reset to set initial password
         navigate('/auth/reset-password-force');
       });
       return;
