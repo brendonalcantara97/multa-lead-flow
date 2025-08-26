@@ -32,17 +32,13 @@ const CRM = () => {
   const leads = dbLeads.map(convertLeadFromDB);
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      navigate('/auth');
-    } else if (!authLoading && user && !isAuthorized) {
-      toast({
-        title: "Erro",
-        description: "Acesso não autorizado. Entre em contato com o administrador.",
-        variant: "destructive",
-      });
+    if (authLoading) return; // Wait for auth to load
+    
+    if (!user || !isAuthenticated || !isAuthorized) {
+      console.log('CRM: User not authenticated/authorized, redirecting to auth');
       navigate('/auth');
     }
-  }, [user, authLoading, isAuthenticated, isAuthorized, navigate, toast]);
+  }, [authLoading, user, isAuthenticated, isAuthorized, navigate]);
 
   useEffect(() => {
     if (leads.length > 0) {
@@ -66,15 +62,17 @@ const CRM = () => {
     navigate('/auth');
   };
 
-  if (authLoading || leadsLoading) {
+  // Show loading while auth is being checked
+  if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
       </div>
     );
   }
 
-  if (!user) {
+  // Don't render anything if not authenticated (will redirect)
+  if (!user || !isAuthenticated || !isAuthorized) {
     return null;
   }
 
