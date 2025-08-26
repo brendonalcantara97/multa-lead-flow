@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { BarChart3, LogOut, FileText, Search, User, Shield } from "lucide-react";
-import { toast } from "sonner";
+import { BarChart3, LogOut, FileText, Search, User, Shield, Settings } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Lead, CRM_COLUMNS, convertLeadFromDB } from "@/types/lead";
 import { LeadCard } from "@/components/LeadCard";
@@ -26,6 +26,7 @@ const CRM = () => {
   
   const { user, loading: authLoading, signOut, authorizedUser, isAuthenticated, isAuthorized } = useSupabaseAuth();
   const { leads: dbLeads, loading: leadsLoading, updateLeadStatus, updateLead } = useLeads();
+  const { toast } = useToast();
 
   // Convert DB leads to frontend format
   const leads = dbLeads.map(convertLeadFromDB);
@@ -34,10 +35,14 @@ const CRM = () => {
     if (!authLoading && !isAuthenticated) {
       navigate('/auth');
     } else if (!authLoading && user && !isAuthorized) {
-      toast.error('Acesso não autorizado. Entre em contato com o administrador.');
+      toast({
+        title: "Erro",
+        description: "Acesso não autorizado. Entre em contato com o administrador.",
+        variant: "destructive",
+      });
       navigate('/auth');
     }
-  }, [user, authLoading, isAuthenticated, isAuthorized, navigate]);
+  }, [user, authLoading, isAuthenticated, isAuthorized, navigate, toast]);
 
   useEffect(() => {
     if (leads.length > 0) {
@@ -47,10 +52,14 @@ const CRM = () => {
         getDaysFromDate(l.lastMovedAt || l.createdAt) >= 3
       );
       if (followUps.length > 0) {
-        toast.warning(`Há ${followUps.length} lead(s) aguardando follow-up há 3+ dias em Novo Lead.`);
+        toast({
+          title: "Aviso",
+          description: `Há ${followUps.length} lead(s) aguardando follow-up há 3+ dias em Novo Lead.`,
+          variant: "default",
+        });
       }
     }
-  }, [leads]);
+  }, [leads, toast]);
 
   const handleLogout = async () => {
     await signOut();
@@ -155,6 +164,17 @@ const CRM = () => {
                 <FileText className="h-4 w-4" />
                 Ir para Site
               </Button>
+              
+              {authorizedUser?.role === 'admin' && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/crm/settings/users')}
+                  className="flex items-center gap-2"
+                >
+                  <Settings className="h-4 w-4" />
+                  Gerenciar Usuários
+                </Button>
+              )}
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
