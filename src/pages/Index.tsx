@@ -39,6 +39,9 @@ const mapViolationTypeToEnum = (violationType: string) => {
   
   return mapping[violationType] || 'outra';
 };
+// Número do WhatsApp da empresa
+const COMPANY_WHATSAPP = "555133077772";
+
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useSupabaseAuth();
@@ -207,10 +210,8 @@ const Index = () => {
 
       // Redirecionar para WhatsApp após 2 segundos
       setTimeout(() => {
-        const phoneDigits = formData.phone.replace(/\D/g, '');
-        const whatsappPhone = `55${phoneDigits}`;
-        const message = encodeURIComponent("Olá! Preenchi o formulário no site da SOS Multas e gostaria de receber ajuda com a minha multa.");
-        window.open(`https://wa.me/${whatsappPhone}?text=${message}`, '_blank');
+        const message = encodeURIComponent(`Olá! Preenchi o formulário no site da SOS Multas e gostaria de receber ajuda com a minha multa. Meus dados: Nome: ${formData.name}, Email: ${formData.email}, Telefone: ${formData.phone}.`);
+        window.open(`https://wa.me/${COMPANY_WHATSAPP}?text=${message}`, '_blank');
       }, 2000);
 
       // Limpar formulário
@@ -305,10 +306,8 @@ const Index = () => {
       // Fechar dialog e redirecionar
       setIsWhatsappDialogOpen(false);
       setTimeout(() => {
-        const phoneDigits = whatsappFormData.phone.replace(/\D/g, '');
-        const whatsappPhone = `55${phoneDigits}`;
-        const message = encodeURIComponent(`Olá! Meu nome é ${whatsappFormData.name}. Tenho uma dúvida sobre uma multa${whatsappFormData.violationType ? ` por ${whatsappFormData.violationType}` : ''}. Poderiam me ajudar?`);
-        window.open(`https://wa.me/${whatsappPhone}?text=${message}`, '_blank');
+        const message = encodeURIComponent(`Olá! Meu nome é ${whatsappFormData.name}. Tenho uma dúvida sobre uma multa${whatsappFormData.violationType ? ` por ${whatsappFormData.violationType}` : ''}. Meus dados: Email: ${whatsappFormData.email}, Telefone: ${whatsappFormData.phone}. Poderiam me ajudar?`);
+        window.open(`https://wa.me/${COMPANY_WHATSAPP}?text=${message}`, '_blank');
       }, 1000);
 
       // Limpar formulário
