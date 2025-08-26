@@ -1,70 +1,193 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
-import { BarChart3, LogOut, FileText, Search, User, Shield, Settings } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { Lead, CRM_COLUMNS, convertLeadFromDB } from "@/types/lead";
-import { LeadCard } from "@/components/LeadCard";
-import { LeadModal } from "@/components/LeadModal";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { getDaysFromDate } from "@/utils/leadUtils";
+import { Label } from "@/components/ui/label";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Mail, Lock, LogIn, ArrowLeft, Building } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
-import { useLeads } from "@/hooks/useLeads";
-import { UserManagement } from "@/components/UserManagement";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const CRM = () => {
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [filterType, setFilterType] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<string>('leads');
+const Auth = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+
+  // Flag que indica que estamos processando link de recovery/invite (evita corridas)
+  const [handlingLink, setHandlingLink] = useState(false);
+  // Evita múltiplas navegações no mesmo ciclo
+  const navigatedRef = useRef(false);
+
   const navigate = useNavigate();
-  
-  const { user, loading, signOut, authorizedUser, isAuthenticated, isAuthorized } = useSupabaseAuth();
-  const { leads: dbLeads, loading: leadsLoading, updateLeadStatus, updateLead } = useLeads();
-  const { toast } = useToast();
+  const location = useLocation();
 
-  // Convert DB leads to frontend format
-  const leads = dbLeads.map(convertLeadFromDB);
+  const {
+    user,
+    loading,
+    authorizedUser,
+    isAuthorized,
+    needsPasswordReset,
+  } = useSupabaseAuth();
 
+  // 1) Processa hash do Supabase (#access_token...) para recovery/invite, seta sessão e redireciona
   useEffect(() => {
-    // Only redirect after auth is fully initialized
-    if (loading) return;
-    
-    if (!isAuthenticated || !isAuthorized) {
-      console.log('CRM: Redirecting to auth - authenticated:', isAuthenticated, 'authorized:', isAuthorized);
-      navigate('/auth');
+    // Se já processamos manualmente (forçar navegação única)
+    if (navigatedRef.current) return;
+
+    const hashStr = window.location.hash?.substring(1) ?? "";
+    if (!hashStr) return;
+
+    const hashParams = new URLSearchParams(hashStr);
+    const accessToken = hashParams.get("access_token");
+    const refreshToken = hashParams.get("refresh_token") || "";
+    const type = hashParams.get("type");
+
+    if (accessToken && (type === "recovery" || type === "invite")) {
+      setHandlingLink(true);
+
+      // Seta sessão antes de navegar
+      supabase.auth
+        .setSession({ access_token: accessToken, refresh_token: refreshToken })
+        .then(({ error }) => {
+          if (error) {
+            console.error("Erro ao setar sessão:", error);
+            toast.error("Link inválido ou expirado. Faça login novamente.");
+            navigatedRef.current = true;
+            navigate("/auth", { replace: true });
+            return;
+          }
+
+          // Limpa o hash para não reprocessar em refresh/back
+          history.replaceState(null, "", location.pathname + location.search);
+
+          // Para convites e recuperação, forçamos reset de senha
+          navigatedRef.current = true;
+          navigate("/auth/reset-password-force", { replace: true });
+        })
+        .finally(() => setHandlingLink(false));
     }
-  }, [loading, isAuthenticated, isAuthorized, navigate]);
+  }, [location.pathname, location.search, navigate]);
 
+  // 2) Pós-login: só navega quando não estamos processando link e quando auth está resolvido
   useEffect(() => {
-    if (leads.length > 0) {
-      // alerta de follow-up para Novo Lead parado >=3 dias
-      const followUps = leads.filter((l: Lead) => 
-        l.status === 'novo-lead' && 
-        getDaysFromDate(l.lastMovedAt || l.createdAt) >= 3
-      );
-      if (followUps.length > 0) {
-        toast({
-          title: "Aviso",
-          description: `Há ${followUps.length} lead(s) aguardando follow-up há 3+ dias em Novo Lead.`,
-          variant: "default",
-        });
+    if (navigatedRef.current) return; // já navegamos por outro fluxo
+    if (handlingLink) return;         // aguardando fluxo de recovery/invite
+    if (loading) return;              // ainda carregando sessão/authorized
+
+    if (user && isAuthorized) {
+      if (needsPasswordReset) {
+        navigatedRef.current = true;
+        navigate("/auth/reset-password-force", { replace: true });
+      } else {
+        navigatedRef.current = true;
+        navigate("/crm", { replace: true });
       }
+    } else if (user && !isAuthorized) {
+      // Usuário logado mas não constando na whitelist/is_active
+      toast.error("Acesso não autorizado. Entre em contato com o administrador.");
+      // Não faz signOut automático aqui para evitar corrida; deixa o usuário decidir
     }
-  }, [leads, toast]);
+  }, [user, loading, isAuthorized, needsPasswordReset, handlingLink, navigate]);
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/auth');
+  // 3) Verificação de whitelist (antes de tentar login/reset)
+  const checkEmailAuthorization = async (email: string) => {
+    const { data, error } = await supabase
+      .from("authorized_emails")
+      .select("*")
+      .eq("email", email.toLowerCase())
+      .eq("is_active", true);
+
+    if (error) {
+      console.error("Error checking authorization:", error);
+      return null;
+    }
+    if (!data || data.length === 0) return null;
+    return data[0];
   };
 
-  // Show loading while auth is being initialized
-  if (loading) {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const authorizedEmail = await checkEmailAuthorization(loginData.email);
+      if (!authorizedEmail) {
+        throw new Error("Email não autorizado. Entre em contato com o administrador.");
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginData.email,
+        password: loginData.password,
+      });
+      if (error) {
+        if (error.message?.includes("Invalid login credentials")) {
+          throw new Error("Email ou senha incorretos");
+        }
+        throw error;
+      }
+      toast.success("Login realizado com sucesso!");
+      // Não navega aqui — deixa o effect central decidir (evita corrida)
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast.error(error.message || "Erro no login");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInviteRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      toast.info(
+        `Solicitação de acesso enviada para ${inviteEmail}. Aguarde aprovação do administrador.`
+      );
+      setInviteEmail("");
+      setShowInviteForm(false);
+    } catch {
+      toast.error("Erro ao enviar solicitação");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const authorizedEmail = await checkEmailAuthorization(forgotPasswordEmail);
+      if (!authorizedEmail) {
+        throw new Error("Email não autorizado. Entre em contato com o administrador.");
+      }
+
+      const currentOrigin = window.location.origin;
+      const redirectTo = `${currentOrigin}/auth/reset-password-force`;
+
+      const { error } = await supabase.auth.resetPasswordForEmail(
+        forgotPasswordEmail,
+        { redirectTo }
+      );
+      if (error) {
+        console.error("Supabase reset error:", error);
+        throw error;
+      }
+      toast.success(
+        `Email de redefinição de senha enviado para ${forgotPasswordEmail}. Verifique sua caixa de entrada.`
+      );
+      setForgotPasswordEmail("");
+      setShowForgotPassword(false);
+    } catch (error: any) {
+      console.error("Forgot password error:", error);
+      toast.error(error.message || "Erro ao enviar email de redefinição");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (loading || handlingLink) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
@@ -72,271 +195,220 @@ const CRM = () => {
     );
   }
 
-  // Don't render if not authenticated (will redirect)
-  if (!isAuthenticated || !isAuthorized) {
-    return null;
-  }
-
-  const handleDragEnd = (result: any) => {
-    if (!result.destination) return;
-
-    const { source, destination, draggableId } = result;
-    
-    if (source.droppableId === destination.droppableId) return;
-
-    const leadId = draggableId;
-    const newStatus = destination.droppableId;
-    
-    updateLeadStatus(leadId, newStatus);
-  };
-
-  const handleLeadClick = (lead: Lead) => {
-    setSelectedLead(lead);
-    setIsEditModalOpen(true);
-  };
-
-  const handleSaveLead = (updatedLead: Lead) => {
-    const updates = {
-      name: updatedLead.name,
-      email: updatedLead.email,
-      phone: updatedLead.phone,
-      violation_type: updatedLead.violationType,
-      observations: updatedLead.observations,
-      amount: updatedLead.amount,
-      payment_method: updatedLead.paymentMethod,
-      rejection_reason: updatedLead.rejectionReason,
-      tags: updatedLead.tags,
-      cnh_at_risk: updatedLead.cnhAtRisk,
-      appealed_before: updatedLead.appealedBefore,
-      urgency: updatedLead.urgency,
-    };
-    
-    updateLead(updatedLead.id, updates);
-  };
-
-  const getLeadsByStatus = (status: string) => {
-    let filteredLeads = leads.filter(lead => lead.status === status);
-    if (filterType !== 'all') {
-      filteredLeads = filteredLeads.filter(lead => lead.violationType === filterType);
-    }
-    if (searchTerm.trim()) {
-      const q = searchTerm.trim().toLowerCase();
-      filteredLeads = filteredLeads.filter(lead =>
-        lead.name.toLowerCase().includes(q) || 
-        lead.email?.toLowerCase().includes(q) ||
-        lead.phone.replace(/\D/g, '').includes(q.replace(/\D/g, ''))
-      );
-    }
-    return filteredLeads;
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header similar ao CRM */}
       <header className="bg-white shadow-sm border-b">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img 
-                src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png" 
-                alt="SOS Multas" 
+              <img
+                src="/lovable-uploads/a07a1208-5b54-4395-9bc1-66dd1b69b39d.png"
+                alt="SOS Multas"
                 className="h-10"
               />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">CRM - SOS Multas</h1>
-                <p className="text-sm text-gray-600">
-                  Olá, {authorizedUser?.first_name || user?.user_metadata?.first_name || user?.email}
-                  {authorizedUser?.role && authorizedUser.role !== 'user' && (
-                    <span className="ml-2 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
-                      {authorizedUser.role}
-                    </span>
-                  )}
-                </p>
-              </div>
+              <div></div>
             </div>
-            
-            <div className="flex items-center gap-4">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/dashboard')}
-              className="flex items-center gap-2"
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/")}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
             >
-              <BarChart3 className="h-4 w-4" />
-              Dashboard
+              <ArrowLeft className="h-4 w-4" />
+              Voltar ao site
             </Button>
-              
-              {authorizedUser?.role === 'admin' && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate('/crm/settings/users')}
-                  className="flex items-center gap-2"
-                >
-                  <Settings className="h-4 w-4" />
-                  Gerenciar Usuários
-                </Button>
-              )}
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <User className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    Dashboard
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sair
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
           </div>
         </div>
       </header>
 
-      <div className="p-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="leads" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Gestão de Leads
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Usuários Autorizados
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="leads">
-            {/* Estatísticas */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-              {CRM_COLUMNS.map((column) => {
-                const count = getLeadsByStatus(column.id).length;
-                return (
-                  <Card key={column.id}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">{column.title}</p>
-                          <p className="text-2xl font-bold text-gray-900">{count}</p>
-                        </div>
-                        <div className={`p-3 rounded-full ${column.bgColor}`}>
-                          <column.icon className={`h-6 w-6 ${column.textColor}`} />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-
-            {/* Filtros */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Buscar por nome, email ou telefone..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              >
-                <option value="all">Todos os tipos de multa</option>
-                <option value="excesso-velocidade">Excesso de Velocidade</option>
-                <option value="excesso-pontos">Excesso de Pontos</option>
-                <option value="bafometro">Bafômetro</option>
-                <option value="suspensao-cnh">Suspensão da CNH</option>
-                <option value="cassacao-cnh">Cassação da CNH</option>
-              </select>
-            </div>
-
-            {/* Kanban Board */}
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {CRM_COLUMNS.map((column) => {
-                  const columnLeads = getLeadsByStatus(column.id);
-                  
-                  return (
-                    <div key={column.id} className="bg-gray-100 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-                          <column.icon className={`h-5 w-5 ${column.textColor}`} />
-                          {column.title}
-                        </h3>
-                        <span className="bg-white px-2 py-1 rounded-full text-sm font-medium">
-                          {columnLeads.length}
-                        </span>
-                      </div>
-                      
-                      <Droppable droppableId={column.id}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.droppableProps}
-                            className={`space-y-3 min-h-[200px] ${
-                              snapshot.isDraggingOver ? 'bg-blue-50 border-2 border-blue-200 border-dashed rounded-lg' : ''
-                            }`}
-                          >
-                            {columnLeads.map((lead, index) => (
-                              <Draggable key={lead.id} draggableId={lead.id.toString()} index={index}>
-                                {(provided, snapshot) => (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    className={snapshot.isDragging ? 'rotate-3 scale-105' : ''}
-                                  >
-                                    <LeadCard 
-                                      lead={lead} 
-                                      onViewDetails={() => handleLeadClick(lead)}
-                                      onStatusChange={updateLeadStatus}
-                                      columns={CRM_COLUMNS}
-                                    />
-                                  </div>
-                                )}
-                              </Draggable>
-                            ))}
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
+      <div className="flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          <Card className="shadow-lg border bg-white">
+            <CardHeader className="space-y-1 text-center">
+              <Building className="h-8 w-8 mx-auto text-orange-500 mb-2" />
+              <CardTitle className="text-2xl text-gray-900">
+                Acesso Corporativo
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                Apenas funcionários autorizados podem acessar
+              </p>
+            </CardHeader>
+            <CardContent>
+              {!showInviteForm && !showForgotPassword ? (
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Corporativo</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="seu.email@empresa.com.br"
+                        value={loginData.email}
+                        onChange={(e) =>
+                          setLoginData({ ...loginData, email: e.target.value })
+                        }
+                        className="pl-10 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                        required
+                      />
                     </div>
-                  );
-                })}
-              </div>
-            </DragDropContext>
-          </TabsContent>
+                  </div>
 
-          <TabsContent value="users">
-            <UserManagement />
-          </TabsContent>
-        </Tabs>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Senha</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="Sua senha"
+                        value={loginData.password}
+                        onChange={(e) =>
+                          setLoginData({ ...loginData, password: e.target.value })
+                        }
+                        className="pl-10 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    ) : (
+                      <LogIn className="h-4 w-4 mr-2" />
+                    )}
+                    Entrar no Sistema
+                  </Button>
+
+                  <div className="text-center pt-4 space-y-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowForgotPassword(true)}
+                      className="text-sm text-gray-600 hover:text-orange-600 block w-full"
+                    >
+                      Esqueci minha senha
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowInviteForm(true)}
+                      className="text-sm text-gray-600 hover:text-orange-600"
+                    >
+                      Não tem acesso? Solicitar convite
+                    </Button>
+                  </div>
+                </form>
+              ) : showForgotPassword ? (
+                <div className="space-y-4">
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Redefinir Senha
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Informe seu email para receber instruções de redefinição
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="forgotEmail">Seu Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="forgotEmail"
+                          type="email"
+                          placeholder="seu.email@empresa.com.br"
+                          value={forgotPasswordEmail}
+                          onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                          className="pl-10 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Enviando..." : "Enviar Email de Redefinição"}
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowForgotPassword(false)}
+                      className="w-full text-gray-600 hover:text-gray-900"
+                    >
+                      Voltar ao Login
+                    </Button>
+                  </form>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Solicitar Acesso
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Informe seu email para solicitar acesso ao sistema
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleInviteRequest} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="inviteEmail">Seu Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="inviteEmail"
+                          type="email"
+                          placeholder="seu.email@empresa.com.br"
+                          value={inviteEmail}
+                          onChange={(e) => setInviteEmail(e.target.value)}
+                          className="pl-10 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Enviando..." : "Solicitar Acesso"}
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowInviteForm(false)}
+                      className="w-full text-gray-600 hover:text-gray-900"
+                    >
+                      Voltar ao Login
+                    </Button>
+                  </form>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="text-center mt-6">
+            <p className="text-xs text-gray-500">
+              Sistema restrito aos funcionários da SOS Multas
+            </p>
+          </div>
+        </div>
       </div>
-
-      {/* Modal de edição */}
-      <LeadModal
-        lead={selectedLead}
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setSelectedLead(null);
-        }}
-        onSave={handleSaveLead}
-        columns={CRM_COLUMNS}
-      />
     </div>
   );
 };
 
-export default CRM;
+export default Auth;
