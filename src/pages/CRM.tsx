@@ -24,7 +24,7 @@ const CRM = () => {
   const [activeTab, setActiveTab] = useState<string>('leads');
   const navigate = useNavigate();
   
-  const { user, loading: authLoading, signOut, authorizedUser, isAuthenticated, isAuthorized } = useSupabaseAuth();
+  const { user, loading, signOut, authorizedUser, isAuthenticated, isAuthorized } = useSupabaseAuth();
   const { leads: dbLeads, loading: leadsLoading, updateLeadStatus, updateLead } = useLeads();
   const { toast } = useToast();
 
@@ -32,13 +32,14 @@ const CRM = () => {
   const leads = dbLeads.map(convertLeadFromDB);
 
   useEffect(() => {
-    if (authLoading) return; // Wait for auth to load
+    // Only redirect after auth is fully initialized
+    if (loading) return;
     
-    if (!user || !isAuthenticated || !isAuthorized) {
-      console.log('CRM: User not authenticated/authorized, redirecting to auth');
+    if (!isAuthenticated || !isAuthorized) {
+      console.log('CRM: Redirecting to auth - authenticated:', isAuthenticated, 'authorized:', isAuthorized);
       navigate('/auth');
     }
-  }, [authLoading, user, isAuthenticated, isAuthorized, navigate]);
+  }, [loading, isAuthenticated, isAuthorized, navigate]);
 
   useEffect(() => {
     if (leads.length > 0) {
@@ -62,8 +63,8 @@ const CRM = () => {
     navigate('/auth');
   };
 
-  // Show loading while auth is being checked
-  if (authLoading) {
+  // Show loading while auth is being initialized
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
@@ -71,8 +72,8 @@ const CRM = () => {
     );
   }
 
-  // Don't render anything if not authenticated (will redirect)
-  if (!user || !isAuthenticated || !isAuthorized) {
+  // Don't render if not authenticated (will redirect)
+  if (!isAuthenticated || !isAuthorized) {
     return null;
   }
 

@@ -18,6 +18,7 @@ export const useSupabaseAuth = () => {
   const [authorizedUser, setAuthorizedUser] = useState<AuthorizedUser | null>(null);
   const [needsPasswordReset, setNeedsPasswordReset] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
 
   // Verificar se usuário está autorizado
   const checkUserAuthorization = async (email: string): Promise<AuthorizedUser | null> => {
@@ -26,137 +27,87 @@ export const useSupabaseAuth = () => {
         .from('authorized_emails')
         .select('*')
         .eq('email', email.toLowerCase())
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .single();
 
-      if (error) {
-        console.error('Error checking user authorization:', error);
+      if (error || !data) {
+        console.log('User not found in authorized_emails:', email);
         return null;
       }
 
-      if (!data || data.length === 0) {
-        return null;
-      }
-
-      return data[0] as AuthorizedUser;
+      return data as AuthorizedUser;
     } catch (error) {
       console.error('Error checking user authorization:', error);
       return null;
     }
   };
 
+  // Handle auth state changes
+  const handleAuthState = async (session: Session | null) => {
+    console.log('Auth state change:', session ? 'logged in' : 'logged out');
+    
+    setSession(session);
+    setUser(session?.user ?? null);
+
+    if (session?.user?.email) {
+      try {
+        const authorized = await checkUserAuthorization(session.user.email);
+        
+        if (authorized) {
+          setAuthorizedUser(authorized);
+          
+          // Check if password reset is needed
+          const isTemporaryPassword = session.user.user_metadata?.is_temp_password === true;
+          setNeedsPasswordReset(isTemporaryPassword);
+          
+          // Update has_account status if needed
+          if (!authorized.has_account) {
+            supabase
+              .from('authorized_emails')
+              .update({ has_account: true })
+              .eq('email', session.user.email.toLowerCase())
+              .then(() => {
+                setAuthorizedUser(prev => prev ? { ...prev, has_account: true } : null);
+              });
+          }
+        } else {
+          // Unauthorized user - clear state and sign out
+          setAuthorizedUser(null);
+          setNeedsPasswordReset(false);
+          supabase.auth.signOut();
+          console.warn('Usuário não autorizado tentou acessar o sistema');
+        }
+      } catch (error) {
+        console.error('Error in auth state handler:', error);
+        setAuthorizedUser(null);
+        setNeedsPasswordReset(false);
+      }
+    } else {
+      setAuthorizedUser(null);
+      setNeedsPasswordReset(false);
+    }
+    
+    if (!initialized) {
+      setInitialized(true);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     let isMounted = true;
 
-    // Set up auth state listener FIRST
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (!isMounted) return;
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Handle authorization check asynchronously without blocking the callback
-        if (session?.user?.email) {
-          setTimeout(async () => {
-            if (!isMounted) return;
-            
-            try {
-              const authorized = await checkUserAuthorization(session.user.email);
-              
-              if (!isMounted) return;
-              
-              if (authorized) {
-                setAuthorizedUser(authorized);
-                
-                // Check if password reset is needed
-                const isTemporaryPassword = session.user.user_metadata?.is_temp_password === true;
-                setNeedsPasswordReset(isTemporaryPassword);
-                
-                // Update has_account status if needed
-                if (!authorized.has_account) {
-                  supabase
-                    .from('authorized_emails')
-                    .update({ has_account: true })
-                    .eq('email', session.user.email.toLowerCase())
-                    .then(() => {
-                      if (isMounted) {
-                        setAuthorizedUser(prev => prev ? { ...prev, has_account: true } : null);
-                      }
-                    });
-                }
-              } else {
-                // Unauthorized user - sign out
-                setAuthorizedUser(null);
-                setNeedsPasswordReset(false);
-                supabase.auth.signOut();
-                console.warn('Usuário não autorizado tentou acessar o sistema');
-              }
-            } catch (error) {
-              console.error('Error in auth state change:', error);
-              if (isMounted) {
-                setAuthorizedUser(null);
-                setNeedsPasswordReset(false);
-              }
-            }
-          }, 0);
-        } else {
-          setAuthorizedUser(null);
-          setNeedsPasswordReset(false);
-        }
-        
-        setLoading(false);
+        handleAuthState(session);
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
       if (!isMounted) return;
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user?.email) {
-        try {
-          const authorized = await checkUserAuthorization(session.user.email);
-          
-          if (!isMounted) return;
-          
-          if (authorized) {
-            setAuthorizedUser(authorized);
-            
-            // Check if password reset is needed
-            const isTemporaryPassword = session.user.user_metadata?.is_temp_password === true;
-            setNeedsPasswordReset(isTemporaryPassword);
-            
-            // Update has_account status if needed
-            if (!authorized.has_account) {
-              await supabase
-                .from('authorized_emails')
-                .update({ has_account: true })
-                .eq('email', session.user.email.toLowerCase());
-              
-              if (isMounted) {
-                setAuthorizedUser(prev => prev ? { ...prev, has_account: true } : null);
-              }
-            }
-          } else {
-            // Unauthorized user - sign out
-            setAuthorizedUser(null);
-            setNeedsPasswordReset(false);
-            await supabase.auth.signOut();
-          }
-        } catch (error) {
-          console.error('Error checking session:', error);
-          if (isMounted) {
-            setAuthorizedUser(null);
-            setNeedsPasswordReset(false);
-          }
-        }
-      }
-      
-      if (isMounted) {
-        setLoading(false);
-      }
+      handleAuthState(session);
     });
 
     return () => {
@@ -176,7 +127,7 @@ export const useSupabaseAuth = () => {
     session,
     authorizedUser,
     needsPasswordReset,
-    loading,
+    loading: loading || !initialized,
     signOut,
     isAuthenticated: !!user && !!authorizedUser,
     isAuthorized: !!authorizedUser
